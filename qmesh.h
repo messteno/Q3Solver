@@ -16,6 +16,7 @@ public:
 
     void resizeEvent(QResizeEvent *event);
     void paintEvent(QPaintEvent *event);
+    void wheelEvent(QWheelEvent *event);
     //void mouseMoveEvent(QMoveEvent *event);
     //void mouseReleaseEvent(QMouseEvent *event);
 
@@ -40,8 +41,16 @@ private:
 
 
     void updateScene();
+
+    QPointF sceneToMap(QPointF pos);
+    QPointF sceneToMap(qreal x, qreal y);
     qreal sceneToMapX (qreal x);
     qreal sceneToMapY (qreal y);
+
+    QPointF mapToScene(QPointF pos);
+    QPointF mapToScene(qreal x, qreal y);
+    qreal mapToSceneX (qreal x);
+    qreal mapToSceneY (qreal y);
 
     void drawAxes();
     void drawItems();

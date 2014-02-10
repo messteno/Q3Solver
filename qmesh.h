@@ -20,6 +20,10 @@ public:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *);
 
+    void setBackgroundColor(const QColor &color);
+    void setForegroundColor(const QColor &color);
+    void setPenColor(const QColor &color);
+
 signals:
 
 public slots:
@@ -38,20 +42,21 @@ private:
 
     QColor backgroundColor_;
     QColor foregroundColor_;
-
+    QColor penColor_;
 
     void updateScene();
 
-    QPointF sceneToMap(QPointF pos);
-    QPointF sceneToMap(qreal x, qreal y);
-    qreal sceneToMapX (qreal x);
-    qreal sceneToMapY (qreal y);
+    QPointF sceneToMap(const QPointF &pos) const;
+    QPointF sceneToMap(qreal x, qreal y) const;
+    qreal sceneToMapX (qreal x) const;
+    qreal sceneToMapY (qreal y) const;
 
-    QPointF mapToScene(QPointF pos);
-    QPointF mapToScene(qreal x, qreal y);
-    qreal mapToSceneX (qreal x);
-    qreal mapToSceneY (qreal y);
+    QPointF mapToScene(const QPointF &pos) const;
+    QPointF mapToScene(qreal x, qreal y) const;
+    qreal mapToSceneX (qreal x) const;
+    qreal mapToSceneY (qreal y) const;
 
+    void drawBackground();
     void drawAxes();
     void drawItems();
 };

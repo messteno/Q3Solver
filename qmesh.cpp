@@ -12,6 +12,7 @@ QMesh::QMesh(QWidget *parent) :
    scaleX_ = 1.;
    scaleY_ = -1.;
    setMouseTracking(true);
+   setBackgroundColor(QColor(0x00, 0x16, 0x1c));
 
    addItem(new QMeshRectItem(QRectF(-1, 1, 3, 3)));
 }
@@ -30,6 +31,7 @@ void QMesh::resizeEvent(QResizeEvent *event)
 
 void QMesh::paintEvent(QPaintEvent *event)
 {
+    drawBackground();
     drawAxes();
     drawItems();
 }
@@ -106,44 +108,52 @@ void QMesh::updateScene()
     dy_ = sceneToMapY (0);
 }
 
-QPointF QMesh::sceneToMap(QPointF pos)
+QPointF QMesh::sceneToMap(const QPointF &pos) const
 {
     return QPointF(sceneToMapX(pos.x()), sceneToMapY(pos.y()));
 }
 
-QPointF QMesh::sceneToMap(qreal x, qreal y)
+QPointF QMesh::sceneToMap(qreal x, qreal y) const
 {
     return QPointF(sceneToMapX(x), sceneToMapY(y));
 }
 
-qreal QMesh::sceneToMapX (qreal x)
+qreal QMesh::sceneToMapX (qreal x) const
 {
     return width() * (x - drawRect_.x()) / drawRect_.width();
 }
 
-qreal QMesh::sceneToMapY (qreal y)
+qreal QMesh::sceneToMapY (qreal y) const
 {
     return height() * (1. - (y - drawRect_.y()) / drawRect_.height());
 }
 
-QPointF QMesh::mapToScene(QPointF pos)
+QPointF QMesh::mapToScene(const QPointF &pos) const
 {
     return QPointF(mapToSceneX(pos.x()), mapToSceneY(pos.y()));
 }
 
-QPointF QMesh::mapToScene(qreal x, qreal y)
+QPointF QMesh::mapToScene(qreal x, qreal y) const
 {
     return QPointF(mapToSceneX(x), mapToSceneY(y));
 }
 
-qreal QMesh::mapToSceneX (qreal x)
+qreal QMesh::mapToSceneX (qreal x) const
 {
     return drawRect_.x() + drawRect_.width() * x / width();
 }
 
-qreal QMesh::mapToSceneY (qreal y)
+qreal QMesh::mapToSceneY (qreal y) const
 {
     return drawRect_.y() + drawRect_.height() * (height() - y) / height();
+}
+
+void QMesh::drawBackground()
+{
+    QPainter painter;
+    painter.begin(this);
+    painter.fillRect(QRectF(0, 0, width(), height()), backgroundColor_);
+    painter.end();
 }
 
 void QMesh::drawAxes()
@@ -165,4 +175,19 @@ void QMesh::drawItems()
         item->draw(painter, scaleX_, scaleY_);
     painter.restore();
     painter.end();
+}
+
+void QMesh::setBackgroundColor(const QColor &color)
+{
+    backgroundColor_ = color;
+}
+
+void QMesh::setForegroundColor(const QColor &color)
+{
+    foregroundColor_ = color;
+}
+
+void QMesh::setPenColor(const QColor &color)
+{
+    penColor_ = color;
 }

@@ -166,6 +166,61 @@ void QMesh::drawAxes()
     painter.setPen(QPen(axesColor_));
     painter.drawLine(0, sceneToMapY(0), width(), sceneToMapY(0));
     painter.drawLine(sceneToMapX(0), 0, sceneToMapX(0), height());
+
+    QColor auxAxesColor = axesColor_;
+    auxAxesColor.setAlpha(0x50);
+
+    double tickDx = pow (10, (int) (log(drawRect_.width()) / log(10.)));
+    double tickDy = pow (10, (int) (log(drawRect_.height()) / log(10.)));
+
+    int countTickX = ceil(drawRect_.width() / tickDx);
+    int countTickY = ceil(drawRect_.height() / tickDy);
+
+
+    while (countTickX < 6)
+    {
+        tickDx /= 2.;
+        countTickX = ceil(drawRect_.width() / tickDx);
+    }
+
+    while (countTickY < 6)
+    {
+        tickDy /= 2.;
+        countTickY = ceil(drawRect_.height() / tickDy);
+    }
+
+    if ((tickDx / tickDy < 5) && (tickDy / tickDx < 5))
+        tickDx = tickDy = qMin(tickDx, tickDy);
+
+    countTickX = ceil(drawRect_.width() / tickDx);
+    countTickY = ceil(drawRect_.height() / tickDy);
+
+    double xtick = ceil (drawRect_.x() / tickDx) * tickDx;
+    for (int i = 0; i < countTickX; i++)
+    {
+        if (fabs (xtick) > 1e-9)
+        {
+            painter.setPen(QPen(auxAxesColor, 1, Qt::DashLine));
+            painter.drawLine(sceneToMapX(xtick), 0, sceneToMapX(xtick), height());
+            painter.setPen(QPen(axesColor_));
+            painter.drawLine(sceneToMapX(xtick), height() - 10, sceneToMapX(xtick), height());
+        }
+        xtick += tickDx;
+    }
+
+    double ytick = ceil (drawRect_.y() / tickDy) * tickDy;
+    for (int i = 0; i < countTickY; i++)
+    {
+        if (fabs (ytick) > 1e-9)
+        {
+            painter.setPen(QPen(auxAxesColor, 1, Qt::DashLine));
+            painter.drawLine(0, sceneToMapY(ytick), width(), sceneToMapY(ytick));
+            painter.setPen(QPen(axesColor_));
+            painter.drawLine(0, sceneToMapY(ytick), 10, sceneToMapY(ytick));
+        }
+        ytick += tickDy;
+    }
+
     painter.end();
 }
 

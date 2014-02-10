@@ -16,5 +16,5 @@ void QMeshRectItem::draw(QPainter &painter, qreal scaleX, qreal scaleY)
     painter.setPen(pen);
     QRectF paintRect = QRectF(rect_.x() * scaleX, rect_.y() * scaleY,
                               rect_.width() * scaleX, rect_.height() * scaleY);
-    painter.fillRect(paintRect, QColor(0x00, 0x00, 0x00));
+    painter.fillRect(paintRect, painter.brush());
 }

@@ -13,6 +13,7 @@ QMesh::QMesh(QWidget *parent) :
    scaleY_ = -1.;
    setMouseTracking(true);
    setBackgroundColor(QColor(0x00, 0x16, 0x1c));
+   setForegroundColor(QColor(0x1d, 0xd3, 0xf3, 0xa0));
 
    addItem(new QMeshRectItem(QRectF(-1, 1, 3, 3)));
 }
@@ -170,6 +171,7 @@ void QMesh::drawItems()
     QPainter painter;
     painter.begin(this);
     painter.save();
+    painter.setBrush(foregroundColor_);
     painter.translate(dx_, dy_);
     foreach (QMeshItem *item, items_)
         item->draw(painter, scaleX_, scaleY_);

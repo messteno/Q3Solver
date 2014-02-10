@@ -14,6 +14,7 @@ QMesh::QMesh(QWidget *parent) :
    setMouseTracking(true);
    setBackgroundColor(QColor(0x00, 0x16, 0x1c));
    setForegroundColor(QColor(0x1d, 0xd3, 0xf3, 0xa0));
+   setAxesColor(QColor(0xff, 0xff, 0xff));
 
    addItem(new QMeshRectItem(QRectF(-1, 1, 3, 3)));
 }
@@ -161,6 +162,8 @@ void QMesh::drawAxes()
 {
     QPainter painter;
     painter.begin(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setPen(QPen(axesColor_));
     painter.drawLine(0, sceneToMapY(0), width(), sceneToMapY(0));
     painter.drawLine(sceneToMapX(0), 0, sceneToMapX(0), height());
     painter.end();
@@ -192,4 +195,9 @@ void QMesh::setForegroundColor(const QColor &color)
 void QMesh::setPenColor(const QColor &color)
 {
     penColor_ = color;
+}
+
+void QMesh::setAxesColor(const QColor &color)
+{
+    axesColor_ = color;
 }

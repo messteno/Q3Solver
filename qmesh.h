@@ -23,6 +23,7 @@ public:
     void setBackgroundColor(const QColor &color);
     void setForegroundColor(const QColor &color);
     void setPenColor(const QColor &color);
+    void setAxesColor(const QColor &color);
 
 signals:
 
@@ -43,6 +44,7 @@ private:
     QColor backgroundColor_;
     QColor foregroundColor_;
     QColor penColor_;
+    QColor axesColor_;
 
     void updateScene();
 

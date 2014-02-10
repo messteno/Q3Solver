@@ -44,10 +44,10 @@ void QMesh::wheelEvent(QWheelEvent *event)
     }
     qreal sc = pow(0.9, numSteps);
     QPointF scenePos = mapToScene(event->pos());
-    qreal sxl = scenePos.x() - sceneRect_.x();
-    qreal syl = scenePos.y() - sceneRect_.y();
-    qreal sxr = sceneRect_.x() + sceneRect_.width() - scenePos.x();
-    qreal syr = sceneRect_.y() + sceneRect_.height() - scenePos.y();
+    qreal sxl = scenePos.x() - drawRect_.x();
+    qreal syl = scenePos.y() - drawRect_.y();
+    qreal sxr = drawRect_.x() + drawRect_.width() - scenePos.x();
+    qreal syr = drawRect_.y() + drawRect_.height() - scenePos.y();
     sceneRect_.setTopLeft(QPointF(scenePos.x() - sxl * sc, scenePos.y() - syl * sc));
     sceneRect_.setBottomRight(QPointF(scenePos.x() + sxr * sc, scenePos.y() + syr * sc));
     updateScene();

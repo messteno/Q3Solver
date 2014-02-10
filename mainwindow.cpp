@@ -7,6 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->mainToolBar->hide();
+    setStatusBar(0);
     mesh = new QMesh (this);
     setCentralWidget(mesh);
 }

@@ -6,9 +6,10 @@
 #include <iostream>
 #include <sstream>
 #include <qmath.h>
-#include "qmesh.h"
 
-QMesh::QMesh(QWidget *parent) :
+#include "qmeshplot.h"
+
+QMeshPlot::QMeshPlot(QWidget *parent) :
     QWidget(parent)
 {
    sceneRect_ = QRectF(-2, -4, 10, 10);
@@ -30,19 +31,19 @@ QMesh::QMesh(QWidget *parent) :
    addItem(new QMeshRectItem(QRectF(-1, 1, 3, 3)));
 }
 
-QMesh::~QMesh()
+QMeshPlot::~QMeshPlot()
 {
     foreach (QMeshItem *item, items_)
         delete item;
     items_.clear();
 }
 
-void QMesh::resizeEvent(QResizeEvent *event)
+void QMeshPlot::resizeEvent(QResizeEvent *event)
 {
     updateScene();
 }
 
-void QMesh::paintEvent(QPaintEvent *event)
+void QMeshPlot::paintEvent(QPaintEvent *event)
 {
     drawBackground();
     drawAxes();
@@ -50,7 +51,7 @@ void QMesh::paintEvent(QPaintEvent *event)
     drawBorders();
 }
 
-void QMesh::wheelEvent(QWheelEvent *event)
+void QMeshPlot::wheelEvent(QWheelEvent *event)
 {
     int numSteps = event->delta() / 15 / 8;
     if (numSteps == 0)
@@ -70,12 +71,12 @@ void QMesh::wheelEvent(QWheelEvent *event)
     repaint();
 }
 
-void QMesh::mouseReleaseEvent(QMouseEvent *)
+void QMeshPlot::mouseReleaseEvent(QMouseEvent *)
 {
     mousePos_ = QPointF();
 }
 
-void QMesh::mouseMoveEvent(QMouseEvent *event)
+void QMeshPlot::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton)
     {
@@ -99,12 +100,12 @@ void QMesh::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void QMesh::addItem(QMeshItem *item)
+void QMeshPlot::addItem(QMeshItem *item)
 {
     items_.push_back(item);
 }
 
-void QMesh::updateScene()
+void QMeshPlot::updateScene()
 {
     qreal dw = sceneRect_.width();
     qreal dh = sceneRect_.height();
@@ -146,47 +147,47 @@ void QMesh::updateScene()
     countTickY_ = ceil(drawRect_.height() / tickDy_);
 }
 
-QPointF QMesh::sceneToMap(const QPointF &pos) const
+QPointF QMeshPlot::sceneToMap(const QPointF &pos) const
 {
     return QPointF(sceneToMapX(pos.x()), sceneToMapY(pos.y()));
 }
 
-QPointF QMesh::sceneToMap(qreal x, qreal y) const
+QPointF QMeshPlot::sceneToMap(qreal x, qreal y) const
 {
     return QPointF(sceneToMapX(x), sceneToMapY(y));
 }
 
-qreal QMesh::sceneToMapX (qreal x) const
+qreal QMeshPlot::sceneToMapX (qreal x) const
 {
     return width() * (x - drawRect_.x()) / drawRect_.width();
 }
 
-qreal QMesh::sceneToMapY (qreal y) const
+qreal QMeshPlot::sceneToMapY (qreal y) const
 {
     return height() * (1. - (y - drawRect_.y()) / drawRect_.height());
 }
 
-QPointF QMesh::mapToScene(const QPointF &pos) const
+QPointF QMeshPlot::mapToScene(const QPointF &pos) const
 {
     return QPointF(mapToSceneX(pos.x()), mapToSceneY(pos.y()));
 }
 
-QPointF QMesh::mapToScene(qreal x, qreal y) const
+QPointF QMeshPlot::mapToScene(qreal x, qreal y) const
 {
     return QPointF(mapToSceneX(x), mapToSceneY(y));
 }
 
-qreal QMesh::mapToSceneX (qreal x) const
+qreal QMeshPlot::mapToSceneX (qreal x) const
 {
     return drawRect_.x() + drawRect_.width() * x / width();
 }
 
-qreal QMesh::mapToSceneY (qreal y) const
+qreal QMeshPlot::mapToSceneY (qreal y) const
 {
     return drawRect_.y() + drawRect_.height() * (height() - y) / height();
 }
 
-void QMesh::drawBackground()
+void QMeshPlot::drawBackground()
 {
     QPainter painter;
     painter.begin(this);
@@ -194,7 +195,7 @@ void QMesh::drawBackground()
     painter.end();
 }
 
-void QMesh::drawAxes()
+void QMeshPlot::drawAxes()
 {
     QPainter painter;
     painter.begin(this);
@@ -236,7 +237,7 @@ void QMesh::drawAxes()
     painter.end();
 }
 
-void QMesh::drawBorders()
+void QMeshPlot::drawBorders()
 {
     QPainter painter;
     painter.begin(this);
@@ -295,7 +296,7 @@ void QMesh::drawBorders()
 
         if (sceneToMapY(ytick) < height() - bottomMargin_)
         {
-            painter.drawText(QPointF(leftMargin_ - tw - 5, sceneToMapY(ytick) - 4),
+            painter.drawText(QPointF(leftMargin_ - tw - 5, sceneToMapY(ytick) + 3),
                              tickStream.str().c_str());
         }
         ytick += tickDy_;
@@ -304,7 +305,7 @@ void QMesh::drawBorders()
     painter.end();
 }
 
-void QMesh::drawItems()
+void QMeshPlot::drawItems()
 {
     QPainter painter;
     painter.begin(this);
@@ -317,32 +318,32 @@ void QMesh::drawItems()
     painter.end();
 }
 
-void QMesh::setBackgroundColor(const QColor &color)
+void QMeshPlot::setBackgroundColor(const QColor &color)
 {
     backgroundColor_ = color;
 }
 
-void QMesh::setForegroundColor(const QColor &color)
+void QMeshPlot::setForegroundColor(const QColor &color)
 {
     foregroundColor_ = color;
 }
 
-void QMesh::setPenColor(const QColor &color)
+void QMeshPlot::setPenColor(const QColor &color)
 {
     penColor_ = color;
 }
 
-void QMesh::setAxesColor(const QColor &color)
+void QMeshPlot::setAxesColor(const QColor &color)
 {
     axesColor_ = color;
 }
 
-void QMesh::setBottomMargin(int margin)
+void QMeshPlot::setBottomMargin(int margin)
 {
     bottomMargin_ = margin;
 }
 
-void QMesh::setLeftMargin(int margin)
+void QMeshPlot::setLeftMargin(int margin)
 {
     leftMargin_ = margin;
 }

@@ -15,12 +15,12 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     qmeshitem.cpp \
-    qmesh.cpp \
-    qmeshrectitem.cpp
+    qmeshrectitem.cpp \
+    qmeshplot.cpp
 
 HEADERS  += mainwindow.h \
     qmeshitem.h \
-    qmesh.h \
-    qmeshrectitem.h
+    qmeshrectitem.h \
+    qmeshplot.h
 
 FORMS    += mainwindow.ui

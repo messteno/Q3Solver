@@ -1,16 +1,16 @@
-#ifndef QMESH_H
-#define QMESH_H
+#ifndef QMESHPLOT_H
+#define QMESHPLOT_H
 
 #include <QWidget>
 #include "qmeshitem.h"
 #include "qmeshrectitem.h"
 
-class QMesh : public QWidget
+class QMeshPlot : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QMesh(QWidget *parent = 0);
-    ~QMesh();
+    explicit QMeshPlot(QWidget *parent = 0);
+    ~QMeshPlot();
 
     void addItem(QMeshItem *item);
 
@@ -74,4 +74,4 @@ private:
     void drawItems();
 };
 
-#endif // QMESH_H
+#endif // QMESHPLOT_H

@@ -24,6 +24,8 @@ public:
     void setForegroundColor(const QColor &color);
     void setPenColor(const QColor &color);
     void setAxesColor(const QColor &color);
+    void setBottomMargin(int margin);
+    void setLeftMargin(int margin);
 
 signals:
 
@@ -39,12 +41,20 @@ private:
     qreal dx_;
     qreal dy_;
 
+    double tickDx_;
+    double tickDy_;
+    int countTickX_;
+    int countTickY_;
+
     QPointF mousePos_;
 
     QColor backgroundColor_;
     QColor foregroundColor_;
     QColor penColor_;
     QColor axesColor_;
+
+    int bottomMargin_;
+    int leftMargin_;
 
     void updateScene();
 
@@ -60,6 +70,7 @@ private:
 
     void drawBackground();
     void drawAxes();
+    void drawBorders();
     void drawItems();
 };
 

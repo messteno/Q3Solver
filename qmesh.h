@@ -17,8 +17,8 @@ public:
     void resizeEvent(QResizeEvent *event);
     void paintEvent(QPaintEvent *event);
     void wheelEvent(QWheelEvent *event);
-    //void mouseMoveEvent(QMoveEvent *event);
-    //void mouseReleaseEvent(QMouseEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *);
 
 signals:
 
@@ -34,10 +34,10 @@ private:
     qreal dx_;
     qreal dy_;
 
+    QPointF mousePos_;
+
     QColor backgroundColor_;
     QColor foregroundColor_;
-
-    QPointF mousePosition_;
 
 
     void updateScene();

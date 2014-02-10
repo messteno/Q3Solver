@@ -11,6 +11,7 @@ QMesh::QMesh(QWidget *parent) :
    drawRect_ = sceneRect_;
    scaleX_ = 1.;
    scaleY_ = -1.;
+   setMouseTracking(true);
 
    addItem(new QMeshRectItem(QRectF(-1, 1, 3, 3)));
 }
@@ -41,7 +42,7 @@ void QMesh::wheelEvent(QWheelEvent *event)
         event->ignore();
         return;
     }
-    qreal sc = pow(0.8, numSteps);
+    qreal sc = pow(0.9, numSteps);
     QPointF scenePos = mapToScene(event->pos());
     qreal sxl = scenePos.x() - sceneRect_.x();
     qreal syl = scenePos.y() - sceneRect_.y();
@@ -51,6 +52,35 @@ void QMesh::wheelEvent(QWheelEvent *event)
     sceneRect_.setBottomRight(QPointF(scenePos.x() + sxr * sc, scenePos.y() + syr * sc));
     updateScene();
     repaint();
+}
+
+void QMesh::mouseReleaseEvent(QMouseEvent *)
+{
+    mousePos_ = QPointF();
+}
+
+void QMesh::mouseMoveEvent(QMouseEvent *event)
+{
+    if (event->buttons() & Qt::LeftButton)
+    {
+        if (mousePos_.isNull())
+        {
+            mousePos_ = event->pos();
+        }
+        else
+        {
+            QPointF oldScenePos = mapToScene(mousePos_);
+            QPointF newScenePos = mapToScene(event->pos());
+            QPointF diffPos = newScenePos - oldScenePos;
+            sceneRect_ = QRectF(sceneRect_.x() - diffPos.x(),
+                                sceneRect_.y() - diffPos.y(),
+                                sceneRect_.width(),
+                                sceneRect_.height());
+            mousePos_ = event->pos();
+            updateScene();
+            repaint();
+        }
+    }
 }
 
 void QMesh::addItem(QMeshItem *item)

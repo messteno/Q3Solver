@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "qmeshplot.h"
+#include "qmesh.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -9,8 +9,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->mainToolBar->hide();
     setStatusBar(0);
-    meshPlot = new QMeshPlot (this);
-    setCentralWidget(meshPlot);
+    mesh = new QMesh (this);
+    setCentralWidget(mesh);
 }
 
 MainWindow::~MainWindow()

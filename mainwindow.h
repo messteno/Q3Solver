@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "qmeshplot.h"
+#include "qmesh.h"
 
 namespace Ui {
 class MainWindow;
@@ -18,7 +18,7 @@ public:
 
 private:
     Ui::MainWindow *ui;
-    QMeshPlot *meshPlot;
+    QMesh *mesh;
 };
 
 #endif // MAINWINDOW_H

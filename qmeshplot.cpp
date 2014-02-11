@@ -214,9 +214,6 @@ void QMeshPlot::drawAxes()
         {
             painter.setPen(QPen(auxAxesColor, 1, Qt::DashLine));
             painter.drawLine(sceneToMapX(xtick), 0, sceneToMapX(xtick), height());
-            painter.setPen(QPen(axesColor_));
-            painter.drawLine(sceneToMapX(xtick), height() - bottomMargin_ - 10,
-                             sceneToMapX(xtick), height() - bottomMargin_);
         }
         xtick += tickDx_;
     }
@@ -228,8 +225,6 @@ void QMeshPlot::drawAxes()
         {
             painter.setPen(QPen(auxAxesColor, 1, Qt::DashLine));
             painter.drawLine(0, sceneToMapY(ytick), width(), sceneToMapY(ytick));
-            painter.setPen(QPen(axesColor_));
-            painter.drawLine(leftMargin_, sceneToMapY(ytick), leftMargin_ + 10, sceneToMapY(ytick));
         }
         ytick += tickDy_;
     }
@@ -261,7 +256,6 @@ void QMeshPlot::drawBorders()
 
     setLeftMargin(maxYtw);
 
-
     painter.fillRect(QRectF(0, height() - bottomMargin_, width(), bottomMargin_),
                      QColor(0xff, 0xff, 0xff));
 
@@ -276,8 +270,13 @@ void QMeshPlot::drawBorders()
         QFontMetrics metrics = QFontMetrics(font());
         int tw = metrics.width(tickStream.str().c_str());
 
+        painter.setPen(QPen(QColor(0x00, 0x00, 0x00)));
         if (sceneToMapX(xtick) - 0.5 * tw > leftMargin_)
             painter.drawText(QPointF(sceneToMapX(xtick) - 0.5 * tw, height() - 9), tickStream.str().c_str());
+
+        painter.setPen(QPen(axesColor_));
+        painter.drawLine(sceneToMapX(xtick), height() - bottomMargin_ - 10,
+                         sceneToMapX(xtick), height() - bottomMargin_);
         xtick += tickDx_;
     }
     painter.fillRect(QRectF(0, 0, leftMargin_, height() - bottomMargin_),
@@ -294,10 +293,13 @@ void QMeshPlot::drawBorders()
         QFontMetrics metrics = QFontMetrics(font());
         int tw = metrics.width(tickStream.str().c_str());
 
+        painter.setPen(QPen(QColor(0x00, 0x00, 0x00)));
         if (sceneToMapY(ytick) < height() - bottomMargin_)
         {
             painter.drawText(QPointF(leftMargin_ - tw - 5, sceneToMapY(ytick) + 3),
                              tickStream.str().c_str());
+            painter.setPen(QPen(axesColor_));
+            painter.drawLine(leftMargin_, sceneToMapY(ytick), leftMargin_ + 10, sceneToMapY(ytick));
         }
         ytick += tickDy_;
     }

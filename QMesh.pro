@@ -16,11 +16,20 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     qmeshitem.cpp \
     qmeshrectitem.cpp \
-    qmeshplot.cpp
+    qmeshplot.cpp \
+    qmesh.cpp \
+    qmeshitemwidget.cpp \
+    qmeshrectitemwidget.cpp \
+    qmeshpointitemwidget.cpp
 
 HEADERS  += mainwindow.h \
     qmeshitem.h \
     qmeshrectitem.h \
-    qmeshplot.h
+    qmeshplot.h \
+    qmesh.h \
+    qmeshitemwidget.h \
+    qmeshrectitemwidget.h \
+    qmeshpointitemwidget.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    qmesh.ui

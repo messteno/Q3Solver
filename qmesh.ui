@@ -15,18 +15,20 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QMeshPlot" name="widget" native="true">
+    <widget class="QMeshPlot" name="meshPlot" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>1</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <zorder>listView</zorder>
     </widget>
    </item>
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
+     <property name="spacing">
+      <number>5</number>
+     </property>
      <item>
       <layout class="QHBoxLayout" name="addElementLayout">
        <item>
@@ -46,7 +48,11 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="addWidgetsLayout"/>
+      <layout class="QVBoxLayout" name="addWidgetsLayout">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+      </layout>
      </item>
      <item>
       <widget class="QListView" name="listView">

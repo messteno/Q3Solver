@@ -15,21 +15,31 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     qmeshitem.cpp \
-    qmeshrectitem.cpp \
     qmeshplot.cpp \
     qmesh.cpp \
-    qmeshitemwidget.cpp \
-    qmeshrectitemwidget.cpp \
-    qmeshpointitemwidget.cpp
+    additemdirector.cpp \
+    additemwidget.cpp \
+    pointadditemwidget.cpp \
+    lineadditemwidget.cpp \
+    additemdirectorstate.cpp \
+    additemdirectorstateitemselect.cpp \
+    additemdirectorstateitemadd.cpp \
+    qmeshitempoint.cpp
 
 HEADERS  += mainwindow.h \
     qmeshitem.h \
-    qmeshrectitem.h \
     qmeshplot.h \
     qmesh.h \
-    qmeshitemwidget.h \
-    qmeshrectitemwidget.h \
-    qmeshpointitemwidget.h
+    additemdirector.h \
+    additemwidget.h \
+    pointadditemwidget.h \
+    lineadditemwidget.h \
+    additemdirectorstate.h \
+    additemdirectorstateitemselect.h \
+    additemdirectorstateitemadd.h \
+    qmeshitempoint.h
 
 FORMS    += mainwindow.ui \
-    qmesh.ui
+    qmesh.ui \
+    pointadditemwidget.ui \
+    lineadditemwidget.ui

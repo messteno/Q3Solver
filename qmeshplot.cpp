@@ -27,8 +27,6 @@ QMeshPlot::QMeshPlot(QWidget *parent) :
    setAxesColor(QColor(0xff, 0xff, 0xff));
    setBottomMargin(25);
    setLeftMargin(20);
-
-   addItem(new QMeshRectItem(QRectF(-1, 1, 3, 3)));
 }
 
 QMeshPlot::~QMeshPlot()
@@ -102,7 +100,8 @@ void QMeshPlot::mouseMoveEvent(QMouseEvent *event)
 
 void QMeshPlot::addItem(QMeshItem *item)
 {
-    items_.push_back(item);
+    if (item)
+        items_.push_back(item);
 }
 
 void QMeshPlot::updateScene()
@@ -312,6 +311,7 @@ void QMeshPlot::drawItems()
     QPainter painter;
     painter.begin(this);
     painter.save();
+    painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(foregroundColor_);
     painter.translate(dx_, dy_);
     foreach (QMeshItem *item, items_)

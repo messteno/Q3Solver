@@ -3,7 +3,6 @@
 
 #include <QWidget>
 #include "qmeshitem.h"
-#include "qmeshrectitem.h"
 
 class QMeshPlot : public QWidget
 {

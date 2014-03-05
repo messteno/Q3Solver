@@ -2,7 +2,8 @@
 #define QMESH_H
 
 #include <QWidget>
-#include "qmeshitemwidget.h"
+#include "additemdirector.h"
+#include "qmeshitem.h"
 
 namespace Ui {
 class QMesh;
@@ -16,27 +17,14 @@ public:
     explicit QMesh(QWidget *parent = 0);
     ~QMesh();
 
-    enum qmeshState
-    {
-        stateNone,
-        stateElementSelection,
-        stateElementAdding,
-    };
-
-    void setState(QMesh::qmeshState state);
-
 private slots:
+
     void on_addElementButton_clicked();
     void on_cancelElementButton_clicked();
-    void on_widgetElementButton_clicked();
 
 private:
     Ui::QMesh *ui;
-    qmeshState state_;
-    QList<QMeshItemWidget *> itemWidgetlist_;
-
-    void addElementButtons();
-    void clearWidgetsLayout();
+    AddItemDirector *addItemDirector_;
 };
 
 #endif // QMESH_H

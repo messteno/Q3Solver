@@ -7,6 +7,8 @@
 QMeshRectItemWidget::QMeshRectItemWidget(QWidget *parent) :
     QMeshItemWidget(parent)
 {
+    widgetName_ = "Добавить прямоугольник";
+
     QFormLayout *layout = new QFormLayout(this);
     QLabel *xLabel = new QLabel("x");
     QLineEdit *xEdit = new QLineEdit();
@@ -20,7 +22,6 @@ QMeshRectItemWidget::QMeshRectItemWidget(QWidget *parent) :
     QLabel *heightLabel = new QLabel("height");
     QLineEdit *heightEdit = new QLineEdit();
     layout->addRow(heightLabel, heightEdit);
-
-    widgetName_ = "Добавить прямоугольник";
-    addButton_ = new QPushButton(widgetName_, this);
+    addItemButton_ = new QPushButton(widgetName_);
+    layout->addWidget(addItemButton_);
 }

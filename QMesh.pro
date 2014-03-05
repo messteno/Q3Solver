@@ -24,20 +24,22 @@ SOURCES += main.cpp\
     additemdirectorstate.cpp \
     additemdirectorstateitemselect.cpp \
     additemdirectorstateitemadd.cpp \
-    qmeshitempoint.cpp
+    qmeshitempoint.cpp \
+    qmeshitemline.cpp
 
 HEADERS  += mainwindow.h \
     qmeshitem.h \
     qmeshplot.h \
     qmesh.h \
-    additemdirector.h \
     additemwidget.h \
+    additemdirector.h \
     pointadditemwidget.h \
     lineadditemwidget.h \
     additemdirectorstate.h \
     additemdirectorstateitemselect.h \
     additemdirectorstateitemadd.h \
-    qmeshitempoint.h
+    qmeshitempoint.h \
+    qmeshitemline.h
 
 FORMS    += mainwindow.ui \
     qmesh.ui \

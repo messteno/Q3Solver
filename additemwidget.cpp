@@ -1,21 +1,16 @@
 #include "additemdirector.h"
 #include "additemwidget.h"
 
-AddItemWidget::AddItemWidget(AddItemDirector *director, QWidget *parent) :
-    QWidget(parent)
+AddItemWidget::AddItemWidget(AddItemDirector *director, const QString &addButtonText)
 {
     director_ = director;
+    addButton_.setText(addButtonText);
     expanded_ = true;
 }
 
-void AddItemWidget::expand()
+QPushButton *AddItemWidget::getAddButton()
 {
-    expanded_ = true;
-}
-
-void AddItemWidget::shrink()
-{
-    expanded_ = false;
+    return &addButton_;
 }
 
 void AddItemWidget::selected()

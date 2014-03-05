@@ -2,6 +2,8 @@
 #define ADDITEMDIRECTOR_H
 
 #include <QList>
+#include <QPushButton>
+#include <QStackedLayout>
 #include "additemwidget.h"
 #include "additemdirectorstate.h"
 
@@ -10,6 +12,7 @@ class QMeshItem;
 
 class AddItemDirector : public QWidget
 {
+    Q_OBJECT
 public:
     AddItemDirector(QMeshPlot *meshPlot, QWidget *parent = 0);
     virtual ~AddItemDirector();
@@ -22,10 +25,16 @@ public:
 protected:
     virtual void createWidgets();
 
+public slots:
+    void layoutWidgetChanged(int index);
+
 private:
     friend class AddItemDirectorState;
     void changeState (AddItemDirectorState *state);
+
 private:
+    QStackedLayout *mainLayout_;
+
     AddItemDirectorState *state_;
     QMeshPlot *meshPlot_;
     QList<AddItemWidget *> widgets_;

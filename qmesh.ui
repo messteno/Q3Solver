@@ -52,6 +52,9 @@
        <property name="spacing">
         <number>0</number>
        </property>
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
+       </property>
       </layout>
      </item>
      <item>
@@ -59,7 +62,7 @@
        <property name="sizePolicy">
         <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
          <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
+         <verstretch>10</verstretch>
         </sizepolicy>
        </property>
       </widget>

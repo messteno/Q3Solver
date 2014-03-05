@@ -308,9 +308,11 @@ void QMeshPlot::drawBorders()
 
 void QMeshPlot::drawItems()
 {
+    QPen pen = QPen (Qt::white);
     QPainter painter;
     painter.begin(this);
     painter.save();
+    painter.setPen(pen);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(foregroundColor_);
     painter.translate(dx_, dy_);

@@ -13,9 +13,7 @@ class PointAddItemWidget : public AddItemWidget
     Q_OBJECT
 
 public:
-    PointAddItemWidget(AddItemDirector *director, QWidget *parent = 0);
-    virtual void expand();
-    virtual void shrink();
+    PointAddItemWidget(AddItemDirector *director, const QString &addButtonText);
     virtual QMeshItem* getItem();
 
 private:

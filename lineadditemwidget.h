@@ -13,9 +13,7 @@ class LineAddItemWidget : public AddItemWidget
     Q_OBJECT
 
 public:
-    LineAddItemWidget(AddItemDirector *director, QWidget *parent = 0);
-    virtual void expand();
-    virtual void shrink();
+    LineAddItemWidget(AddItemDirector *director, const QString &addButtonText);
     virtual QMeshItem* getItem();
 
 private:

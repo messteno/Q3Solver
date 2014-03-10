@@ -14,6 +14,6 @@ AddItemDirectorState* AddItemDirectorStateItemSelect::getInstance()
 
 void AddItemDirectorStateItemSelect::widgetButtonPushed(AddItemDirector *director, AddItemWidget *widget)
 {
-    director->processWidgetSelected(widget);
     changeState(director, AddItemDirectorStateItemAdd::getInstance());
+    director->processWidgetSelected(widget);
 }

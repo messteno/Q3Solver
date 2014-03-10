@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>306</width>
-    <height>96</height>
+    <height>122</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,7 +17,7 @@
    <property name="fieldGrowthPolicy">
     <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
    </property>
-   <item row="2" column="0" colspan="2">
+   <item row="3" column="0" colspan="2">
     <widget class="QPushButton" name="pushButton">
      <property name="text">
       <string>Добавить точку</string>
@@ -43,6 +43,16 @@
    </item>
    <item row="1" column="1">
     <widget class="QLineEdit" name="yEdit"/>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QCheckBox" name="snapToGrid">
+     <property name="text">
+      <string>привязка к сетке</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -3,6 +3,9 @@
 
 #include <QWidget>
 #include "qmeshitem.h"
+#include "qmeshitempoint.h"
+
+class QMesh;
 
 class QMeshPlot : public QWidget
 {
@@ -10,8 +13,6 @@ class QMeshPlot : public QWidget
 public:
     explicit QMeshPlot(QWidget *parent = 0);
     ~QMeshPlot();
-
-    void addItem(QMeshItem *item);
 
     void resizeEvent(QResizeEvent *event);
     void paintEvent(QPaintEvent *event);
@@ -26,13 +27,15 @@ public:
     void setBottomMargin(int margin);
     void setLeftMargin(int margin);
 
+    QPointF getClickedScenePosition(bool snapToGrid);
+    QMeshItemPoint *getClickedScenePoint();
+
 signals:
+    void mouseClicked(QMeshPlot *meshPlot);
 
 public slots:
 
 private:
-    QList<QMeshItem *> items_;
-
     QRectF drawRect_;
     QRectF sceneRect_;
     qreal scaleX_;
@@ -46,11 +49,14 @@ private:
     int countTickY_;
 
     QPointF mousePos_;
+    QPointF clickedPos_;
 
     QColor backgroundColor_;
     QColor foregroundColor_;
     QColor penColor_;
     QColor axesColor_;
+
+    QMesh *mesh_;
 
     int bottomMargin_;
     int leftMargin_;

@@ -6,8 +6,12 @@
 class QMeshItemPoint : public QMeshItem
 {
 public:
+    static const int pointSize_;
+
     explicit QMeshItemPoint(qreal x, qreal y);
-    virtual void draw(QPainter &painter, qreal scaleX, qreal scaleY);
+    virtual void draw(QPainter &painter, qreal scaleX, qreal scaleY) const;
+    qreal x();
+    qreal y();
 private:
     qreal x_;
     qreal y_;

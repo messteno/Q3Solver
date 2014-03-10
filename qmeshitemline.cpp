@@ -1,14 +1,16 @@
 #include "qmeshitemline.h"
+#include "qmeshitempoint.h"
 
-QMeshItemLine::QMeshItemLine(qreal x1, qreal y1, qreal x2, qreal y2)
+QMeshItemLine::QMeshItemLine(QMeshItemPoint *a, QMeshItemPoint *b)
 {
-    x1_ = x1;
-    y1_ = y1;
-    x2_ = x2;
-    y2_ = y2;
+    a_ = a;
+    b_ = b;
 }
 
-void QMeshItemLine::draw(QPainter &painter, qreal scaleX, qreal scaleY)
+void QMeshItemLine::draw(QPainter &painter, qreal scaleX, qreal scaleY) const
 {
-    painter.drawLine(x1_ * scaleX, y1_ * scaleY, x2_ * scaleX, y2_ * scaleY);
+    if (!a_ || !b_)
+        return;
+    painter.drawLine(a_->x() * scaleX, a_->y() * scaleY,
+                     b_->x() * scaleX, b_->y() * scaleY);
 }

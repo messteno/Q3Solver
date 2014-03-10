@@ -7,6 +7,7 @@
 #include "additemwidget.h"
 #include "additemdirectorstate.h"
 
+class QMesh;
 class QMeshPlot;
 class QMeshItem;
 
@@ -14,7 +15,7 @@ class AddItemDirector : public QWidget
 {
     Q_OBJECT
 public:
-    AddItemDirector(QMeshPlot *meshPlot, QWidget *parent = 0);
+    AddItemDirector(QMesh *mesh);
     virtual ~AddItemDirector();
     virtual void widgetButtonPushed(AddItemWidget *widget);
     virtual void processWidgetSelected (AddItemWidget *selectedWidget);
@@ -27,17 +28,18 @@ protected:
 
 public slots:
     void layoutWidgetChanged(int index);
+    void meshPlotClicked(QMeshPlot *meshPlot);
 
 private:
     friend class AddItemDirectorState;
     void changeState (AddItemDirectorState *state);
 
 private:
+    QMesh *mesh_;
     QStackedLayout *mainLayout_;
-
     AddItemDirectorState *state_;
-    QMeshPlot *meshPlot_;
     QList<AddItemWidget *> widgets_;
+    AddItemWidget *currentWidget_;
 };
 
 #endif // ADDITEMDIRECTOR_H

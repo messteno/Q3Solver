@@ -7,7 +7,7 @@ class QMeshItem
 {
 public:
     QMeshItem();
-    virtual void draw(QPainter &painter, qreal scaleX, qreal scaleY) = 0;
+    virtual void draw(QPainter &painter, qreal scaleX, qreal scaleY) const = 0;
 };
 
 #endif // QMESHITEM_H

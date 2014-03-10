@@ -16,6 +16,8 @@ class QMesh : public QWidget
 public:
     explicit QMesh(QWidget *parent = 0);
     ~QMesh();
+    const QList<QMeshItem *> &getItems();
+    void addItem(QMeshItem *item);
 
 private slots:
 
@@ -25,6 +27,7 @@ private slots:
 private:
     Ui::QMesh *ui;
     AddItemDirector *addItemDirector_;
+    QList<QMeshItem *> items_;
 };
 
 #endif // QMESH_H

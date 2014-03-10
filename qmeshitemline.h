@@ -2,17 +2,16 @@
 #define QMESHITEMLINE_H
 
 #include "qmeshitem.h"
+#include "qmeshitempoint.h"
 
 class QMeshItemLine : public QMeshItem
 {
 public:
-    explicit QMeshItemLine(qreal x1, qreal y1, qreal x2, qreal y2);
-    virtual void draw(QPainter &painter, qreal scaleX, qreal scaleY);
+    explicit QMeshItemLine(QMeshItemPoint *a, QMeshItemPoint *b);
+    virtual void draw(QPainter &painter, qreal scaleX, qreal scaleY) const;
 private:
-    qreal x1_;
-    qreal y1_;
-    qreal x2_;
-    qreal y2_;
+    QMeshItemPoint *a_;
+    QMeshItemPoint *b_;
 };
 
 #endif // QMESHITEMLINE_H

@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QPushButton>
+#include "qmeshplot.h"
 #include "qmeshitem.h"
 
 class AddItemDirector;
@@ -14,6 +15,8 @@ public:
     explicit AddItemWidget(AddItemDirector *director, const QString &addButtonText);
     virtual QMeshItem* getItem() = 0;
     virtual QPushButton* getAddButton();
+    virtual void meshPlotClicked(QMeshPlot *meshPlot);
+    virtual void clear();
 protected:
     bool expanded_;
 

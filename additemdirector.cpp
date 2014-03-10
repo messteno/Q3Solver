@@ -2,24 +2,28 @@
 #include "lineadditemwidget.h"
 #include "additemdirector.h"
 #include "additemdirectorstateitemselect.h"
+#include "qmesh.h"
 #include "qmeshplot.h"
 
 #include <QDebug>
 #include <QStackedWidget>
 #include <QVBoxLayout>
 
-AddItemDirector::AddItemDirector(QMeshPlot *meshPlot, QWidget *parent) :
-    QWidget(parent)
+AddItemDirector::AddItemDirector(QMesh *mesh) :
+    QWidget(mesh)
 {
-    meshPlot_ = meshPlot;
     state_ = AddItemDirectorStateItemSelect::getInstance();
+
+    mesh_ = mesh;
 
     mainLayout_ = new QStackedLayout;
     mainLayout_->setMargin(0);
     mainLayout_->setSpacing(0);
     setLayout(mainLayout_);
+    // fix for auto resizing
     connect(mainLayout_, SIGNAL(currentChanged(int)), this, SLOT(layoutWidgetChanged(int)));
 
+    currentWidget_ = NULL;
     createWidgets();
 
     hide();
@@ -29,6 +33,7 @@ AddItemDirector::~AddItemDirector()
 {
     foreach (AddItemWidget *widget, widgets_)
         delete widget;
+    widgets_.clear();
 }
 
 void AddItemDirector::widgetButtonPushed(AddItemWidget *selectedWidget)
@@ -36,9 +41,11 @@ void AddItemDirector::widgetButtonPushed(AddItemWidget *selectedWidget)
     state_->widgetButtonPushed(this, selectedWidget);
 }
 
-void AddItemDirector::processWidgetSelected (AddItemWidget *selectedWidget)
+void AddItemDirector::processWidgetSelected(AddItemWidget *selectedWidget)
 {
-    mainLayout_->setCurrentWidget(selectedWidget);
+    currentWidget_ = selectedWidget;
+    currentWidget_->clear();
+    mainLayout_->setCurrentWidget(currentWidget_);
 }
 
 void AddItemDirector::show()
@@ -57,8 +64,7 @@ void AddItemDirector::hide()
 
 void AddItemDirector::addItem(QMeshItem *item)
 {
-    meshPlot_->addItem(item);
-    meshPlot_->repaint();
+    mesh_->addItem(item);
 }
 
 void AddItemDirector::createWidgets()
@@ -99,7 +105,14 @@ void AddItemDirector::layoutWidgetChanged(int index)
     newWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
 
+void AddItemDirector::meshPlotClicked(QMeshPlot *meshPlot)
+{
+    if (currentWidget_)
+        currentWidget_->meshPlotClicked(meshPlot);
+}
+
 void AddItemDirector::changeState(AddItemDirectorState *state)
 {
+    currentWidget_ = NULL;
     state_ = state;
 }

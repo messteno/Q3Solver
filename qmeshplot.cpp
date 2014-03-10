@@ -7,33 +7,36 @@
 #include <sstream>
 #include <qmath.h>
 
+#include "qmesh.h"
 #include "qmeshplot.h"
+#include "additemdirector.h"
 
 QMeshPlot::QMeshPlot(QWidget *parent) :
     QWidget(parent)
 {
-   sceneRect_ = QRectF(-2, -4, 10, 10);
-   drawRect_ = sceneRect_;
-   scaleX_ = 1.;
-   scaleY_ = -1.;
-   tickDx_ = 1;
-   tickDy_ = 1;
-   countTickX_ = 10;
-   countTickY_ = 10;
+    mesh_ = dynamic_cast<QMesh *> (parent);
+    Q_ASSERT(mesh_);
 
-   setMouseTracking(true);
-   setBackgroundColor(QColor(0x00, 0x16, 0x1c));
-   setForegroundColor(QColor(0x1d, 0xd3, 0xf3, 0xa0));
-   setAxesColor(QColor(0xff, 0xff, 0xff));
-   setBottomMargin(25);
-   setLeftMargin(20);
+    sceneRect_ = QRectF(-2, -2, 13, 8);
+    drawRect_ = sceneRect_;
+    scaleX_ = 1.;
+    scaleY_ = -1.;
+    tickDx_ = 1;
+    tickDy_ = 1;
+    countTickX_ = 10;
+    countTickY_ = 10;
+    clickedPos_ = QPointF(0, 0);
+
+    setMouseTracking(true);
+    setBackgroundColor(QColor(0x00, 0x16, 0x1c));
+    setForegroundColor(QColor(0x1d, 0xd3, 0xf3, 0xa0));
+    setAxesColor(QColor(0xff, 0xff, 0xff));
+    setBottomMargin(25);
+    setLeftMargin(20);
 }
 
 QMeshPlot::~QMeshPlot()
 {
-    foreach (QMeshItem *item, items_)
-        delete item;
-    items_.clear();
 }
 
 void QMeshPlot::resizeEvent(QResizeEvent *event)
@@ -69,9 +72,17 @@ void QMeshPlot::wheelEvent(QWheelEvent *event)
     repaint();
 }
 
-void QMeshPlot::mouseReleaseEvent(QMouseEvent *)
+void QMeshPlot::mouseReleaseEvent(QMouseEvent *event)
 {
-    mousePos_ = QPointF();
+    if (mousePos_.isNull())
+    {
+        clickedPos_ = event->pos();
+        emit mouseClicked(this);
+    }
+    else
+    {
+        mousePos_ = QPointF();
+    }
 }
 
 void QMeshPlot::mouseMoveEvent(QMouseEvent *event)
@@ -96,12 +107,6 @@ void QMeshPlot::mouseMoveEvent(QMouseEvent *event)
             repaint();
         }
     }
-}
-
-void QMeshPlot::addItem(QMeshItem *item)
-{
-    if (item)
-        items_.push_back(item);
 }
 
 void QMeshPlot::updateScene()
@@ -236,11 +241,11 @@ void QMeshPlot::drawBorders()
     QPainter painter;
     painter.begin(this);
 
-    double ytick = ceil (drawRect_.y() / tickDy_) * tickDy_;
+    double ytick = ceil(drawRect_.y() / tickDy_) * tickDy_;
     int maxYtw = 0;
     for (int i = 0; i < countTickY_; i++)
     {
-        if (fabs (ytick) < 1e-9)
+        if (fabs(ytick) < 1e-9)
             ytick = 0;
         std::stringstream tickStream;
         tickStream << ytick;
@@ -258,7 +263,7 @@ void QMeshPlot::drawBorders()
     painter.fillRect(QRectF(0, height() - bottomMargin_, width(), bottomMargin_),
                      QColor(0xff, 0xff, 0xff));
 
-    double xtick = ceil (drawRect_.x() / tickDx_) * tickDx_;
+    double xtick = ceil(drawRect_.x() / tickDx_) * tickDx_;
     for (int i = 0; i < countTickX_; i++)
     {
         if (fabs (xtick) < 1e-9)
@@ -308,6 +313,8 @@ void QMeshPlot::drawBorders()
 
 void QMeshPlot::drawItems()
 {
+    const QList<QMeshItem *> &items = mesh_->getItems();
+
     QPen pen = QPen (Qt::white);
     QPainter painter;
     painter.begin(this);
@@ -316,7 +323,7 @@ void QMeshPlot::drawItems()
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(foregroundColor_);
     painter.translate(dx_, dy_);
-    foreach (QMeshItem *item, items_)
+    foreach (QMeshItem *item, items)
         item->draw(painter, scaleX_, scaleY_);
     painter.restore();
     painter.end();
@@ -350,4 +357,36 @@ void QMeshPlot::setBottomMargin(int margin)
 void QMeshPlot::setLeftMargin(int margin)
 {
     leftMargin_ = margin;
+}
+
+QPointF QMeshPlot::getClickedScenePosition(bool snapToGrid)
+{
+    QPointF pos = mapToScene(clickedPos_);
+    if (!snapToGrid)
+        return pos;
+    double x = round(pos.x() / tickDx_) * tickDx_;
+    double y = round(pos.y() / tickDy_) * tickDy_;
+    if (fabs(x - pos.x()) < 0.1 * tickDx_ &&
+        fabs(y - pos.y()) < 0.1 * tickDy_)
+    {
+        return QPointF(x, y);
+    }
+    return pos;
+}
+
+QMeshItemPoint* QMeshPlot::getClickedScenePoint()
+{
+    const QList<QMeshItem *> &items = mesh_->getItems();
+    foreach (QMeshItem *item, items)
+    {
+        QMeshItemPoint *point = dynamic_cast<QMeshItemPoint *>(item);
+        if (!point)
+            continue;
+        QPointF mapPoint = sceneToMap(point->x(), point->y());
+        QPointF diff = clickedPos_ - mapPoint;
+        qreal len = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2));
+        if (len < QMeshItemPoint::pointSize_)
+            return point;
+    }
+    return NULL;
 }

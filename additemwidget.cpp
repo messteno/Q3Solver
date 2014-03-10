@@ -17,3 +17,13 @@ void AddItemWidget::selected()
 {
     director_->widgetButtonPushed(this);
 }
+
+void AddItemWidget::meshPlotClicked(QMeshPlot *meshPlot)
+{
+
+}
+
+void AddItemWidget::clear()
+{
+
+}

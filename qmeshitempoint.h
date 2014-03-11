@@ -10,6 +10,9 @@ public:
 
     explicit QMeshItemPoint(qreal x, qreal y);
     virtual void draw(QPainter &painter, qreal scaleX, qreal scaleY) const;
+    virtual QString getName();
+    virtual QString getValueText();
+
     qreal x();
     qreal y();
 private:

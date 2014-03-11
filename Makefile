@@ -58,13 +58,15 @@ SOURCES       = main.cpp \
 		additemdirectorstateitemselect.cpp \
 		additemdirectorstateitemadd.cpp \
 		qmeshitempoint.cpp \
-		qmeshitemline.cpp moc_mainwindow.cpp \
+		qmeshitemline.cpp \
+		itemlistmodel.cpp moc_mainwindow.cpp \
 		moc_qmeshplot.cpp \
 		moc_qmesh.cpp \
-		moc_additemdirector.cpp \
 		moc_additemwidget.cpp \
+		moc_additemdirector.cpp \
 		moc_pointadditemwidget.cpp \
-		moc_lineadditemwidget.cpp
+		moc_lineadditemwidget.cpp \
+		moc_itemlistmodel.cpp
 OBJECTS       = main.o \
 		mainwindow.o \
 		qmeshitem.o \
@@ -79,13 +81,15 @@ OBJECTS       = main.o \
 		additemdirectorstateitemadd.o \
 		qmeshitempoint.o \
 		qmeshitemline.o \
+		itemlistmodel.o \
 		moc_mainwindow.o \
 		moc_qmeshplot.o \
 		moc_qmesh.o \
-		moc_additemdirector.o \
 		moc_additemwidget.o \
+		moc_additemdirector.o \
 		moc_pointadditemwidget.o \
-		moc_lineadditemwidget.o
+		moc_lineadditemwidget.o \
+		moc_itemlistmodel.o
 DIST          = /usr/lib/qt/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt/mkspecs/common/shell-unix.conf \
 		/usr/lib/qt/mkspecs/common/unix.conf \
@@ -442,7 +446,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/QMesh1.0.0 || mkdir -p .tmp/QMesh1.0.0
-	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/QMesh1.0.0/ && $(COPY_FILE) --parents mainwindow.h qmeshitem.h qmeshplot.h qmesh.h additemdirector.h additemwidget.h pointadditemwidget.h lineadditemwidget.h additemdirectorstate.h additemdirectorstateitemselect.h additemdirectorstateitemadd.h qmeshitempoint.h qmeshitemline.h .tmp/QMesh1.0.0/ && $(COPY_FILE) --parents main.cpp mainwindow.cpp qmeshitem.cpp qmeshplot.cpp qmesh.cpp additemdirector.cpp additemwidget.cpp pointadditemwidget.cpp lineadditemwidget.cpp additemdirectorstate.cpp additemdirectorstateitemselect.cpp additemdirectorstateitemadd.cpp qmeshitempoint.cpp qmeshitemline.cpp .tmp/QMesh1.0.0/ && $(COPY_FILE) --parents mainwindow.ui qmesh.ui pointadditemwidget.ui lineadditemwidget.ui .tmp/QMesh1.0.0/ && (cd `dirname .tmp/QMesh1.0.0` && $(TAR) QMesh1.0.0.tar QMesh1.0.0 && $(COMPRESS) QMesh1.0.0.tar) && $(MOVE) `dirname .tmp/QMesh1.0.0`/QMesh1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/QMesh1.0.0
+	$(COPY_FILE) --parents $(SOURCES) $(DIST) .tmp/QMesh1.0.0/ && $(COPY_FILE) --parents mainwindow.h qmeshitem.h qmeshplot.h qmesh.h additemwidget.h additemdirector.h pointadditemwidget.h lineadditemwidget.h additemdirectorstate.h additemdirectorstateitemselect.h additemdirectorstateitemadd.h qmeshitempoint.h qmeshitemline.h itemlistmodel.h .tmp/QMesh1.0.0/ && $(COPY_FILE) --parents main.cpp mainwindow.cpp qmeshitem.cpp qmeshplot.cpp qmesh.cpp additemdirector.cpp additemwidget.cpp pointadditemwidget.cpp lineadditemwidget.cpp additemdirectorstate.cpp additemdirectorstateitemselect.cpp additemdirectorstateitemadd.cpp qmeshitempoint.cpp qmeshitemline.cpp itemlistmodel.cpp .tmp/QMesh1.0.0/ && $(COPY_FILE) --parents mainwindow.ui qmesh.ui pointadditemwidget.ui lineadditemwidget.ui .tmp/QMesh1.0.0/ && (cd `dirname .tmp/QMesh1.0.0` && $(TAR) QMesh1.0.0.tar QMesh1.0.0 && $(COMPRESS) QMesh1.0.0.tar) && $(MOVE) `dirname .tmp/QMesh1.0.0`/QMesh1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/QMesh1.0.0
 
 
 clean:compiler_clean 
@@ -465,9 +469,9 @@ check: first
 
 compiler_rcc_make_all:
 compiler_rcc_clean:
-compiler_moc_header_make_all: moc_mainwindow.cpp moc_qmeshplot.cpp moc_qmesh.cpp moc_additemdirector.cpp moc_additemwidget.cpp moc_pointadditemwidget.cpp moc_lineadditemwidget.cpp
+compiler_moc_header_make_all: moc_mainwindow.cpp moc_qmeshplot.cpp moc_qmesh.cpp moc_additemwidget.cpp moc_additemdirector.cpp moc_pointadditemwidget.cpp moc_lineadditemwidget.cpp moc_itemlistmodel.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_mainwindow.cpp moc_qmeshplot.cpp moc_qmesh.cpp moc_additemdirector.cpp moc_additemwidget.cpp moc_pointadditemwidget.cpp moc_lineadditemwidget.cpp
+	-$(DEL_FILE) moc_mainwindow.cpp moc_qmeshplot.cpp moc_qmesh.cpp moc_additemwidget.cpp moc_additemdirector.cpp moc_pointadditemwidget.cpp moc_lineadditemwidget.cpp moc_itemlistmodel.cpp
 moc_mainwindow.cpp: /usr/include/qt/QtWidgets/QMainWindow \
 		/usr/include/qt/QtWidgets/qmainwindow.h \
 		/usr/include/qt/QtWidgets/qwidget.h \
@@ -593,12 +597,17 @@ moc_mainwindow.cpp: /usr/include/qt/QtWidgets/QMainWindow \
 		/usr/include/qt/QtWidgets/qboxlayout.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
+		itemlistmodel.h \
+		/usr/include/qt/QtCore/QAbstractTableModel \
+		/usr/include/qt/QtCore/qabstractitemmodel.h \
 		mainwindow.h
 	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include mainwindow.h -o moc_mainwindow.cpp
 
@@ -715,6 +724,7 @@ moc_qmeshplot.cpp: /usr/include/qt/QtWidgets/QWidget \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		qmeshplot.h
 	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include qmeshplot.h -o moc_qmeshplot.cpp
 
@@ -839,14 +849,141 @@ moc_qmesh.cpp: /usr/include/qt/QtWidgets/QWidget \
 		/usr/include/qt/QtWidgets/qboxlayout.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
+		itemlistmodel.h \
+		/usr/include/qt/QtCore/QAbstractTableModel \
+		/usr/include/qt/QtCore/qabstractitemmodel.h \
 		qmesh.h
 	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include qmesh.h -o moc_qmesh.cpp
+
+moc_additemwidget.cpp: /usr/include/qt/QtWidgets/QWidget \
+		/usr/include/qt/QtWidgets/qwidget.h \
+		/usr/include/qt/QtGui/qwindowdefs.h \
+		/usr/include/qt/QtCore/qglobal.h \
+		/usr/include/qt/QtCore/qconfig.h \
+		/usr/include/qt/QtCore/qfeatures.h \
+		/usr/include/qt/QtCore/qsystemdetection.h \
+		/usr/include/qt/QtCore/qprocessordetection.h \
+		/usr/include/qt/QtCore/qcompilerdetection.h \
+		/usr/include/qt/QtCore/qglobalstatic.h \
+		/usr/include/qt/QtCore/qatomic.h \
+		/usr/include/qt/QtCore/qbasicatomic.h \
+		/usr/include/qt/QtCore/qatomic_bootstrap.h \
+		/usr/include/qt/QtCore/qgenericatomic.h \
+		/usr/include/qt/QtCore/qatomic_msvc.h \
+		/usr/include/qt/QtCore/qatomic_integrity.h \
+		/usr/include/qt/QtCore/qoldbasicatomic.h \
+		/usr/include/qt/QtCore/qatomic_vxworks.h \
+		/usr/include/qt/QtCore/qatomic_power.h \
+		/usr/include/qt/QtCore/qatomic_alpha.h \
+		/usr/include/qt/QtCore/qatomic_armv7.h \
+		/usr/include/qt/QtCore/qatomic_armv6.h \
+		/usr/include/qt/QtCore/qatomic_armv5.h \
+		/usr/include/qt/QtCore/qatomic_bfin.h \
+		/usr/include/qt/QtCore/qatomic_ia64.h \
+		/usr/include/qt/QtCore/qatomic_mips.h \
+		/usr/include/qt/QtCore/qatomic_s390.h \
+		/usr/include/qt/QtCore/qatomic_sh4a.h \
+		/usr/include/qt/QtCore/qatomic_sparc.h \
+		/usr/include/qt/QtCore/qatomic_x86.h \
+		/usr/include/qt/QtCore/qatomic_cxx11.h \
+		/usr/include/qt/QtCore/qatomic_gcc.h \
+		/usr/include/qt/QtCore/qatomic_unix.h \
+		/usr/include/qt/QtCore/qmutex.h \
+		/usr/include/qt/QtCore/qlogging.h \
+		/usr/include/qt/QtCore/qflags.h \
+		/usr/include/qt/QtCore/qtypeinfo.h \
+		/usr/include/qt/QtCore/qtypetraits.h \
+		/usr/include/qt/QtCore/qsysinfo.h \
+		/usr/include/qt/QtCore/qobjectdefs.h \
+		/usr/include/qt/QtCore/qnamespace.h \
+		/usr/include/qt/QtCore/qobjectdefs_impl.h \
+		/usr/include/qt/QtGui/qwindowdefs_win.h \
+		/usr/include/qt/QtCore/qobject.h \
+		/usr/include/qt/QtCore/qstring.h \
+		/usr/include/qt/QtCore/qchar.h \
+		/usr/include/qt/QtCore/qbytearray.h \
+		/usr/include/qt/QtCore/qrefcount.h \
+		/usr/include/qt/QtCore/qarraydata.h \
+		/usr/include/qt/QtCore/qstringbuilder.h \
+		/usr/include/qt/QtCore/qlist.h \
+		/usr/include/qt/QtCore/qalgorithms.h \
+		/usr/include/qt/QtCore/qiterator.h \
+		/usr/include/qt/QtCore/qcoreevent.h \
+		/usr/include/qt/QtCore/qscopedpointer.h \
+		/usr/include/qt/QtCore/qmetatype.h \
+		/usr/include/qt/QtCore/qvarlengtharray.h \
+		/usr/include/qt/QtCore/qcontainerfwd.h \
+		/usr/include/qt/QtCore/qisenum.h \
+		/usr/include/qt/QtCore/qobject_impl.h \
+		/usr/include/qt/QtCore/qmargins.h \
+		/usr/include/qt/QtCore/qrect.h \
+		/usr/include/qt/QtCore/qsize.h \
+		/usr/include/qt/QtCore/qpoint.h \
+		/usr/include/qt/QtGui/qpaintdevice.h \
+		/usr/include/qt/QtGui/qpalette.h \
+		/usr/include/qt/QtGui/qcolor.h \
+		/usr/include/qt/QtGui/qrgb.h \
+		/usr/include/qt/QtCore/qstringlist.h \
+		/usr/include/qt/QtCore/qdatastream.h \
+		/usr/include/qt/QtCore/qiodevice.h \
+		/usr/include/qt/QtCore/qpair.h \
+		/usr/include/qt/QtCore/qregexp.h \
+		/usr/include/qt/QtCore/qstringmatcher.h \
+		/usr/include/qt/QtGui/qbrush.h \
+		/usr/include/qt/QtCore/qvector.h \
+		/usr/include/qt/QtGui/qmatrix.h \
+		/usr/include/qt/QtGui/qpolygon.h \
+		/usr/include/qt/QtGui/qregion.h \
+		/usr/include/qt/QtCore/qline.h \
+		/usr/include/qt/QtGui/qtransform.h \
+		/usr/include/qt/QtGui/qpainterpath.h \
+		/usr/include/qt/QtGui/qimage.h \
+		/usr/include/qt/QtGui/qpixmap.h \
+		/usr/include/qt/QtCore/qsharedpointer.h \
+		/usr/include/qt/QtCore/qshareddata.h \
+		/usr/include/qt/QtCore/qsharedpointer_impl.h \
+		/usr/include/qt/QtCore/qhash.h \
+		/usr/include/qt/QtGui/qfont.h \
+		/usr/include/qt/QtGui/qfontmetrics.h \
+		/usr/include/qt/QtGui/qfontinfo.h \
+		/usr/include/qt/QtWidgets/qsizepolicy.h \
+		/usr/include/qt/QtGui/qcursor.h \
+		/usr/include/qt/QtGui/qkeysequence.h \
+		/usr/include/qt/QtGui/qevent.h \
+		/usr/include/qt/QtCore/qvariant.h \
+		/usr/include/qt/QtCore/qmap.h \
+		/usr/include/qt/QtCore/qdebug.h \
+		/usr/include/qt/QtCore/qtextstream.h \
+		/usr/include/qt/QtCore/qlocale.h \
+		/usr/include/qt/QtCore/qset.h \
+		/usr/include/qt/QtCore/qcontiguouscache.h \
+		/usr/include/qt/QtCore/qurl.h \
+		/usr/include/qt/QtCore/qurlquery.h \
+		/usr/include/qt/QtCore/qfile.h \
+		/usr/include/qt/QtCore/qfiledevice.h \
+		/usr/include/qt/QtGui/qvector2d.h \
+		/usr/include/qt/QtGui/qtouchdevice.h \
+		/usr/include/qt/QtWidgets/QPushButton \
+		/usr/include/qt/QtWidgets/qpushbutton.h \
+		/usr/include/qt/QtWidgets/qabstractbutton.h \
+		/usr/include/qt/QtGui/qicon.h \
+		qmeshplot.h \
+		qmeshitem.h \
+		/usr/include/qt/QtGui/QPainter \
+		/usr/include/qt/QtGui/qpainter.h \
+		/usr/include/qt/QtGui/qtextoption.h \
+		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
+		additemwidget.h
+	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include additemwidget.h -o moc_additemwidget.cpp
 
 moc_additemdirector.cpp: /usr/include/qt/QtCore/QList \
 		/usr/include/qt/QtCore/qlist.h \
@@ -968,134 +1105,16 @@ moc_additemdirector.cpp: /usr/include/qt/QtCore/QList \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
 		/usr/include/qt/QtWidgets/QWidget \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
 		additemdirector.h
 	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include additemdirector.h -o moc_additemdirector.cpp
-
-moc_additemwidget.cpp: /usr/include/qt/QtWidgets/QWidget \
-		/usr/include/qt/QtWidgets/qwidget.h \
-		/usr/include/qt/QtGui/qwindowdefs.h \
-		/usr/include/qt/QtCore/qglobal.h \
-		/usr/include/qt/QtCore/qconfig.h \
-		/usr/include/qt/QtCore/qfeatures.h \
-		/usr/include/qt/QtCore/qsystemdetection.h \
-		/usr/include/qt/QtCore/qprocessordetection.h \
-		/usr/include/qt/QtCore/qcompilerdetection.h \
-		/usr/include/qt/QtCore/qglobalstatic.h \
-		/usr/include/qt/QtCore/qatomic.h \
-		/usr/include/qt/QtCore/qbasicatomic.h \
-		/usr/include/qt/QtCore/qatomic_bootstrap.h \
-		/usr/include/qt/QtCore/qgenericatomic.h \
-		/usr/include/qt/QtCore/qatomic_msvc.h \
-		/usr/include/qt/QtCore/qatomic_integrity.h \
-		/usr/include/qt/QtCore/qoldbasicatomic.h \
-		/usr/include/qt/QtCore/qatomic_vxworks.h \
-		/usr/include/qt/QtCore/qatomic_power.h \
-		/usr/include/qt/QtCore/qatomic_alpha.h \
-		/usr/include/qt/QtCore/qatomic_armv7.h \
-		/usr/include/qt/QtCore/qatomic_armv6.h \
-		/usr/include/qt/QtCore/qatomic_armv5.h \
-		/usr/include/qt/QtCore/qatomic_bfin.h \
-		/usr/include/qt/QtCore/qatomic_ia64.h \
-		/usr/include/qt/QtCore/qatomic_mips.h \
-		/usr/include/qt/QtCore/qatomic_s390.h \
-		/usr/include/qt/QtCore/qatomic_sh4a.h \
-		/usr/include/qt/QtCore/qatomic_sparc.h \
-		/usr/include/qt/QtCore/qatomic_x86.h \
-		/usr/include/qt/QtCore/qatomic_cxx11.h \
-		/usr/include/qt/QtCore/qatomic_gcc.h \
-		/usr/include/qt/QtCore/qatomic_unix.h \
-		/usr/include/qt/QtCore/qmutex.h \
-		/usr/include/qt/QtCore/qlogging.h \
-		/usr/include/qt/QtCore/qflags.h \
-		/usr/include/qt/QtCore/qtypeinfo.h \
-		/usr/include/qt/QtCore/qtypetraits.h \
-		/usr/include/qt/QtCore/qsysinfo.h \
-		/usr/include/qt/QtCore/qobjectdefs.h \
-		/usr/include/qt/QtCore/qnamespace.h \
-		/usr/include/qt/QtCore/qobjectdefs_impl.h \
-		/usr/include/qt/QtGui/qwindowdefs_win.h \
-		/usr/include/qt/QtCore/qobject.h \
-		/usr/include/qt/QtCore/qstring.h \
-		/usr/include/qt/QtCore/qchar.h \
-		/usr/include/qt/QtCore/qbytearray.h \
-		/usr/include/qt/QtCore/qrefcount.h \
-		/usr/include/qt/QtCore/qarraydata.h \
-		/usr/include/qt/QtCore/qstringbuilder.h \
-		/usr/include/qt/QtCore/qlist.h \
-		/usr/include/qt/QtCore/qalgorithms.h \
-		/usr/include/qt/QtCore/qiterator.h \
-		/usr/include/qt/QtCore/qcoreevent.h \
-		/usr/include/qt/QtCore/qscopedpointer.h \
-		/usr/include/qt/QtCore/qmetatype.h \
-		/usr/include/qt/QtCore/qvarlengtharray.h \
-		/usr/include/qt/QtCore/qcontainerfwd.h \
-		/usr/include/qt/QtCore/qisenum.h \
-		/usr/include/qt/QtCore/qobject_impl.h \
-		/usr/include/qt/QtCore/qmargins.h \
-		/usr/include/qt/QtCore/qrect.h \
-		/usr/include/qt/QtCore/qsize.h \
-		/usr/include/qt/QtCore/qpoint.h \
-		/usr/include/qt/QtGui/qpaintdevice.h \
-		/usr/include/qt/QtGui/qpalette.h \
-		/usr/include/qt/QtGui/qcolor.h \
-		/usr/include/qt/QtGui/qrgb.h \
-		/usr/include/qt/QtCore/qstringlist.h \
-		/usr/include/qt/QtCore/qdatastream.h \
-		/usr/include/qt/QtCore/qiodevice.h \
-		/usr/include/qt/QtCore/qpair.h \
-		/usr/include/qt/QtCore/qregexp.h \
-		/usr/include/qt/QtCore/qstringmatcher.h \
-		/usr/include/qt/QtGui/qbrush.h \
-		/usr/include/qt/QtCore/qvector.h \
-		/usr/include/qt/QtGui/qmatrix.h \
-		/usr/include/qt/QtGui/qpolygon.h \
-		/usr/include/qt/QtGui/qregion.h \
-		/usr/include/qt/QtCore/qline.h \
-		/usr/include/qt/QtGui/qtransform.h \
-		/usr/include/qt/QtGui/qpainterpath.h \
-		/usr/include/qt/QtGui/qimage.h \
-		/usr/include/qt/QtGui/qpixmap.h \
-		/usr/include/qt/QtCore/qsharedpointer.h \
-		/usr/include/qt/QtCore/qshareddata.h \
-		/usr/include/qt/QtCore/qsharedpointer_impl.h \
-		/usr/include/qt/QtCore/qhash.h \
-		/usr/include/qt/QtGui/qfont.h \
-		/usr/include/qt/QtGui/qfontmetrics.h \
-		/usr/include/qt/QtGui/qfontinfo.h \
-		/usr/include/qt/QtWidgets/qsizepolicy.h \
-		/usr/include/qt/QtGui/qcursor.h \
-		/usr/include/qt/QtGui/qkeysequence.h \
-		/usr/include/qt/QtGui/qevent.h \
-		/usr/include/qt/QtCore/qvariant.h \
-		/usr/include/qt/QtCore/qmap.h \
-		/usr/include/qt/QtCore/qdebug.h \
-		/usr/include/qt/QtCore/qtextstream.h \
-		/usr/include/qt/QtCore/qlocale.h \
-		/usr/include/qt/QtCore/qset.h \
-		/usr/include/qt/QtCore/qcontiguouscache.h \
-		/usr/include/qt/QtCore/qurl.h \
-		/usr/include/qt/QtCore/qurlquery.h \
-		/usr/include/qt/QtCore/qfile.h \
-		/usr/include/qt/QtCore/qfiledevice.h \
-		/usr/include/qt/QtGui/qvector2d.h \
-		/usr/include/qt/QtGui/qtouchdevice.h \
-		/usr/include/qt/QtWidgets/QPushButton \
-		/usr/include/qt/QtWidgets/qpushbutton.h \
-		/usr/include/qt/QtWidgets/qabstractbutton.h \
-		/usr/include/qt/QtGui/qicon.h \
-		qmeshitem.h \
-		/usr/include/qt/QtGui/QPainter \
-		/usr/include/qt/QtGui/qpainter.h \
-		/usr/include/qt/QtGui/qtextoption.h \
-		/usr/include/qt/QtGui/qpen.h \
-		additemwidget.h
-	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include additemwidget.h -o moc_additemwidget.cpp
 
 moc_pointadditemwidget.cpp: /usr/include/qt/QtWidgets/QWidget \
 		/usr/include/qt/QtWidgets/qwidget.h \
@@ -1210,11 +1229,13 @@ moc_pointadditemwidget.cpp: /usr/include/qt/QtWidgets/QWidget \
 		/usr/include/qt/QtWidgets/qpushbutton.h \
 		/usr/include/qt/QtWidgets/qabstractbutton.h \
 		/usr/include/qt/QtGui/qicon.h \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		pointadditemwidget.h
 	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include pointadditemwidget.h -o moc_pointadditemwidget.cpp
 
@@ -1331,27 +1352,20 @@ moc_lineadditemwidget.cpp: /usr/include/qt/QtWidgets/QWidget \
 		/usr/include/qt/QtWidgets/qpushbutton.h \
 		/usr/include/qt/QtWidgets/qabstractbutton.h \
 		/usr/include/qt/QtGui/qicon.h \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		lineadditemwidget.h
 	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include lineadditemwidget.h -o moc_lineadditemwidget.cpp
 
-compiler_moc_source_make_all:
-compiler_moc_source_clean:
-compiler_uic_make_all: ui_mainwindow.h ui_qmesh.h ui_pointadditemwidget.h ui_lineadditemwidget.h
-compiler_uic_clean:
-	-$(DEL_FILE) ui_mainwindow.h ui_qmesh.h ui_pointadditemwidget.h ui_lineadditemwidget.h
-ui_mainwindow.h: mainwindow.ui
-	/usr/lib/qt/bin/uic mainwindow.ui -o ui_mainwindow.h
-
-ui_qmesh.h: qmesh.ui \
-		qmeshplot.h \
-		/usr/include/qt/QtWidgets/QWidget \
-		/usr/include/qt/QtWidgets/qwidget.h \
-		/usr/include/qt/QtGui/qwindowdefs.h \
+moc_itemlistmodel.cpp: /usr/include/qt/QtCore/QAbstractTableModel \
+		/usr/include/qt/QtCore/qabstractitemmodel.h \
+		/usr/include/qt/QtCore/qvariant.h \
+		/usr/include/qt/QtCore/qatomic.h \
 		/usr/include/qt/QtCore/qglobal.h \
 		/usr/include/qt/QtCore/qconfig.h \
 		/usr/include/qt/QtCore/qfeatures.h \
@@ -1359,7 +1373,12 @@ ui_qmesh.h: qmesh.ui \
 		/usr/include/qt/QtCore/qprocessordetection.h \
 		/usr/include/qt/QtCore/qcompilerdetection.h \
 		/usr/include/qt/QtCore/qglobalstatic.h \
-		/usr/include/qt/QtCore/qatomic.h \
+		/usr/include/qt/QtCore/qmutex.h \
+		/usr/include/qt/QtCore/qlogging.h \
+		/usr/include/qt/QtCore/qflags.h \
+		/usr/include/qt/QtCore/qtypeinfo.h \
+		/usr/include/qt/QtCore/qtypetraits.h \
+		/usr/include/qt/QtCore/qsysinfo.h \
 		/usr/include/qt/QtCore/qbasicatomic.h \
 		/usr/include/qt/QtCore/qatomic_bootstrap.h \
 		/usr/include/qt/QtCore/qgenericatomic.h \
@@ -1382,86 +1401,80 @@ ui_qmesh.h: qmesh.ui \
 		/usr/include/qt/QtCore/qatomic_cxx11.h \
 		/usr/include/qt/QtCore/qatomic_gcc.h \
 		/usr/include/qt/QtCore/qatomic_unix.h \
-		/usr/include/qt/QtCore/qmutex.h \
-		/usr/include/qt/QtCore/qlogging.h \
-		/usr/include/qt/QtCore/qflags.h \
-		/usr/include/qt/QtCore/qtypeinfo.h \
-		/usr/include/qt/QtCore/qtypetraits.h \
-		/usr/include/qt/QtCore/qsysinfo.h \
-		/usr/include/qt/QtCore/qobjectdefs.h \
-		/usr/include/qt/QtCore/qnamespace.h \
-		/usr/include/qt/QtCore/qobjectdefs_impl.h \
-		/usr/include/qt/QtGui/qwindowdefs_win.h \
-		/usr/include/qt/QtCore/qobject.h \
-		/usr/include/qt/QtCore/qstring.h \
-		/usr/include/qt/QtCore/qchar.h \
 		/usr/include/qt/QtCore/qbytearray.h \
 		/usr/include/qt/QtCore/qrefcount.h \
+		/usr/include/qt/QtCore/qnamespace.h \
 		/usr/include/qt/QtCore/qarraydata.h \
+		/usr/include/qt/QtCore/qstring.h \
+		/usr/include/qt/QtCore/qchar.h \
 		/usr/include/qt/QtCore/qstringbuilder.h \
 		/usr/include/qt/QtCore/qlist.h \
 		/usr/include/qt/QtCore/qalgorithms.h \
 		/usr/include/qt/QtCore/qiterator.h \
-		/usr/include/qt/QtCore/qcoreevent.h \
-		/usr/include/qt/QtCore/qscopedpointer.h \
 		/usr/include/qt/QtCore/qmetatype.h \
 		/usr/include/qt/QtCore/qvarlengtharray.h \
 		/usr/include/qt/QtCore/qcontainerfwd.h \
 		/usr/include/qt/QtCore/qisenum.h \
+		/usr/include/qt/QtCore/qobjectdefs.h \
+		/usr/include/qt/QtCore/qobjectdefs_impl.h \
+		/usr/include/qt/QtCore/qmap.h \
+		/usr/include/qt/QtCore/qpair.h \
+		/usr/include/qt/QtCore/qdebug.h \
+		/usr/include/qt/QtCore/qhash.h \
+		/usr/include/qt/QtCore/qtextstream.h \
+		/usr/include/qt/QtCore/qiodevice.h \
+		/usr/include/qt/QtCore/qobject.h \
+		/usr/include/qt/QtCore/qcoreevent.h \
+		/usr/include/qt/QtCore/qscopedpointer.h \
 		/usr/include/qt/QtCore/qobject_impl.h \
-		/usr/include/qt/QtCore/qmargins.h \
-		/usr/include/qt/QtCore/qrect.h \
-		/usr/include/qt/QtCore/qsize.h \
+		/usr/include/qt/QtCore/qlocale.h \
+		/usr/include/qt/QtCore/qshareddata.h \
+		/usr/include/qt/QtCore/qvector.h \
 		/usr/include/qt/QtCore/qpoint.h \
-		/usr/include/qt/QtGui/qpaintdevice.h \
-		/usr/include/qt/QtGui/qpalette.h \
-		/usr/include/qt/QtGui/qcolor.h \
-		/usr/include/qt/QtGui/qrgb.h \
+		/usr/include/qt/QtCore/qset.h \
+		/usr/include/qt/QtCore/qcontiguouscache.h \
 		/usr/include/qt/QtCore/qstringlist.h \
 		/usr/include/qt/QtCore/qdatastream.h \
-		/usr/include/qt/QtCore/qiodevice.h \
-		/usr/include/qt/QtCore/qpair.h \
 		/usr/include/qt/QtCore/qregexp.h \
 		/usr/include/qt/QtCore/qstringmatcher.h \
-		/usr/include/qt/QtGui/qbrush.h \
-		/usr/include/qt/QtCore/qvector.h \
+		qmeshitem.h \
+		/usr/include/qt/QtGui/QPainter \
+		/usr/include/qt/QtGui/qpainter.h \
+		/usr/include/qt/QtCore/qrect.h \
+		/usr/include/qt/QtCore/qsize.h \
+		/usr/include/qt/QtGui/qpixmap.h \
+		/usr/include/qt/QtGui/qpaintdevice.h \
+		/usr/include/qt/QtGui/qwindowdefs.h \
+		/usr/include/qt/QtGui/qwindowdefs_win.h \
+		/usr/include/qt/QtGui/qcolor.h \
+		/usr/include/qt/QtGui/qrgb.h \
+		/usr/include/qt/QtCore/qsharedpointer.h \
+		/usr/include/qt/QtCore/qsharedpointer_impl.h \
+		/usr/include/qt/QtGui/qimage.h \
+		/usr/include/qt/QtGui/qtransform.h \
 		/usr/include/qt/QtGui/qmatrix.h \
 		/usr/include/qt/QtGui/qpolygon.h \
 		/usr/include/qt/QtGui/qregion.h \
 		/usr/include/qt/QtCore/qline.h \
-		/usr/include/qt/QtGui/qtransform.h \
 		/usr/include/qt/QtGui/qpainterpath.h \
-		/usr/include/qt/QtGui/qimage.h \
-		/usr/include/qt/QtGui/qpixmap.h \
-		/usr/include/qt/QtCore/qsharedpointer.h \
-		/usr/include/qt/QtCore/qshareddata.h \
-		/usr/include/qt/QtCore/qsharedpointer_impl.h \
-		/usr/include/qt/QtCore/qhash.h \
+		/usr/include/qt/QtGui/qtextoption.h \
+		/usr/include/qt/QtGui/qpen.h \
+		/usr/include/qt/QtGui/qbrush.h \
+		/usr/include/qt/QtGui/qfontinfo.h \
 		/usr/include/qt/QtGui/qfont.h \
 		/usr/include/qt/QtGui/qfontmetrics.h \
-		/usr/include/qt/QtGui/qfontinfo.h \
-		/usr/include/qt/QtWidgets/qsizepolicy.h \
-		/usr/include/qt/QtGui/qcursor.h \
-		/usr/include/qt/QtGui/qkeysequence.h \
-		/usr/include/qt/QtGui/qevent.h \
-		/usr/include/qt/QtCore/qvariant.h \
-		/usr/include/qt/QtCore/qmap.h \
-		/usr/include/qt/QtCore/qdebug.h \
-		/usr/include/qt/QtCore/qtextstream.h \
-		/usr/include/qt/QtCore/qlocale.h \
-		/usr/include/qt/QtCore/qset.h \
-		/usr/include/qt/QtCore/qcontiguouscache.h \
-		/usr/include/qt/QtCore/qurl.h \
-		/usr/include/qt/QtCore/qurlquery.h \
-		/usr/include/qt/QtCore/qfile.h \
-		/usr/include/qt/QtCore/qfiledevice.h \
-		/usr/include/qt/QtGui/qvector2d.h \
-		/usr/include/qt/QtGui/qtouchdevice.h \
-		qmeshitem.h \
-		/usr/include/qt/QtGui/QPainter \
-		/usr/include/qt/QtGui/qpainter.h \
-		/usr/include/qt/QtGui/qtextoption.h \
-		/usr/include/qt/QtGui/qpen.h
+		itemlistmodel.h
+	/usr/lib/qt/bin/moc $(DEFINES) $(INCPATH) -I/usr/lib/gcc/include/c++/4.8.2 -I/usr/lib/gcc/include/c++/4.8.2/x86_64-unknown-linux-gnu -I/usr/lib/gcc/include/c++/4.8.2/backward -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include -I/usr/local/include -I/usr/lib/gcc/x86_64-unknown-linux-gnu/4.8.2/include-fixed -I/usr/include itemlistmodel.h -o moc_itemlistmodel.cpp
+
+compiler_moc_source_make_all:
+compiler_moc_source_clean:
+compiler_uic_make_all: ui_mainwindow.h ui_qmesh.h ui_pointadditemwidget.h ui_lineadditemwidget.h
+compiler_uic_clean:
+	-$(DEL_FILE) ui_mainwindow.h ui_qmesh.h ui_pointadditemwidget.h ui_lineadditemwidget.h
+ui_mainwindow.h: mainwindow.ui
+	/usr/lib/qt/bin/uic mainwindow.ui -o ui_mainwindow.h
+
+ui_qmesh.h: qmesh.ui
 	/usr/lib/qt/bin/uic qmesh.ui -o ui_qmesh.h
 
 ui_pointadditemwidget.h: pointadditemwidget.ui
@@ -1606,12 +1619,17 @@ main.o: main.cpp mainwindow.h \
 		/usr/include/qt/QtWidgets/qboxlayout.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
+		itemlistmodel.h \
+		/usr/include/qt/QtCore/QAbstractTableModel \
+		/usr/include/qt/QtCore/qabstractitemmodel.h \
 		/usr/include/qt/QtWidgets/QApplication \
 		/usr/include/qt/QtWidgets/qapplication.h \
 		/usr/include/qt/QtCore/qcoreapplication.h \
@@ -1747,12 +1765,17 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/include/qt/QtWidgets/qboxlayout.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
+		itemlistmodel.h \
+		/usr/include/qt/QtCore/QAbstractTableModel \
+		/usr/include/qt/QtCore/qabstractitemmodel.h \
 		ui_mainwindow.h \
 		/usr/include/qt/QtCore/QVariant \
 		/usr/include/qt/QtWidgets/QAction \
@@ -1772,7 +1795,6 @@ mainwindow.o: mainwindow.cpp mainwindow.h \
 		/usr/include/qt/QtWidgets/qabstractitemview.h \
 		/usr/include/qt/QtWidgets/qabstractscrollarea.h \
 		/usr/include/qt/QtWidgets/qframe.h \
-		/usr/include/qt/QtCore/qabstractitemmodel.h \
 		/usr/include/qt/QtCore/qitemselectionmodel.h \
 		/usr/include/qt/QtWidgets/qabstractitemdelegate.h \
 		/usr/include/qt/QtWidgets/qstyleoption.h \
@@ -1997,14 +2019,33 @@ qmeshplot.o: qmeshplot.cpp /usr/include/qt/QtCore/QDebug \
 		/usr/include/qt/QtGui/qtouchdevice.h \
 		/usr/include/qt/QtGui/QFont \
 		/usr/include/qt/QtCore/qmath.h \
-		qmeshplot.h \
+		qmesh.h \
 		/usr/include/qt/QtWidgets/QWidget \
 		/usr/include/qt/QtWidgets/qwidget.h \
 		/usr/include/qt/QtCore/qmargins.h \
 		/usr/include/qt/QtGui/qpalette.h \
 		/usr/include/qt/QtWidgets/qsizepolicy.h \
 		/usr/include/qt/QtGui/qcursor.h \
-		qmeshitem.h
+		additemdirector.h \
+		/usr/include/qt/QtCore/QList \
+		/usr/include/qt/QtWidgets/QPushButton \
+		/usr/include/qt/QtWidgets/qpushbutton.h \
+		/usr/include/qt/QtWidgets/qabstractbutton.h \
+		/usr/include/qt/QtGui/qicon.h \
+		/usr/include/qt/QtWidgets/QStackedLayout \
+		/usr/include/qt/QtWidgets/qstackedlayout.h \
+		/usr/include/qt/QtWidgets/qlayout.h \
+		/usr/include/qt/QtWidgets/qlayoutitem.h \
+		/usr/include/qt/QtWidgets/qboxlayout.h \
+		/usr/include/qt/QtWidgets/qgridlayout.h \
+		additemwidget.h \
+		qmeshplot.h \
+		qmeshitem.h \
+		qmeshitempoint.h \
+		additemdirectorstate.h \
+		itemlistmodel.h \
+		/usr/include/qt/QtCore/QAbstractTableModel \
+		/usr/include/qt/QtCore/qabstractitemmodel.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qmeshplot.o qmeshplot.cpp
 
 qmesh.o: qmesh.cpp qmesh.h \
@@ -2129,12 +2170,17 @@ qmesh.o: qmesh.cpp qmesh.h \
 		/usr/include/qt/QtWidgets/qboxlayout.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
+		itemlistmodel.h \
+		/usr/include/qt/QtCore/QAbstractTableModel \
+		/usr/include/qt/QtCore/qabstractitemmodel.h \
 		ui_qmesh.h \
 		/usr/include/qt/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qmesh.o qmesh.cpp
@@ -2253,11 +2299,13 @@ additemdirector.o: additemdirector.cpp pointadditemwidget.h \
 		/usr/include/qt/QtWidgets/qpushbutton.h \
 		/usr/include/qt/QtWidgets/qabstractbutton.h \
 		/usr/include/qt/QtGui/qicon.h \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		lineadditemwidget.h \
 		additemdirector.h \
 		/usr/include/qt/QtCore/QList \
@@ -2269,7 +2317,11 @@ additemdirector.o: additemdirector.cpp pointadditemwidget.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemdirectorstate.h \
 		additemdirectorstateitemselect.h \
-		qmeshplot.h \
+		qmesh.h \
+		itemlistmodel.h \
+		/usr/include/qt/QtCore/QAbstractTableModel \
+		/usr/include/qt/QtCore/qabstractitemmodel.h \
+		/usr/include/qt/QtCore/QDebug \
 		/usr/include/qt/QtWidgets/QStackedWidget \
 		/usr/include/qt/QtWidgets/qstackedwidget.h \
 		/usr/include/qt/QtWidgets/qframe.h \
@@ -2397,11 +2449,13 @@ additemwidget.o: additemwidget.cpp additemdirector.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
 		/usr/include/qt/QtWidgets/QWidget \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o additemwidget.o additemwidget.cpp
 
@@ -2526,15 +2580,17 @@ pointadditemwidget.o: pointadditemwidget.cpp additemdirector.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
 		/usr/include/qt/QtWidgets/QWidget \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
 		ui_pointadditemwidget.h \
 		pointadditemwidget.h \
-		qmeshitempoint.h
+		/usr/include/qt/QtCore/QTextStream
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pointadditemwidget.o pointadditemwidget.cpp
 
 lineadditemwidget.o: lineadditemwidget.cpp additemdirector.h \
@@ -2658,11 +2714,13 @@ lineadditemwidget.o: lineadditemwidget.cpp additemdirector.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
 		/usr/include/qt/QtWidgets/QWidget \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
 		ui_lineadditemwidget.h \
 		lineadditemwidget.h \
@@ -2790,11 +2848,13 @@ additemdirectorstate.o: additemdirectorstate.cpp additemdirector.h \
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
 		/usr/include/qt/QtWidgets/QWidget \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o additemdirectorstate.o additemdirectorstate.cpp
 
@@ -2919,11 +2979,13 @@ additemdirectorstateitemselect.o: additemdirectorstateitemselect.cpp additemdire
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
 		/usr/include/qt/QtWidgets/QWidget \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
 		additemdirectorstateitemselect.h \
 		additemdirectorstateitemadd.h
@@ -3050,11 +3112,13 @@ additemdirectorstateitemadd.o: additemdirectorstateitemadd.cpp additemdirector.h
 		/usr/include/qt/QtWidgets/qgridlayout.h \
 		additemwidget.h \
 		/usr/include/qt/QtWidgets/QWidget \
+		qmeshplot.h \
 		qmeshitem.h \
 		/usr/include/qt/QtGui/QPainter \
 		/usr/include/qt/QtGui/qpainter.h \
 		/usr/include/qt/QtGui/qtextoption.h \
 		/usr/include/qt/QtGui/qpen.h \
+		qmeshitempoint.h \
 		additemdirectorstate.h \
 		additemdirectorstateitemadd.h \
 		additemdirectorstateitemselect.h
@@ -3247,8 +3311,114 @@ qmeshitemline.o: qmeshitemline.cpp qmeshitemline.h \
 		/usr/include/qt/QtGui/qbrush.h \
 		/usr/include/qt/QtGui/qfontinfo.h \
 		/usr/include/qt/QtGui/qfont.h \
-		/usr/include/qt/QtGui/qfontmetrics.h
+		/usr/include/qt/QtGui/qfontmetrics.h \
+		qmeshitempoint.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o qmeshitemline.o qmeshitemline.cpp
+
+itemlistmodel.o: itemlistmodel.cpp /usr/include/qt/QtCore/QDebug \
+		/usr/include/qt/QtCore/qdebug.h \
+		/usr/include/qt/QtCore/qalgorithms.h \
+		/usr/include/qt/QtCore/qglobal.h \
+		/usr/include/qt/QtCore/qconfig.h \
+		/usr/include/qt/QtCore/qfeatures.h \
+		/usr/include/qt/QtCore/qsystemdetection.h \
+		/usr/include/qt/QtCore/qprocessordetection.h \
+		/usr/include/qt/QtCore/qcompilerdetection.h \
+		/usr/include/qt/QtCore/qglobalstatic.h \
+		/usr/include/qt/QtCore/qatomic.h \
+		/usr/include/qt/QtCore/qbasicatomic.h \
+		/usr/include/qt/QtCore/qatomic_bootstrap.h \
+		/usr/include/qt/QtCore/qgenericatomic.h \
+		/usr/include/qt/QtCore/qatomic_msvc.h \
+		/usr/include/qt/QtCore/qatomic_integrity.h \
+		/usr/include/qt/QtCore/qoldbasicatomic.h \
+		/usr/include/qt/QtCore/qatomic_vxworks.h \
+		/usr/include/qt/QtCore/qatomic_power.h \
+		/usr/include/qt/QtCore/qatomic_alpha.h \
+		/usr/include/qt/QtCore/qatomic_armv7.h \
+		/usr/include/qt/QtCore/qatomic_armv6.h \
+		/usr/include/qt/QtCore/qatomic_armv5.h \
+		/usr/include/qt/QtCore/qatomic_bfin.h \
+		/usr/include/qt/QtCore/qatomic_ia64.h \
+		/usr/include/qt/QtCore/qatomic_mips.h \
+		/usr/include/qt/QtCore/qatomic_s390.h \
+		/usr/include/qt/QtCore/qatomic_sh4a.h \
+		/usr/include/qt/QtCore/qatomic_sparc.h \
+		/usr/include/qt/QtCore/qatomic_x86.h \
+		/usr/include/qt/QtCore/qatomic_cxx11.h \
+		/usr/include/qt/QtCore/qatomic_gcc.h \
+		/usr/include/qt/QtCore/qatomic_unix.h \
+		/usr/include/qt/QtCore/qmutex.h \
+		/usr/include/qt/QtCore/qlogging.h \
+		/usr/include/qt/QtCore/qflags.h \
+		/usr/include/qt/QtCore/qtypeinfo.h \
+		/usr/include/qt/QtCore/qtypetraits.h \
+		/usr/include/qt/QtCore/qsysinfo.h \
+		/usr/include/qt/QtCore/qhash.h \
+		/usr/include/qt/QtCore/qchar.h \
+		/usr/include/qt/QtCore/qiterator.h \
+		/usr/include/qt/QtCore/qlist.h \
+		/usr/include/qt/QtCore/qrefcount.h \
+		/usr/include/qt/QtCore/qpair.h \
+		/usr/include/qt/QtCore/qmap.h \
+		/usr/include/qt/QtCore/qtextstream.h \
+		/usr/include/qt/QtCore/qiodevice.h \
+		/usr/include/qt/QtCore/qobject.h \
+		/usr/include/qt/QtCore/qobjectdefs.h \
+		/usr/include/qt/QtCore/qnamespace.h \
+		/usr/include/qt/QtCore/qobjectdefs_impl.h \
+		/usr/include/qt/QtCore/qstring.h \
+		/usr/include/qt/QtCore/qbytearray.h \
+		/usr/include/qt/QtCore/qarraydata.h \
+		/usr/include/qt/QtCore/qstringbuilder.h \
+		/usr/include/qt/QtCore/qcoreevent.h \
+		/usr/include/qt/QtCore/qscopedpointer.h \
+		/usr/include/qt/QtCore/qmetatype.h \
+		/usr/include/qt/QtCore/qvarlengtharray.h \
+		/usr/include/qt/QtCore/qcontainerfwd.h \
+		/usr/include/qt/QtCore/qisenum.h \
+		/usr/include/qt/QtCore/qobject_impl.h \
+		/usr/include/qt/QtCore/qlocale.h \
+		/usr/include/qt/QtCore/qvariant.h \
+		/usr/include/qt/QtCore/qstringlist.h \
+		/usr/include/qt/QtCore/qdatastream.h \
+		/usr/include/qt/QtCore/qregexp.h \
+		/usr/include/qt/QtCore/qstringmatcher.h \
+		/usr/include/qt/QtCore/qshareddata.h \
+		/usr/include/qt/QtCore/qvector.h \
+		/usr/include/qt/QtCore/qpoint.h \
+		/usr/include/qt/QtCore/qset.h \
+		/usr/include/qt/QtCore/qcontiguouscache.h \
+		itemlistmodel.h \
+		/usr/include/qt/QtCore/QAbstractTableModel \
+		/usr/include/qt/QtCore/qabstractitemmodel.h \
+		qmeshitem.h \
+		/usr/include/qt/QtGui/QPainter \
+		/usr/include/qt/QtGui/qpainter.h \
+		/usr/include/qt/QtCore/qrect.h \
+		/usr/include/qt/QtCore/qsize.h \
+		/usr/include/qt/QtGui/qpixmap.h \
+		/usr/include/qt/QtGui/qpaintdevice.h \
+		/usr/include/qt/QtGui/qwindowdefs.h \
+		/usr/include/qt/QtGui/qwindowdefs_win.h \
+		/usr/include/qt/QtGui/qcolor.h \
+		/usr/include/qt/QtGui/qrgb.h \
+		/usr/include/qt/QtCore/qsharedpointer.h \
+		/usr/include/qt/QtCore/qsharedpointer_impl.h \
+		/usr/include/qt/QtGui/qimage.h \
+		/usr/include/qt/QtGui/qtransform.h \
+		/usr/include/qt/QtGui/qmatrix.h \
+		/usr/include/qt/QtGui/qpolygon.h \
+		/usr/include/qt/QtGui/qregion.h \
+		/usr/include/qt/QtCore/qline.h \
+		/usr/include/qt/QtGui/qpainterpath.h \
+		/usr/include/qt/QtGui/qtextoption.h \
+		/usr/include/qt/QtGui/qpen.h \
+		/usr/include/qt/QtGui/qbrush.h \
+		/usr/include/qt/QtGui/qfontinfo.h \
+		/usr/include/qt/QtGui/qfont.h \
+		/usr/include/qt/QtGui/qfontmetrics.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o itemlistmodel.o itemlistmodel.cpp
 
 moc_mainwindow.o: moc_mainwindow.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mainwindow.o moc_mainwindow.cpp
@@ -3259,17 +3429,20 @@ moc_qmeshplot.o: moc_qmeshplot.cpp
 moc_qmesh.o: moc_qmesh.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_qmesh.o moc_qmesh.cpp
 
-moc_additemdirector.o: moc_additemdirector.cpp 
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_additemdirector.o moc_additemdirector.cpp
-
 moc_additemwidget.o: moc_additemwidget.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_additemwidget.o moc_additemwidget.cpp
+
+moc_additemdirector.o: moc_additemdirector.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_additemdirector.o moc_additemdirector.cpp
 
 moc_pointadditemwidget.o: moc_pointadditemwidget.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_pointadditemwidget.o moc_pointadditemwidget.cpp
 
 moc_lineadditemwidget.o: moc_lineadditemwidget.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_lineadditemwidget.o moc_lineadditemwidget.cpp
+
+moc_itemlistmodel.o: moc_itemlistmodel.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_itemlistmodel.o moc_itemlistmodel.cpp
 
 ####### Install
 

@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     additemdirectorstateitemselect.cpp \
     additemdirectorstateitemadd.cpp \
     qmeshitempoint.cpp \
-    qmeshitemline.cpp
+    qmeshitemline.cpp \
+    itemlistmodel.cpp
 
 HEADERS  += mainwindow.h \
     qmeshitem.h \
@@ -39,7 +40,8 @@ HEADERS  += mainwindow.h \
     additemdirectorstateitemselect.h \
     additemdirectorstateitemadd.h \
     qmeshitempoint.h \
-    qmeshitemline.h
+    qmeshitemline.h \
+    itemlistmodel.h
 
 FORMS    += mainwindow.ui \
     qmesh.ui \

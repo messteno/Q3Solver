@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "additemdirector.h"
 #include "qmeshitem.h"
+#include "itemlistmodel.h"
 
 namespace Ui {
 class QMesh;
@@ -27,7 +28,9 @@ private slots:
 private:
     Ui::QMesh *ui;
     AddItemDirector *addItemDirector_;
+    QMeshPlot *meshPlot_;
     QList<QMeshItem *> items_;
+    ItemListModel *itemListModel_;
 };
 
 #endif // QMESH_H

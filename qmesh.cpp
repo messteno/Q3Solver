@@ -1,22 +1,35 @@
 #include "qmesh.h"
+#include "qmeshplot.h"
 #include "ui_qmesh.h"
 #include <QDebug>
 #include <QList>
+
+#include "itemlistmodel.h"
 
 QMesh::QMesh(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::QMesh)
 {
     ui->setupUi(this);
+
     addItemDirector_ = new AddItemDirector(this);
+    meshPlot_ = new QMeshPlot(this);
+
     ui->addWidgetsLayout->addWidget(addItemDirector_);
-    connect(ui->meshPlot, SIGNAL(mouseClicked(QMeshPlot *)),
+    ui->plotLayout->addWidget(meshPlot_);
+
+    connect(meshPlot_, SIGNAL(mouseClicked(QMeshPlot *)),
             addItemDirector_, SLOT(meshPlotClicked(QMeshPlot *)));
+
+    itemListModel_ = new ItemListModel();
+    ui->itemList->setModel(itemListModel_);
 }
 
 QMesh::~QMesh()
 {
     delete addItemDirector_;
+    delete meshPlot_;
+    delete itemListModel_;
 
     foreach (QMeshItem *item, items_)
         delete item;
@@ -28,7 +41,8 @@ void QMesh::addItem(QMeshItem *item)
     if (item)
     {
         items_.push_back(item);
-        ui->meshPlot->repaint();
+        meshPlot_->repaint();
+        itemListModel_->addItem(item);
     }
 }
 

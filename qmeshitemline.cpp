@@ -22,7 +22,7 @@ QString QMeshItemLine::getName()
 
 QString QMeshItemLine::getValueText()
 {
-    return QString("(%1, %2) - (%3, %4)")
+    return QString("(%1, %2)\n(%3, %4)")
             .arg(a_->x(), 0, 'f', 2)
             .arg(a_->y(), 0, 'f', 2)
             .arg(b_->x(), 0, 'f', 2)

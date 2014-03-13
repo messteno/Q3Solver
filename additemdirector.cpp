@@ -1,5 +1,5 @@
 #include "pointadditemwidget.h"
-#include "lineadditemwidget.h"
+#include "segmentadditemwidget.h"
 #include "additemdirector.h"
 #include "additemdirectorstateitemselect.h"
 #include "qmesh.h"
@@ -70,7 +70,7 @@ void AddItemDirector::addItem(QMeshItem *item)
 void AddItemDirector::createWidgets()
 {
     widgets_.append(new PointAddItemWidget(this, trUtf8("Добавить точку")));
-    widgets_.append(new LineAddItemWidget(this, trUtf8("Добавить отрезок")));
+    widgets_.append(new SegmentAddItemWidget(this, trUtf8("Добавить отрезок")));
 
     QWidget *addButtonsWidget = new QWidget(this);
     QVBoxLayout *addButtonsWidgetLayout = new QVBoxLayout(addButtonsWidget);

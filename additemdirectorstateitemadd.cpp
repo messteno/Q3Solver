@@ -14,10 +14,8 @@ AddItemDirectorState* AddItemDirectorStateItemAdd::getInstance()
 
 void AddItemDirectorStateItemAdd::widgetButtonPushed(AddItemDirector *director, AddItemWidget *widget)
 {
-    QMeshItem *item = widget->getItem();
-    if (item)
+    if (widget->addItem() == true)
     {
-        director->addItem(item);
         director->show();
         changeState(director, AddItemDirectorStateItemSelect::getInstance());
     }

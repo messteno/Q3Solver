@@ -1,10 +1,10 @@
 #include "additemdirector.h"
-#include "ui_lineadditemwidget.h"
-#include "lineadditemwidget.h"
+#include "ui_segmentadditemwidget.h"
+#include "segmentadditemwidget.h"
 #include "qmeshitemline.h"
 #include "qmeshitempoint.h"
 
-LineAddItemWidget::LineAddItemWidget(AddItemDirector *director, const QString &addButtonText) :
+SegmentAddItemWidget::SegmentAddItemWidget(AddItemDirector *director, const QString &addButtonText) :
     AddItemWidget(director, addButtonText),
     ui(new Ui::LineAddItemWidget)
 {
@@ -15,17 +15,18 @@ LineAddItemWidget::LineAddItemWidget(AddItemDirector *director, const QString &a
     bPoint_ = NULL;
 }
 
-QMeshItem* LineAddItemWidget::getItem()
+bool SegmentAddItemWidget::addItem()
 {
     if (expanded_ == false)
-        return NULL;
+        return false;
     if (!aPoint_ || !bPoint_)
-        return NULL;
+        return false;
 
-    return new QMeshItemLine(aPoint_, bPoint_);
+    director_->addItem(new QMeshItemLine(aPoint_, bPoint_));
+    return true;
 }
 
-void LineAddItemWidget::meshPlotClicked(QMeshPlot *meshPlot)
+void SegmentAddItemWidget::meshPlotClicked(QMeshPlot *meshPlot)
 {
     QMeshItemPoint *point = meshPlot->getClickedScenePoint();
     if (!point)
@@ -48,7 +49,7 @@ void LineAddItemWidget::meshPlotClicked(QMeshPlot *meshPlot)
     }
 }
 
-void LineAddItemWidget::clear()
+void SegmentAddItemWidget::clear()
 {
     aPoint_ = NULL;
     bPoint_ = NULL;

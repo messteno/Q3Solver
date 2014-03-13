@@ -21,7 +21,7 @@
     <layout class="QVBoxLayout" name="plotLayout"/>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="userLayout" stretch="0,0,0,0">
+    <layout class="QVBoxLayout" name="userLayout" stretch="0,0,0,0,0">
      <property name="spacing">
       <number>5</number>
      </property>
@@ -73,6 +73,13 @@
          <horstretch>0</horstretch>
          <verstretch>1</verstretch>
         </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="createMeshButton">
+       <property name="text">
+        <string>Создать сетку</string>
        </property>
       </widget>
      </item>

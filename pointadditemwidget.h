@@ -14,8 +14,8 @@ class PointAddItemWidget : public AddItemWidget
 
 public:
     PointAddItemWidget(AddItemDirector *director, const QString &addButtonText);
-    virtual QMeshItem* getItem();
     virtual void meshPlotClicked(QMeshPlot *meshPlot);
+    virtual bool addItem();
     virtual void clear();
 
 private:

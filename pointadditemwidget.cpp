@@ -14,21 +14,22 @@ PointAddItemWidget::PointAddItemWidget(AddItemDirector *director, const QString 
     expanded_ = true;
 }
 
-QMeshItem* PointAddItemWidget::getItem()
+bool PointAddItemWidget::addItem()
 {
     if (expanded_ == false)
-        return NULL;
+        return false;
     if (ui->xEdit->text().isEmpty() || ui->yEdit->text().isEmpty())
-        return NULL;
+        return false;
     bool ok = true;
     qreal x = ui->xEdit->text().toDouble(&ok);
     if (!ok)
-        return NULL;
+        return false;
     ok = true;
     qreal y = ui->yEdit->text().toDouble(&ok);
     if (!ok)
-        return NULL;
-    return new QMeshItemPoint(x, y);
+        return false;
+    director_->addItem(new QMeshItemPoint(x, y));
+    return true;
 }
 
 void PointAddItemWidget::meshPlotClicked(QMeshPlot *meshPlot)

@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QComboBox>
 #include "itemlistmodel.h"
 
 ItemListModel::ItemListModel(QObject *parent) :

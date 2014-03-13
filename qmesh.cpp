@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <QList>
 
+#include "ani2dmeshgenerator.h"
 #include "itemlistmodel.h"
 
 QMesh::QMesh(QWidget *parent) :
@@ -23,6 +24,7 @@ QMesh::QMesh(QWidget *parent) :
 
     itemListModel_ = new ItemListModel();
     ui->itemList->setModel(itemListModel_);
+    meshGenerator_ = new Ani2DMeshGenerator;
 }
 
 QMesh::~QMesh()
@@ -34,6 +36,8 @@ QMesh::~QMesh()
     foreach (QMeshItem *item, items_)
         delete item;
     items_.clear();
+
+    delete meshGenerator_;
 }
 
 void QMesh::addItem(QMeshItem *item)
@@ -59,4 +63,10 @@ void QMesh::on_addElementButton_clicked()
 void QMesh::on_cancelElementButton_clicked()
 {
     addItemDirector_->hide();
+}
+
+void QMesh::on_createMeshButton_clicked()
+{
+    if (meshGenerator_)
+        meshGenerator_->generateMesh(items_);
 }

@@ -26,7 +26,7 @@ public:
 
     void genMeshAnalytic(double (*sizeFunc)(double *),
                          void (*boundaryFunc) (int *, double *, double *, double *));
-    void save(const QString& file);
+    void save(const QString& aniFile, const QString &psFile);
 
 private:
     ani2D ani_;

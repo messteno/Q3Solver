@@ -14,7 +14,8 @@ AddItemDirectorState* AddItemDirectorStateItemAdd::getInstance()
 
 void AddItemDirectorStateItemAdd::widgetButtonPushed(AddItemDirector *director, AddItemWidget *widget)
 {
-    if (widget->addItem() == true)
+    bool ok = widget->addItem();
+    if (ok)
     {
         director->show();
         changeState(director, AddItemDirectorStateItemSelect::getInstance());

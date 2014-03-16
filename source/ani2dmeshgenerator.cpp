@@ -42,7 +42,7 @@ Mesh *Ani2DMeshGenerator::generateMesh(const QList<QMeshItem *>& /* items */)
     qAni_.addCurveEdge(5, 4, 0.5, 1, 2, 1, 1);
 
     qAni_.genMeshAnalytic(NULL, boundary);
-    qAni_.save("../out.ani");
+    qAni_.save("../out.ani", "../out.ps");
 
     return NULL;
 }

@@ -190,8 +190,9 @@ void QAni2D::genMeshAnalytic(double (*sizeFunc)(double *),
                    &ani_.nb, ani_.bnd, ani_.labelB, &ani_.nc, ani_.crv, ani_.labelC);
 }
 
-void QAni2D::save(const QString &file)
+void QAni2D::save(const QString &aniFile, const QString &psFile)
 {
-    ani2D_save_mesh(&ani_, file.toUtf8().data());
-    ani2D_draw_mesh(&ani_, "../out.ps");
+    ani2D_save_mesh(&ani_, aniFile.toUtf8().data());
+    ani2D_draw_mesh(&ani_, psFile.toUtf8().data());
 }
+

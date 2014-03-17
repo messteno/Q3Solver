@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 2.8.11)
 
 # Default configuration values. These must be before the project command or
 # If no build type is specified, default to "Release"
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 project(qmesh)
 set(PROJECT_LONGNAME "QMesh")

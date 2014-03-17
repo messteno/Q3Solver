@@ -6,3 +6,4 @@ Makefile
 build
 3rdparty
 source/Makefile
+CMakeLists.txt.user

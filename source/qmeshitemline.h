@@ -11,6 +11,8 @@ public:
     virtual void draw(QPainter &painter, qreal scaleX, qreal scaleY) const;
     virtual QString getName();
     virtual QString getValueText();
+    QMeshItemPoint* a();
+    QMeshItemPoint* b();
 
 private:
     QMeshItemPoint *a_;

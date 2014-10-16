@@ -116,3 +116,4 @@ void AddItemDirector::changeState(AddItemDirectorState *state)
     currentWidget_ = NULL;
     state_ = state;
 }
+

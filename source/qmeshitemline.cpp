@@ -28,3 +28,15 @@ QString QMeshItemLine::getValueText()
             .arg(b_->x(), 0, 'f', 2)
             .arg(b_->y(), 0, 'f', 2);
 }
+
+QMeshItemPoint* QMeshItemLine::a()
+{
+    return a_;
+}
+
+QMeshItemPoint* QMeshItemLine::b()
+{
+    return b_;
+}
+
+

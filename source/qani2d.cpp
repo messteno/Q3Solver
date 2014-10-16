@@ -8,18 +8,18 @@ const qreal QAni2D::quality_ = 0.7;
 
 extern "C" {
 
-int aft2dboundary_( int *pnVert, double *bv,
-             int *pnLine, int *bl, double *bltail, double *hsze,
-             int *pnVRT, double *vrt,
-             int *pnTRI, int *tri, int *labtri,
-             int *pnBND, int *bnd, int *labbnd,
-             int *pnCRV, double *crv, int *iFNC );
+    int aft2dboundary_( int *pnVert, double *bv,
+            int *pnLine, int *bl, double *bltail, double *hsze,
+            int *pnVRT, double *vrt,
+            int *pnTRI, int *tri, int *labtri,
+            int *pnBND, int *bnd, int *labbnd,
+            int *pnCRV, double *crv, int *iFNC );
 
-typedef void (*userfn_t) (int *, double *, double *, double *);
-typedef double (*sizefn_t) (double *);
+    typedef void (*userfn_t) (int *, double *, double *, double *);
+    typedef double (*sizefn_t) (double *);
 
-extern userfn_t userfn;
-extern sizefn_t sizefn;
+    extern userfn_t userfn;
+    extern sizefn_t sizefn;
 
 }
 

@@ -8,5 +8,5 @@ make
 
 == RUN ==
 
-../bin/qmesh
+../bin/qtrisolver
 

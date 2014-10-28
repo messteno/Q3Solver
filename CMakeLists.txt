@@ -20,9 +20,9 @@ cmake_minimum_required(VERSION 2.8.11)
 # If no build type is specified, default to "Release"
 set(CMAKE_BUILD_TYPE Debug)
 
-project(qmesh)
-set(PROJECT_LONGNAME "QMesh")
-set(PROJECT_VERSION "1.0.0")
+project(qtrisolver)
+set(PROJECT_LONGNAME "QTriSolver")
+set(PROJECT_VERSION "0.0.1")
 
 # Global CMake options
 set(CMAKE_INCLUDE_CURRENT_DIR ON)

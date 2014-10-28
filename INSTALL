@@ -1,0 +1,12 @@
+== INSTALL ==
+
+mkdir build
+cd build
+cmake ..
+make
+
+
+== RUN ==
+
+../bin/qmesh
+

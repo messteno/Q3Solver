@@ -4,6 +4,7 @@ _Store
 *.swo
 Makefile
 build
+bin
 3rdparty
 source/Makefile
 CMakeLists.txt.user

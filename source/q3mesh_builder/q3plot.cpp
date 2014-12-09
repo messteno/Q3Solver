@@ -7,72 +7,72 @@
 #include <sstream>
 #include <qmath.h>
 
-#include "qmesh.h"
-#include "qmeshplot.h"
-#include "additemdirector.h"
+#include "q3plot.h"
 
-QMeshPlot::QMeshPlot(QWidget *parent) :
-    QWidget(parent)
+Q3Plot::Q3Plot(QWidget *parent) :
+    QWidget(parent),
+    sceneRect_(-2, -2, 13, 8),
+    drawRect_(sceneRect_),
+    scaleX_(1.),
+    scaleY_(-1.),
+    tickDx_(1),
+    tickDy_(1),
+    countTickX_(10),
+    countTickY_(10),
+    clickedPos_(0, 0),
+    backgroundColor_(0x00, 0x16, 0x1c),
+    foregroundColor_(0x1d, 0xd3, 0xf3, 0xa0),
+    axesColor_(0xff, 0xff, 0xff),
+    bottomMargin_(25),
+    leftMargin_(20),
+    wheelDelta_(0)
 {
-    mesh_ = dynamic_cast<QMesh *> (parent);
-    Q_ASSERT(mesh_);
-
-    sceneRect_ = QRectF(-2, -2, 13, 8);
-    drawRect_ = sceneRect_;
-    scaleX_ = 1.;
-    scaleY_ = -1.;
-    tickDx_ = 1;
-    tickDy_ = 1;
-    countTickX_ = 10;
-    countTickY_ = 10;
-    clickedPos_ = QPointF(0, 0);
-
     setMouseTracking(true);
-    setBackgroundColor(QColor(0x00, 0x16, 0x1c));
-    setForegroundColor(QColor(0x1d, 0xd3, 0xf3, 0xa0));
-    setAxesColor(QColor(0xff, 0xff, 0xff));
-    setBottomMargin(25);
-    setLeftMargin(20);
 }
 
-QMeshPlot::~QMeshPlot()
+Q3Plot::~Q3Plot()
 {
 }
 
-void QMeshPlot::resizeEvent(QResizeEvent *event)
+void Q3Plot::resizeEvent(QResizeEvent *event)
 {
     updateScene();
 }
 
-void QMeshPlot::paintEvent(QPaintEvent *event)
+void Q3Plot::paintEvent(QPaintEvent *event)
 {
     drawBackground();
     drawAxes();
-    drawItems();
     drawBorders();
 }
 
-void QMeshPlot::wheelEvent(QWheelEvent *event)
+void Q3Plot::wheelEvent(QWheelEvent *event)
 {
-    int numSteps = event->delta() / 15 / 8;
+    wheelDelta_ += event->delta();
+    int numSteps = wheelDelta_ / 15 / 8;
     if (numSteps == 0)
     {
         event->ignore();
         return;
     }
+
+    wheelDelta_ = 0;
+
     qreal sc = pow(0.9, numSteps);
     QPointF scenePos = mapToScene(event->pos());
     qreal sxl = scenePos.x() - drawRect_.x();
     qreal syl = scenePos.y() - drawRect_.y();
     qreal sxr = drawRect_.x() + drawRect_.width() - scenePos.x();
     qreal syr = drawRect_.y() + drawRect_.height() - scenePos.y();
-    sceneRect_.setTopLeft(QPointF(scenePos.x() - sxl * sc, scenePos.y() - syl * sc));
-    sceneRect_.setBottomRight(QPointF(scenePos.x() + sxr * sc, scenePos.y() + syr * sc));
+    sceneRect_.setTopLeft(QPointF(scenePos.x() - sxl * sc,
+                                  scenePos.y() - syl * sc));
+    sceneRect_.setBottomRight(QPointF(scenePos.x() + sxr * sc,
+                                      scenePos.y() + syr * sc));
     updateScene();
     repaint();
 }
 
-void QMeshPlot::mouseReleaseEvent(QMouseEvent *event)
+void Q3Plot::mouseReleaseEvent(QMouseEvent *event)
 {
     if (mousePos_.isNull())
     {
@@ -85,7 +85,7 @@ void QMeshPlot::mouseReleaseEvent(QMouseEvent *event)
     }
 }
 
-void QMeshPlot::mouseMoveEvent(QMouseEvent *event)
+void Q3Plot::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton)
     {
@@ -109,7 +109,7 @@ void QMeshPlot::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
-void QMeshPlot::updateScene()
+void Q3Plot::updateScene()
 {
     qreal dw = sceneRect_.width();
     qreal dh = sceneRect_.height();
@@ -151,47 +151,47 @@ void QMeshPlot::updateScene()
     countTickY_ = ceil(drawRect_.height() / tickDy_);
 }
 
-QPointF QMeshPlot::sceneToMap(const QPointF &pos) const
+QPointF Q3Plot::sceneToMap(const QPointF &pos) const
 {
     return QPointF(sceneToMapX(pos.x()), sceneToMapY(pos.y()));
 }
 
-QPointF QMeshPlot::sceneToMap(qreal x, qreal y) const
+QPointF Q3Plot::sceneToMap(qreal x, qreal y) const
 {
     return QPointF(sceneToMapX(x), sceneToMapY(y));
 }
 
-qreal QMeshPlot::sceneToMapX (qreal x) const
+qreal Q3Plot::sceneToMapX(qreal x) const
 {
     return width() * (x - drawRect_.x()) / drawRect_.width();
 }
 
-qreal QMeshPlot::sceneToMapY (qreal y) const
+qreal Q3Plot::sceneToMapY(qreal y) const
 {
     return height() * (1. - (y - drawRect_.y()) / drawRect_.height());
 }
 
-QPointF QMeshPlot::mapToScene(const QPointF &pos) const
+QPointF Q3Plot::mapToScene(const QPointF &pos) const
 {
     return QPointF(mapToSceneX(pos.x()), mapToSceneY(pos.y()));
 }
 
-QPointF QMeshPlot::mapToScene(qreal x, qreal y) const
+QPointF Q3Plot::mapToScene(qreal x, qreal y) const
 {
     return QPointF(mapToSceneX(x), mapToSceneY(y));
 }
 
-qreal QMeshPlot::mapToSceneX (qreal x) const
+qreal Q3Plot::mapToSceneX(qreal x) const
 {
     return drawRect_.x() + drawRect_.width() * x / width();
 }
 
-qreal QMeshPlot::mapToSceneY (qreal y) const
+qreal Q3Plot::mapToSceneY (qreal y) const
 {
     return drawRect_.y() + drawRect_.height() * (height() - y) / height();
 }
 
-void QMeshPlot::drawBackground()
+void Q3Plot::drawBackground()
 {
     QPainter painter;
     painter.begin(this);
@@ -199,7 +199,7 @@ void QMeshPlot::drawBackground()
     painter.end();
 }
 
-void QMeshPlot::drawAxes()
+void Q3Plot::drawAxes()
 {
     QPainter painter;
     painter.begin(this);
@@ -211,24 +211,26 @@ void QMeshPlot::drawAxes()
     QColor auxAxesColor = axesColor_;
     auxAxesColor.setAlpha(0x20);
 
-    double xtick = ceil (drawRect_.x() / tickDx_) * tickDx_;
-    for (int i = 0; i < countTickX_; i++)
+    double xtick = ceil(drawRect_.x() / tickDx_) * tickDx_;
+    for (int i = 0; i < countTickX_; ++i)
     {
         if (fabs (xtick) > 1e-9)
         {
             painter.setPen(QPen(auxAxesColor, 1, Qt::DashLine));
-            painter.drawLine(sceneToMapX(xtick), 0, sceneToMapX(xtick), height());
+            painter.drawLine(sceneToMapX(xtick), 0,
+                             sceneToMapX(xtick), height());
         }
         xtick += tickDx_;
     }
 
-    double ytick = ceil (drawRect_.y() / tickDy_) * tickDy_;
-    for (int i = 0; i < countTickY_; i++)
+    double ytick = ceil(drawRect_.y() / tickDy_) * tickDy_;
+    for (int i = 0; i < countTickY_; ++i)
     {
         if (fabs (ytick) > 1e-9)
         {
             painter.setPen(QPen(auxAxesColor, 1, Qt::DashLine));
-            painter.drawLine(0, sceneToMapY(ytick), width(), sceneToMapY(ytick));
+            painter.drawLine(0, sceneToMapY(ytick),
+                             width(), sceneToMapY(ytick));
         }
         ytick += tickDy_;
     }
@@ -236,14 +238,14 @@ void QMeshPlot::drawAxes()
     painter.end();
 }
 
-void QMeshPlot::drawBorders()
+void Q3Plot::drawBorders()
 {
     QPainter painter;
     painter.begin(this);
 
     double ytick = ceil(drawRect_.y() / tickDy_) * tickDy_;
     int maxYtw = 0;
-    for (int i = 0; i < countTickY_; i++)
+    for (int i = 0; i < countTickY_; ++i)
     {
         if (fabs(ytick) < 1e-9)
             ytick = 0;
@@ -260,11 +262,12 @@ void QMeshPlot::drawBorders()
 
     setLeftMargin(maxYtw);
 
-    painter.fillRect(QRectF(0, height() - bottomMargin_, width(), bottomMargin_),
+    painter.fillRect(QRectF(0, height() - bottomMargin_,
+                            width(), bottomMargin_),
                      QColor(0xff, 0xff, 0xff));
 
     double xtick = ceil(drawRect_.x() / tickDx_) * tickDx_;
-    for (int i = 0; i < countTickX_; i++)
+    for (int i = 0; i < countTickX_; ++i)
     {
         if (fabs (xtick) < 1e-9)
             xtick = 0;
@@ -276,7 +279,9 @@ void QMeshPlot::drawBorders()
 
         painter.setPen(QPen(QColor(0x00, 0x00, 0x00)));
         if (sceneToMapX(xtick) - 0.5 * tw > leftMargin_)
-            painter.drawText(QPointF(sceneToMapX(xtick) - 0.5 * tw, height() - 9), tickStream.str().c_str());
+            painter.drawText(QPointF(sceneToMapX(xtick) - 0.5 * tw,
+                                     height() - 9),
+                             tickStream.str().c_str());
 
         painter.setPen(QPen(axesColor_));
         painter.drawLine(sceneToMapX(xtick), height() - bottomMargin_ - 10,
@@ -287,7 +292,7 @@ void QMeshPlot::drawBorders()
                      QColor(0xff, 0xff, 0xff));
 
     ytick = ceil (drawRect_.y() / tickDy_) * tickDy_;
-    for (int i = 0; i < countTickY_; i++)
+    for (int i = 0; i < countTickY_; ++i)
     {
         if (fabs (ytick) < 1e-9)
             ytick = 0;
@@ -300,10 +305,12 @@ void QMeshPlot::drawBorders()
         painter.setPen(QPen(QColor(0x00, 0x00, 0x00)));
         if (sceneToMapY(ytick) < height() - bottomMargin_)
         {
-            painter.drawText(QPointF(leftMargin_ - tw - 5, sceneToMapY(ytick) + 3),
+            painter.drawText(QPointF(leftMargin_ - tw - 5,
+                                     sceneToMapY(ytick) + 3),
                              tickStream.str().c_str());
             painter.setPen(QPen(axesColor_));
-            painter.drawLine(leftMargin_, sceneToMapY(ytick), leftMargin_ + 10, sceneToMapY(ytick));
+            painter.drawLine(leftMargin_, sceneToMapY(ytick),
+                             leftMargin_ + 10, sceneToMapY(ytick));
         }
         ytick += tickDy_;
     }
@@ -311,55 +318,37 @@ void QMeshPlot::drawBorders()
     painter.end();
 }
 
-void QMeshPlot::drawItems()
-{
-    const QList<QMeshItem *> &items = mesh_->getItems();
-
-    QPen pen = QPen (Qt::white);
-    QPainter painter;
-    painter.begin(this);
-    painter.save();
-    painter.setPen(pen);
-    painter.setRenderHint(QPainter::Antialiasing);
-    painter.setBrush(foregroundColor_);
-    painter.translate(dx_, dy_);
-    foreach (QMeshItem *item, items)
-        item->draw(painter, scaleX_, scaleY_);
-    painter.restore();
-    painter.end();
-}
-
-void QMeshPlot::setBackgroundColor(const QColor &color)
+void Q3Plot::setBackgroundColor(const QColor &color)
 {
     backgroundColor_ = color;
 }
 
-void QMeshPlot::setForegroundColor(const QColor &color)
+void Q3Plot::setForegroundColor(const QColor &color)
 {
     foregroundColor_ = color;
 }
 
-void QMeshPlot::setPenColor(const QColor &color)
+void Q3Plot::setPenColor(const QColor &color)
 {
     penColor_ = color;
 }
 
-void QMeshPlot::setAxesColor(const QColor &color)
+void Q3Plot::setAxesColor(const QColor &color)
 {
     axesColor_ = color;
 }
 
-void QMeshPlot::setBottomMargin(int margin)
+void Q3Plot::setBottomMargin(int margin)
 {
     bottomMargin_ = margin;
 }
 
-void QMeshPlot::setLeftMargin(int margin)
+void Q3Plot::setLeftMargin(int margin)
 {
     leftMargin_ = margin;
 }
 
-QPointF QMeshPlot::getClickedScenePosition(bool snapToGrid)
+QPointF Q3Plot::getClickedScenePosition(bool snapToGrid)
 {
     QPointF pos = mapToScene(clickedPos_);
     if (!snapToGrid)
@@ -372,21 +361,4 @@ QPointF QMeshPlot::getClickedScenePosition(bool snapToGrid)
         return QPointF(x, y);
     }
     return pos;
-}
-
-QMeshItemPoint* QMeshPlot::getClickedScenePoint()
-{
-    const QList<QMeshItem *> &items = mesh_->getItems();
-    foreach (QMeshItem *item, items)
-    {
-        QMeshItemPoint *point = dynamic_cast<QMeshItemPoint *>(item);
-        if (!point)
-            continue;
-        QPointF mapPoint = sceneToMap(point->x(), point->y());
-        QPointF diff = clickedPos_ - mapPoint;
-        qreal len = sqrt(pow(diff.x(), 2) + pow(diff.y(), 2));
-        if (len < QMeshItemPoint::pointSize_)
-            return point;
-    }
-    return NULL;
 }

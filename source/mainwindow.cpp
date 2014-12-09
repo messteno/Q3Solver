@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "qmesh.h"
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -8,8 +7,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     setStatusBar(0);
-    mesh = new QMesh(this);
-    setCentralWidget(mesh);
+    meshBuilder = new Q3MeshBuilder(this);
+    setCentralWidget(meshBuilder);
 }
 
 MainWindow::~MainWindow()

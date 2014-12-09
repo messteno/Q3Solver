@@ -1,18 +1,14 @@
-#ifndef QMESHPLOT_H
-#define QMESHPLOT_H
+#ifndef Q3PLOT_H
+#define Q3PLOT_H
 
 #include <QWidget>
-#include "qmeshitem.h"
-#include "qmeshitempoint.h"
 
-class QMesh;
-
-class QMeshPlot : public QWidget
+class Q3Plot : public QWidget
 {
     Q_OBJECT
 public:
-    explicit QMeshPlot(QWidget *parent = 0);
-    ~QMeshPlot();
+    explicit Q3Plot(QWidget *parent = 0);
+    ~Q3Plot();
 
     void resizeEvent(QResizeEvent *event);
     void paintEvent(QPaintEvent *event);
@@ -28,16 +24,15 @@ public:
     void setLeftMargin(int margin);
 
     QPointF getClickedScenePosition(bool snapToGrid);
-    QMeshItemPoint *getClickedScenePoint();
 
 signals:
-    void mouseClicked(QMeshPlot *meshPlot);
+    void mouseClicked(Q3Plot *meshPlot);
 
 public slots:
 
 private:
-    QRectF drawRect_;
     QRectF sceneRect_;
+    QRectF drawRect_;
     qreal scaleX_;
     qreal scaleY_;
     qreal dx_;
@@ -56,10 +51,10 @@ private:
     QColor penColor_;
     QColor axesColor_;
 
-    QMesh *mesh_;
-
     int bottomMargin_;
     int leftMargin_;
+
+    int wheelDelta_;
 
     void updateScene();
 
@@ -76,7 +71,6 @@ private:
     void drawBackground();
     void drawAxes();
     void drawBorders();
-    void drawItems();
 };
 
-#endif // QMESHPLOT_H
+#endif // Q3PLOT_H

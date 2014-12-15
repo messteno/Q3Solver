@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 2.8.11)
 set(CMAKE_BUILD_TYPE Debug)
 
 project(qtrisolver)
-set(PROJECT_LONGNAME "QTriSolver")
+set(PROJECT_LONGNAME "Q3Solver")
 set(PROJECT_VERSION "0.0.1")
 
 # Global CMake options

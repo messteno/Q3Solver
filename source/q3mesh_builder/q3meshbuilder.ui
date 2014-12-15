@@ -20,7 +20,9 @@
    <item>
     <layout class="QVBoxLayout" name="plotLayout">
      <item>
-      <widget class="Q3Plot" name="plotWidget" native="true"/>
+      <widget class="Q3Plot" name="plotWidget" native="true">
+       <zorder></zorder>
+      </widget>
      </item>
     </layout>
    </item>
@@ -30,7 +32,44 @@
       <number>5</number>
      </property>
      <item>
-      <layout class="QHBoxLayout" name="addElementLayout"/>
+      <layout class="QHBoxLayout" name="addElementLayout">
+       <item>
+        <widget class="QToolButton" name="pointButton">
+         <property name="text">
+          <string>точка</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QToolButton" name="pointConnectionButton">
+         <property name="text">
+          <string>отрезок</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </item>
      <item>
       <layout class="QVBoxLayout" name="addWidgetsLayout">
@@ -40,6 +79,26 @@
        <property name="sizeConstraint">
         <enum>QLayout::SetMinimumSize</enum>
        </property>
+       <item>
+        <widget class="QCheckBox" name="snapToGrid">
+         <property name="text">
+          <string>привязка к сетке</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </item>
     </layout>

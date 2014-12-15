@@ -3,32 +3,11 @@
 
 #include <QWidget>
 
+#include <q3sceleton.h>
+
 class Q3Plot : public QWidget
 {
     Q_OBJECT
-public:
-    explicit Q3Plot(QWidget *parent = 0);
-    ~Q3Plot();
-
-    void resizeEvent(QResizeEvent *event);
-    void paintEvent(QPaintEvent *event);
-    void wheelEvent(QWheelEvent *event);
-    void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *);
-
-    void setBackgroundColor(const QColor &color);
-    void setForegroundColor(const QColor &color);
-    void setPenColor(const QColor &color);
-    void setAxesColor(const QColor &color);
-    void setBottomMargin(int margin);
-    void setLeftMargin(int margin);
-
-    QPointF getClickedScenePosition(bool snapToGrid);
-
-signals:
-    void mouseClicked(Q3Plot *meshPlot);
-
-public slots:
 
 private:
     QRectF sceneRect_;
@@ -44,7 +23,6 @@ private:
     int countTickY_;
 
     QPointF mousePos_;
-    QPointF clickedPos_;
 
     QColor backgroundColor_;
     QColor foregroundColor_;
@@ -55,6 +33,8 @@ private:
     int leftMargin_;
 
     int wheelDelta_;
+
+    Q3Sceleton *sceleton_;
 
     void updateScene();
 
@@ -71,6 +51,45 @@ private:
     void drawBackground();
     void drawAxes();
     void drawBorders();
+    void drawSceleton();
+
+public:
+    static const QColor DefaultBackgroundColor;
+    static const QColor DefaultForegroundColor;
+    static const QColor DefaultAxesColor;
+    static const int MinTickCount;
+
+    explicit Q3Plot(QWidget *parent = 0);
+    ~Q3Plot();
+
+    void resizeEvent(QResizeEvent *event);
+    void paintEvent(QPaintEvent *event);
+    void wheelEvent(QWheelEvent *event);
+    void mouseMoveEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *);
+
+    qreal sx() const;
+    qreal sy() const;
+
+    void moveScene(const QPointF diff);
+
+    void setBackgroundColor(const QColor &color);
+    void setForegroundColor(const QColor &color);
+    void setPenColor(const QColor &color);
+    void setAxesColor(const QColor &color);
+    void setBottomMargin(int margin);
+    void setLeftMargin(int margin);
+
+    void setSceleton(Q3Sceleton *sceleton);
+
+    QPointF snapScenePosToGrid (const QPointF pos);
+
+signals:
+    void mouseClicked(const QPointF scenePos);
+    void mouseDragged(const QPointF oldScenePos, const QPointF newScenePos);
+    void mouseDropped(const QPointF scenePos);
+
+public slots:
 };
 
 #endif // Q3PLOT_H

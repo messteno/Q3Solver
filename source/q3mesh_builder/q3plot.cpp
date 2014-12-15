@@ -1,5 +1,5 @@
 #include <QDebug>
-#include <QPainter>
+#include <q3painter.h>
 #include <QWheelEvent>
 #include <QFont>
 #include <string>
@@ -8,6 +8,11 @@
 #include <qmath.h>
 
 #include "q3plot.h"
+
+const QColor Q3Plot::DefaultBackgroundColor = QColor(0x00, 0x16, 0x1c);
+const QColor Q3Plot::DefaultForegroundColor = QColor(0x1d, 0xd3, 0xf3, 0xa0);
+const QColor Q3Plot::DefaultAxesColor = QColor(0xff, 0xff, 0xff);
+const int Q3Plot::MinTickCount = 8;
 
 Q3Plot::Q3Plot(QWidget *parent) :
     QWidget(parent),
@@ -19,13 +24,13 @@ Q3Plot::Q3Plot(QWidget *parent) :
     tickDy_(1),
     countTickX_(10),
     countTickY_(10),
-    clickedPos_(0, 0),
-    backgroundColor_(0x00, 0x16, 0x1c),
-    foregroundColor_(0x1d, 0xd3, 0xf3, 0xa0),
-    axesColor_(0xff, 0xff, 0xff),
+    backgroundColor_(DefaultBackgroundColor),
+    foregroundColor_(DefaultForegroundColor),
+    axesColor_(DefaultAxesColor),
     bottomMargin_(25),
     leftMargin_(20),
-    wheelDelta_(0)
+    wheelDelta_(0),
+    sceleton_(NULL)
 {
     setMouseTracking(true);
 }
@@ -43,6 +48,8 @@ void Q3Plot::paintEvent(QPaintEvent *event)
 {
     drawBackground();
     drawAxes();
+    if (sceleton_)
+        drawSceleton();
     drawBorders();
 }
 
@@ -74,15 +81,26 @@ void Q3Plot::wheelEvent(QWheelEvent *event)
 
 void Q3Plot::mouseReleaseEvent(QMouseEvent *event)
 {
+    QPointF sceneClickedPos = mapToScene(event->pos());
     if (mousePos_.isNull())
     {
-        clickedPos_ = event->pos();
-        emit mouseClicked(this);
+        emit mouseClicked(sceneClickedPos);
     }
     else
     {
         mousePos_ = QPointF();
+        emit mouseDropped(sceneClickedPos);
     }
+}
+
+qreal Q3Plot::sx() const
+{
+    return scaleX_;
+}
+
+qreal Q3Plot::sy() const
+{
+    return scaleY_;
 }
 
 void Q3Plot::mouseMoveEvent(QMouseEvent *event)
@@ -97,16 +115,19 @@ void Q3Plot::mouseMoveEvent(QMouseEvent *event)
         {
             QPointF oldScenePos = mapToScene(mousePos_);
             QPointF newScenePos = mapToScene(event->pos());
-            QPointF diffPos = newScenePos - oldScenePos;
-            sceneRect_ = QRectF(sceneRect_.x() - diffPos.x(),
-                                sceneRect_.y() - diffPos.y(),
-                                sceneRect_.width(),
-                                sceneRect_.height());
+            emit mouseDragged(oldScenePos, newScenePos);
             mousePos_ = event->pos();
-            updateScene();
-            repaint();
         }
     }
+}
+
+void Q3Plot::moveScene(const QPointF diff)
+{
+    sceneRect_ = QRectF(sceneRect_.x() - diff.x(),
+                        sceneRect_.y() - diff.y(),
+                        sceneRect_.width(),
+                        sceneRect_.height());
+    updateScene();
 }
 
 void Q3Plot::updateScene()
@@ -132,13 +153,13 @@ void Q3Plot::updateScene()
     countTickX_ = ceil(drawRect_.width() / tickDx_);
     countTickY_ = ceil(drawRect_.height() / tickDy_);
 
-    while (countTickX_ < 6)
+    while (countTickX_ < MinTickCount)
     {
         tickDx_ /= 2.;
         countTickX_ = ceil(drawRect_.width() / tickDx_);
     }
 
-    while (countTickY_ < 6)
+    while (countTickY_ < MinTickCount)
     {
         tickDy_ /= 2.;
         countTickY_ = ceil(drawRect_.height() / tickDy_);
@@ -193,7 +214,7 @@ qreal Q3Plot::mapToSceneY (qreal y) const
 
 void Q3Plot::drawBackground()
 {
-    QPainter painter;
+    Q3Painter painter;
     painter.begin(this);
     painter.fillRect(QRectF(0, 0, width(), height()), backgroundColor_);
     painter.end();
@@ -201,9 +222,9 @@ void Q3Plot::drawBackground()
 
 void Q3Plot::drawAxes()
 {
-    QPainter painter;
+    Q3Painter painter;
     painter.begin(this);
-    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHint(Q3Painter::Antialiasing);
     painter.setPen(QPen(axesColor_));
     painter.drawLine(0, sceneToMapY(0), width(), sceneToMapY(0));
     painter.drawLine(sceneToMapX(0), 0, sceneToMapX(0), height());
@@ -240,7 +261,7 @@ void Q3Plot::drawAxes()
 
 void Q3Plot::drawBorders()
 {
-    QPainter painter;
+    Q3Painter painter;
     painter.begin(this);
 
     double ytick = ceil(drawRect_.y() / tickDy_) * tickDy_;
@@ -318,6 +339,27 @@ void Q3Plot::drawBorders()
     painter.end();
 }
 
+void Q3Plot::drawSceleton()
+{
+    if (!sceleton_)
+        return;
+
+    Q3Painter painter;
+    painter.begin(this);
+    painter.save();
+
+    QPen pen = QPen(Qt::white);
+    painter.setPen(pen);
+
+    painter.setRenderHint(Q3Painter::Antialiasing);
+    painter.setBrush(foregroundColor_);
+    painter.translate(dx_, dy_);
+    painter.scale(scaleX_, scaleY_);
+    sceleton_->drawItems(painter);
+    painter.restore();
+    painter.end();
+}
+
 void Q3Plot::setBackgroundColor(const QColor &color)
 {
     backgroundColor_ = color;
@@ -348,15 +390,17 @@ void Q3Plot::setLeftMargin(int margin)
     leftMargin_ = margin;
 }
 
-QPointF Q3Plot::getClickedScenePosition(bool snapToGrid)
+void Q3Plot::setSceleton(Q3Sceleton *sceleton)
 {
-    QPointF pos = mapToScene(clickedPos_);
-    if (!snapToGrid)
-        return pos;
+    sceleton_ = sceleton;
+}
+
+QPointF Q3Plot::snapScenePosToGrid (const QPointF pos)
+{
     double x = round(pos.x() / tickDx_) * tickDx_;
     double y = round(pos.y() / tickDy_) * tickDy_;
-    if (fabs(x - pos.x()) < 0.1 * tickDx_ &&
-        fabs(y - pos.y()) < 0.1 * tickDy_)
+    if (fabs(x - pos.x()) < 0.3 * tickDx_ &&
+        fabs(y - pos.y()) < 0.3 * tickDy_)
     {
         return QPointF(x, y);
     }

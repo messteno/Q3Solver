@@ -32,13 +32,17 @@ qreal Q3PointConnection::distanceTo(const QPointF &pos) const
         return a_->distanceTo(pos);
     qreal param = ((b_->x() - a_->x()) * (pos.x() - a_->x()) +
                    (b_->y() - a_->y()) * (pos.y() - a_->y())) / len / len;
-    qDebug() << param;
     if (param < 0)
         return a_->distanceTo(pos);
     else if (param > 1)
         return b_->distanceTo(pos);
     Q3Point project(a_->point() + param * (b_->point() - a_->point()));
     return project.distanceTo(pos);
+}
+
+qreal Q3PointConnection::distanceFromBoundaryTo(const QPointF &pos) const
+{
+    return distanceTo(pos);
 }
 
 QRectF Q3PointConnection::boundingRect() const

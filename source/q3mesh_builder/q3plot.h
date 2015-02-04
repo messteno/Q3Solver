@@ -3,7 +3,7 @@
 
 #include <QWidget>
 
-#include <q3sceleton.h>
+#include "q3plotdrawable.h"
 
 class Q3Plot : public QWidget
 {
@@ -22,6 +22,7 @@ private:
     int countTickX_;
     int countTickY_;
 
+    QPointF leftButtonMousePos_;
     QPointF mousePos_;
 
     QColor backgroundColor_;
@@ -34,7 +35,7 @@ private:
 
     int wheelDelta_;
 
-    Q3Sceleton *sceleton_;
+    QList<Q3PlotDrawable *> drawable_;
 
     void updateScene();
 
@@ -51,12 +52,13 @@ private:
     void drawBackground();
     void drawAxes();
     void drawBorders();
-    void drawSceleton();
+    void drawDrawable();
 
 public:
     static const QColor DefaultBackgroundColor;
     static const QColor DefaultForegroundColor;
     static const QColor DefaultAxesColor;
+    static const QColor DefaultPenColor;
     static const int MinTickCount;
 
     explicit Q3Plot(QWidget *parent = 0);
@@ -80,7 +82,9 @@ public:
     void setBottomMargin(int margin);
     void setLeftMargin(int margin);
 
-    void setSceleton(Q3Sceleton *sceleton);
+    void addDrawable(Q3PlotDrawable *item);
+    void removeDrawable(Q3PlotDrawable *item);
+    void clearDrawable();
 
     QPointF snapScenePosToGrid (const QPointF pos);
 
@@ -88,6 +92,7 @@ signals:
     void mouseClicked(const QPointF scenePos);
     void mouseDragged(const QPointF oldScenePos, const QPointF newScenePos);
     void mouseDropped(const QPointF scenePos);
+    void mouseMoved(const QPointF oldScenePos, const QPointF newScenePos);
 
 public slots:
 };

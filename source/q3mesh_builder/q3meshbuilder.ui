@@ -20,14 +20,12 @@
    <item>
     <layout class="QVBoxLayout" name="plotLayout">
      <item>
-      <widget class="Q3Plot" name="plotWidget" native="true">
-       <zorder></zorder>
-      </widget>
+      <widget class="Q3Plot" name="plotWidget" native="true"/>
      </item>
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="userLayout" stretch="0,0">
+    <layout class="QVBoxLayout" name="userLayout" stretch="0,0,0,0">
      <property name="spacing">
       <number>5</number>
      </property>
@@ -57,6 +55,16 @@
         </widget>
        </item>
        <item>
+        <widget class="QToolButton" name="circleButton">
+         <property name="text">
+          <string>окружность</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="horizontalSpacer">
          <property name="orientation">
           <enum>Qt::Horizontal</enum>
@@ -72,34 +80,24 @@
       </layout>
      </item>
      <item>
-      <layout class="QVBoxLayout" name="addWidgetsLayout">
-       <property name="spacing">
-        <number>0</number>
+      <widget class="QCheckBox" name="snapToGrid">
+       <property name="text">
+        <string>привязка к сетке</string>
        </property>
-       <property name="sizeConstraint">
-        <enum>QLayout::SetMinimumSize</enum>
+       <property name="checked">
+        <bool>true</bool>
        </property>
-       <item>
-        <widget class="QCheckBox" name="snapToGrid">
-         <property name="text">
-          <string>привязка к сетке</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+      </widget>
+     </item>
+     <item>
+      <layout class="QVBoxLayout" name="directorLayout"/>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pushButton">
+       <property name="text">
+        <string>Создать сетку</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

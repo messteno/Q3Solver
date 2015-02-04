@@ -2,8 +2,10 @@
 #define Q3MESHBUILDER_H
 
 #include <QWidget>
+#include <QKeyEvent>
 
 #include "q3sceleton.h"
+#include "q3director.h"
 #include "q3plot.h"
 
 namespace Ui {
@@ -28,30 +30,24 @@ public:
     explicit Q3MeshBuilder(QWidget *parent = 0);
     ~Q3MeshBuilder();
 
-    ProcessMode processMode() const;
-    void setProcessMode(ProcessMode mode);
-
-    Q3SceletonItem::Type itemType() const;
-    void setItemType(Q3SceletonItem::Type type);
+    void keyReleaseEvent(QKeyEvent *event);
 
 private slots:
 
     // in local coordinates
-    void plotMouseClicked(const QPointF scenePos);
-    void plotMouseDragged(const QPointF oldScenePos, const QPointF newScenePos);
-    void plotMouseDropped(const QPointF scenePos);
+    void plotMouseClicked(const QPointF &scenePos);
+    void plotMouseDragged(const QPointF &oldScenePos, const QPointF &newScenePos);
+    void plotMouseDropped(const QPointF &scenePos);
+    void plotMouseMoved(const QPointF &oldScenePos, const QPointF &newScenePos);
 
     void on_pointButton_clicked(bool checked);
     void on_pointConnectionButton_clicked(bool checked);
 
+    void on_circleButton_clicked(bool checked);
+
 private:
     Q3Sceleton *sceleton_;
-    Q3SceletonItem *addItem_;
-    ProcessMode processMode_;
-
-    Q3SceletonItem::Type itemType_;
-
-    QList<Q3SceletonItem*> selectedItems_;
+    QList<Q3Director *> directors_;
 
     Ui::Q3MeshBuilder *ui;
 };

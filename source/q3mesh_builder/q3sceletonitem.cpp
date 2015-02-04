@@ -1,21 +1,33 @@
 #include "q3sceletonitem.h"
 #include "q3plot.h"
 
-const QColor Q3SceletonItem::DefaultColor =
+const QColor Q3SceletonItem::BackgroundColor =
         QColor(Q3Plot::DefaultForegroundColor);
-const QColor Q3SceletonItem::SelectedColor = QColor(Qt::red);
+const QColor Q3SceletonItem::SelectedBackgroundColor = QColor(Qt::red);
+const QColor Q3SceletonItem::PenColor =
+        QColor(Q3Plot::DefaultPenColor);
+const QColor Q3SceletonItem::SelectedPenColor = QColor(Qt::lightGray);
 
 Q3SceletonItem::Q3SceletonItem(Type type) :
     selected_(false),
     selectable_(true),
-    color_(DefaultColor),
-    selectedColor_(SelectedColor),
+    resizing_(false),
+    resizable_(false),
+    backgroundColor_(BackgroundColor),
+    selectedBackgroundColor_(SelectedBackgroundColor),
+    penColor_(PenColor),
+    selectedPenColor_(SelectedPenColor),
     type_(type)
 {
 
 }
 
 Q3SceletonItem::~Q3SceletonItem()
+{
+
+}
+
+void Q3SceletonItem::resize(const QPointF from, const QPointF to)
 {
 
 }
@@ -45,24 +57,56 @@ void Q3SceletonItem::setSelected(bool selected)
         selected_ = false;
 }
 
+bool Q3SceletonItem::isResizable() const
+{
+    return resizable_;
+}
+
+void Q3SceletonItem::setResizable(bool resizable)
+{
+    resizable_ = resizable;
+    if (!resizable)
+        resizing_ = false;
+}
+
+bool Q3SceletonItem::isResizing() const
+{
+    return resizing_;
+}
+
+void Q3SceletonItem::setResizing(bool resizing)
+{
+    if (resizable_)
+        resizing_ = resizing;
+    else
+        resizing_ = false;
+}
+
 Q3SceletonItem::Type Q3SceletonItem::type()
 {
     return type_;
 }
 
-void Q3SceletonItem::setColor(const QColor &color)
+void Q3SceletonItem::setBackgroundColor(const QColor &color)
 {
-    color_ = color;
+    backgroundColor_ = color;
 }
 
-void Q3SceletonItem::setSelectedColor(const QColor &color)
+void Q3SceletonItem::setSelectedBackgroundColor(const QColor &color)
 {
-    selectedColor_ = color;
+    selectedBackgroundColor_ = color;
 }
 
-const QColor &Q3SceletonItem::color() const
+const QColor &Q3SceletonItem::backgroundColor() const
 {
     if (selected_)
-        return selectedColor_;
-    return color_;
+        return selectedBackgroundColor_;
+    return backgroundColor_;
+}
+
+const QColor &Q3SceletonItem::penColor() const
+{
+    if (selected_)
+        return selectedPenColor_;
+    return penColor_;
 }

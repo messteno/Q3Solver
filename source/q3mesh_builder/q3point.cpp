@@ -5,10 +5,21 @@
 
 const int Q3Point::PointSize = 5;
 
-Q3Point::Q3Point(QPointF point) :
-    Q3SceletonItem(Q3SceletonItem::Point),
-    point_(point)
+Q3Point::Q3Point() :
+    Q3SceletonItem(Q3SceletonItem::Point)
 {
+}
+
+Q3Point::Q3Point(const Q3Point &q3point) :
+    Q3SceletonItem(Q3SceletonItem::Point)
+{
+    point_ = q3point.point_;
+}
+
+Q3Point::Q3Point(const QPointF &point) :
+    Q3SceletonItem(Q3SceletonItem::Point)
+{
+    point_ = point;
 }
 
 Q3Point::~Q3Point()
@@ -34,6 +45,11 @@ qreal Q3Point::distanceTo(const QPointF &pos) const
 {
     QPointF diff = point_ - pos;
     return sqrt(diff.x() * diff.x() + diff.y() * diff.y());
+}
+
+qreal Q3Point::distanceFromBoundaryTo(const QPointF &pos) const
+{
+    return distanceTo(pos);
 }
 
 QRectF Q3Point::boundingRect() const

@@ -2,24 +2,38 @@
 
 #include <QDebug>
 
+#include "q3movedirector.h"
+#include "q3additemdirector.h"
+#include "q3selectdirector.h"
+#include "q3resizedirector.h"
 #include "q3pointconnection.h"
 #include "q3point.h"
+#include "q3circle.h"
 #include "q3meshbuilder.h"
 #include "ui_q3meshbuilder.h"
-
-const int Q3MeshBuilder::SelectRadius = 10;
 
 Q3MeshBuilder::Q3MeshBuilder(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Q3MeshBuilder),
-    processMode_(NoProcess),
-    sceleton_(NULL),
-    addItem_(NULL),
-    itemType_(Q3SceletonItem::Base)
+    sceleton_(NULL)
 {
     ui->setupUi(this);
     sceleton_ = new Q3Sceleton(this);
-    ui->plotWidget->setSceleton(sceleton_);
+
+    Q3Director *addItemDirector = new Q3AddItemDirector(this);
+    Q3Director *selectDirector = new Q3SelectDirector(this);
+    Q3Director *moveDirector = new Q3MoveDirector(this);
+    Q3Director *resizeDirector = new Q3ResizeDirector(this);
+    directors_.append(addItemDirector);
+    directors_.append(selectDirector);
+    directors_.append(resizeDirector);
+    directors_.append(moveDirector);
+
+    ui->directorLayout->addWidget(addItemDirector);
+    addItemDirector->show();
+
+    ui->plotWidget->addDrawable(static_cast<Q3PlotDrawable *>(sceleton_));
+    ui->plotWidget->addDrawable(static_cast<Q3PlotDrawable *>(addItemDirector));
 
     connect(ui->plotWidget, SIGNAL(mouseClicked(const QPointF)),
             this, SLOT(plotMouseClicked(const QPointF)));
@@ -29,142 +43,99 @@ Q3MeshBuilder::Q3MeshBuilder(QWidget *parent) :
 
     connect(ui->plotWidget, SIGNAL(mouseDropped(const QPointF)),
             this, SLOT(plotMouseDropped(const QPointF)));
+
+    connect(ui->plotWidget, SIGNAL(mouseMoved(const QPointF, const QPointF)),
+            this, SLOT(plotMouseMoved(const QPointF, const QPointF)));
 }
 
 Q3MeshBuilder::~Q3MeshBuilder()
 {
     delete ui;
-
-    // Does it really needed?
-    delete sceleton_;
-    sceleton_ = NULL;
+    directors_.clear();
 }
 
-Q3MeshBuilder::ProcessMode Q3MeshBuilder::processMode() const
+void Q3MeshBuilder::keyReleaseEvent(QKeyEvent *event)
 {
-    return processMode_;
-}
-
-void Q3MeshBuilder::setProcessMode(Q3MeshBuilder::ProcessMode mode)
-{
-    if (mode != AddItemProcess && addItem_)
+    QList<Q3Director *> orderedByActivityDirectors =
+            Q3Director::orderListByActivity(directors_);
+    foreach(Q3Director *director, orderedByActivityDirectors)
     {
-        delete addItem_;
-        addItem_ = NULL;
-    }
-    processMode_ = mode;
-}
-
-Q3SceletonItem::Type Q3MeshBuilder::itemType() const
-{
-    return itemType_;
-}
-
-void Q3MeshBuilder::setItemType(Q3SceletonItem::Type type)
-{
-    itemType_ = type;
-}
-
-void Q3MeshBuilder::plotMouseClicked(const QPointF scenePos)
-{
-    QPointF pos = scenePos;
-    if (ui->snapToGrid->isChecked())
-        pos = ui->plotWidget->snapScenePosToGrid(pos);
-
-    if (itemType_ == Q3SceletonItem::Point)
-    {
-        Q3Point *point = new Q3Point(pos);
-        sceleton_->addItem(point);
-    }
-    else if (itemType_ == Q3SceletonItem::PointConnection)
-    {
-        if (processMode_ == NoProcess)
+        bool processed = director->processKeyRelease(ui->plotWidget,
+                                                     sceleton_,
+                                                     event->key(),
+                                                     ui->snapToGrid->isChecked());
+        if (processed)
         {
-            qreal radius = SelectRadius / ui->plotWidget->sx();
-            Q3SceletonItem *item = sceleton_->itemAt(scenePos, radius,
-                                                     Q3SceletonItem::Point);
-            if (item)
-            {
-                Q3Point *a = dynamic_cast<Q3Point *>(item);
-                if (a)
-                {
-                    addItem_ = new Q3PointConnection(a, a);
-                    setProcessMode(AddItemProcess);
-                }
-            }
+            ui->plotWidget->update();
+            break;
         }
-        else if (processMode_ == AddItemProcess)
-        {
-            qreal radius = SelectRadius / ui->plotWidget->sx();
-            Q3SceletonItem *item = sceleton_->itemAt(scenePos, radius,
-                                                     Q3SceletonItem::Point);
-            if (item)
-            {
-                Q3PointConnection *conn = dynamic_cast<Q3PointConnection *>(addItem_);
-                Q3Point *b = dynamic_cast<Q3Point *>(item);
-                if (b && conn && conn->a() != b)
-                {
-                    addItem_ = NULL;
-                    conn->setB(b);
-                    sceleton_->addItem(conn);
-                    setProcessMode(NoProcess);
-                }
-            }
-        }
+    }
+}
+
+void Q3MeshBuilder::plotMouseClicked(const QPointF &scenePos)
+{
+    QList<Q3Director *> orderedByActivityDirectors =
+            Q3Director::orderListByActivity(directors_);
+    foreach(Q3Director *director, orderedByActivityDirectors)
+    {
+        bool processed = director->processClick(ui->plotWidget,
+                                                sceleton_,
+                                                scenePos,
+                                                ui->snapToGrid->isChecked());
+        if (processed)
+            break;
     }
     ui->plotWidget->update();
 }
 
-void Q3MeshBuilder::plotMouseDragged(const QPointF oldScenePos,
-                                     const QPointF newScenePos)
+void Q3MeshBuilder::plotMouseDragged(const QPointF &oldScenePos,
+                                     const QPointF &newScenePos)
 {
-    if (processMode_ == NoProcess)
+    QList<Q3Director *> orderedByActivityDirectors =
+            Q3Director::orderListByActivity(directors_);
+    foreach(Q3Director *director, orderedByActivityDirectors)
     {
-        qreal radius = SelectRadius / ui->plotWidget->sx();
-        Q3SceletonItem *item = sceleton_->itemAt(oldScenePos, radius);
-        if (item)
-        {
-            selectedItems_.append(item);
-            item->setSelected(true);
-            setProcessMode(MoveItemProcess);
-        }
-        else
-            setProcessMode(MoveProcess);
-    }
-
-    QPointF diffScenePos = newScenePos - oldScenePos;
-    if (processMode_ == MoveProcess || processMode_ == AddItemProcess)
-    {
-        ui->plotWidget->moveScene(diffScenePos);
-    }
-    else if (processMode_ == MoveItemProcess)
-    {
-        foreach (Q3SceletonItem *item, selectedItems_)
-            item->move(diffScenePos);
+        bool processed = director->processDragged(ui->plotWidget,
+                                                  sceleton_,
+                                                  oldScenePos,
+                                                  newScenePos,
+                                                  ui->snapToGrid->isChecked());
+        if (processed)
+            break;
     }
     ui->plotWidget->update();
 }
 
-void Q3MeshBuilder::plotMouseDropped(const QPointF scenePos)
+void Q3MeshBuilder::plotMouseDropped(const QPointF &scenePos)
 {
-    if (processMode_ == MoveProcess)
+    QList<Q3Director *> orderedByActivityDirectors =
+            Q3Director::orderListByActivity(directors_);
+    foreach(Q3Director *director, orderedByActivityDirectors)
     {
-        setProcessMode(NoProcess);
+        bool processed = director->processDropped(ui->plotWidget,
+                                                  sceleton_,
+                                                  scenePos,
+                                                  ui->snapToGrid->isChecked());
+        if (processed)
+            break;
     }
-    else if (processMode_ == MoveItemProcess)
+    ui->plotWidget->update();
+}
+
+void Q3MeshBuilder::plotMouseMoved(const QPointF &oldScenePos,
+                                   const QPointF &newScenePos)
+{
+    QList<Q3Director *> orderedByActivityDirectors =
+            Q3Director::orderListByActivity(directors_);
+    foreach(Q3Director *director, orderedByActivityDirectors)
     {
-        foreach (Q3SceletonItem *item, selectedItems_)
-        {
-            if (ui->snapToGrid->isChecked())
-            {
-                QPointF oldCenter = item->boundingRect().center();
-                QPointF newCenter = ui->plotWidget->snapScenePosToGrid(oldCenter);
-                item->move(newCenter - oldCenter);
-            }
-            item->setSelected(false);
-        }
-        selectedItems_.clear();
-        setProcessMode(NoProcess);
+        bool processed = director->processMoved(ui->plotWidget,
+                                                sceleton_,
+                                                oldScenePos,
+                                                newScenePos,
+                                                ui->snapToGrid->isChecked());
+        if (processed)
+            break;
     }
     ui->plotWidget->update();
 }
@@ -174,11 +145,16 @@ void Q3MeshBuilder::on_pointButton_clicked(bool checked)
     if (checked)
     {
         ui->pointConnectionButton->setChecked(false);
-        setItemType(Q3SceletonItem::Point);
+        ui->circleButton->setChecked(false);
+        foreach (Q3Director *director, directors_)
+            director->setItemType(Q3SceletonItem::Point);
     }
     else
-        setItemType(Q3SceletonItem::Base);
-    setProcessMode(NoProcess);
+    {
+        foreach (Q3Director *director, directors_)
+            director->setItemType(Q3SceletonItem::Base);
+    }
+    ui->plotWidget->update();
 }
 
 void Q3MeshBuilder::on_pointConnectionButton_clicked(bool checked)
@@ -186,9 +162,31 @@ void Q3MeshBuilder::on_pointConnectionButton_clicked(bool checked)
     if (checked)
     {
         ui->pointButton->setChecked(false);
-        setItemType(Q3SceletonItem::PointConnection);
+        ui->circleButton->setChecked(false);
+        foreach (Q3Director *director, directors_)
+            director->setItemType(Q3SceletonItem::PointConnection);
     }
     else
-        setItemType(Q3SceletonItem::Base);
-    setProcessMode(NoProcess);
+    {
+        foreach (Q3Director *director, directors_)
+            director->setItemType(Q3SceletonItem::Base);
+    }
+    ui->plotWidget->update();
+}
+
+void Q3MeshBuilder::on_circleButton_clicked(bool checked)
+{
+    if (checked)
+    {
+        ui->pointButton->setChecked(false);
+        ui->pointConnectionButton->setChecked(false);
+        foreach (Q3Director *director, directors_)
+            director->setItemType(Q3SceletonItem::Circle);
+    }
+    else
+    {
+        foreach (Q3Director *director, directors_)
+            director->setItemType(Q3SceletonItem::Base);
+    }
+    ui->plotWidget->update();
 }

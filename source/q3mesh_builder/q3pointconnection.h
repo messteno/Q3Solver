@@ -16,6 +16,7 @@ public:
 
     virtual void draw(Q3Painter &painter);
     virtual qreal distanceTo(const QPointF &pos) const;
+    virtual qreal distanceFromBoundaryTo(const QPointF &pos) const;
     virtual QRectF boundingRect() const;
     virtual void move(const QPointF diff);
 

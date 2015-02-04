@@ -12,6 +12,8 @@
 const QColor Q3Plot::DefaultBackgroundColor = QColor(0x00, 0x16, 0x1c);
 const QColor Q3Plot::DefaultForegroundColor = QColor(0x1d, 0xd3, 0xf3, 0xa0);
 const QColor Q3Plot::DefaultAxesColor = QColor(0xff, 0xff, 0xff);
+const QColor Q3Plot::DefaultPenColor = QColor(0xff, 0xff, 0xff);
+
 const int Q3Plot::MinTickCount = 8;
 
 Q3Plot::Q3Plot(QWidget *parent) :
@@ -27,10 +29,10 @@ Q3Plot::Q3Plot(QWidget *parent) :
     backgroundColor_(DefaultBackgroundColor),
     foregroundColor_(DefaultForegroundColor),
     axesColor_(DefaultAxesColor),
+    penColor_(DefaultPenColor),
     bottomMargin_(25),
     leftMargin_(20),
-    wheelDelta_(0),
-    sceleton_(NULL)
+    wheelDelta_(0)
 {
     setMouseTracking(true);
 }
@@ -48,8 +50,7 @@ void Q3Plot::paintEvent(QPaintEvent *event)
 {
     drawBackground();
     drawAxes();
-    if (sceleton_)
-        drawSceleton();
+    drawDrawable();
     drawBorders();
 }
 
@@ -82,13 +83,13 @@ void Q3Plot::wheelEvent(QWheelEvent *event)
 void Q3Plot::mouseReleaseEvent(QMouseEvent *event)
 {
     QPointF sceneClickedPos = mapToScene(event->pos());
-    if (mousePos_.isNull())
+    if (leftButtonMousePos_.isNull())
     {
         emit mouseClicked(sceneClickedPos);
     }
     else
     {
-        mousePos_ = QPointF();
+        leftButtonMousePos_ = QPointF();
         emit mouseDropped(sceneClickedPos);
     }
 }
@@ -107,17 +108,25 @@ void Q3Plot::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton)
     {
-        if (mousePos_.isNull())
+        if (leftButtonMousePos_.isNull())
         {
-            mousePos_ = event->pos();
+            leftButtonMousePos_ = event->pos();
         }
         else
         {
-            QPointF oldScenePos = mapToScene(mousePos_);
+            QPointF oldScenePos = mapToScene(leftButtonMousePos_);
             QPointF newScenePos = mapToScene(event->pos());
             emit mouseDragged(oldScenePos, newScenePos);
-            mousePos_ = event->pos();
+            leftButtonMousePos_ = event->pos();
         }
+        mousePos_ = event->pos();
+    }
+    else if (!event->buttons())
+    {
+        QPointF oldScenePos = mapToScene(mousePos_);
+        QPointF newScenePos = mapToScene(event->pos());
+        emit mouseMoved(oldScenePos, newScenePos);
+        mousePos_ = event->pos();
     }
 }
 
@@ -339,11 +348,8 @@ void Q3Plot::drawBorders()
     painter.end();
 }
 
-void Q3Plot::drawSceleton()
+void Q3Plot::drawDrawable()
 {
-    if (!sceleton_)
-        return;
-
     Q3Painter painter;
     painter.begin(this);
     painter.save();
@@ -355,7 +361,9 @@ void Q3Plot::drawSceleton()
     painter.setBrush(foregroundColor_);
     painter.translate(dx_, dy_);
     painter.scale(scaleX_, scaleY_);
-    sceleton_->drawItems(painter);
+    foreach (Q3PlotDrawable *item, drawable_) {
+        item->draw(painter);
+    }
     painter.restore();
     painter.end();
 }
@@ -390,9 +398,19 @@ void Q3Plot::setLeftMargin(int margin)
     leftMargin_ = margin;
 }
 
-void Q3Plot::setSceleton(Q3Sceleton *sceleton)
+void Q3Plot::addDrawable(Q3PlotDrawable *item)
 {
-    sceleton_ = sceleton;
+    drawable_.append(item);
+}
+
+void Q3Plot::removeDrawable(Q3PlotDrawable *item)
+{
+    drawable_.removeAll(item);
+}
+
+void Q3Plot::clearDrawable()
+{
+    drawable_.clear();
 }
 
 QPointF Q3Plot::snapScenePosToGrid (const QPointF pos)

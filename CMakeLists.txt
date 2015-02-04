@@ -20,7 +20,7 @@ cmake_minimum_required(VERSION 2.8.11)
 # If no build type is specified, default to "Release"
 set(CMAKE_BUILD_TYPE Debug)
 
-project(qtrisolver)
+project(q3solver)
 set(PROJECT_LONGNAME "Q3Solver")
 set(PROJECT_VERSION "0.0.1")
 

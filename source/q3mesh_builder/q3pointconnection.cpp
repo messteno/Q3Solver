@@ -1,9 +1,10 @@
 #include <math.h>
 
+#include <QDebug>
+
 #include "q3sceletonitem.h"
 #include "q3pointconnection.h"
-
-#include <QDebug>
+#include "q3itemvisitor.h"
 
 Q3PointConnection::Q3PointConnection(Q3Point *a, Q3Point *b) :
     Q3SceletonItem(Q3SceletonItem::PointConnection),
@@ -82,4 +83,29 @@ Q3Point *Q3PointConnection::a()
 Q3Point *Q3PointConnection::b()
 {
     return b_;
+}
+
+bool Q3PointConnection::accept(Q3ItemVisitor &visitor, Q3SceletonItem *item)
+{
+    return item->accept(visitor, this);
+}
+
+bool Q3PointConnection::accept(Q3ItemVisitor &visitor, Q3Point *point)
+{
+    return visitor.visit(point, this);
+}
+
+bool Q3PointConnection::accept(Q3ItemVisitor &visitor, Q3PointConnection *conn)
+{
+    return visitor.visit(this, conn);
+}
+
+bool Q3PointConnection::accept(Q3ItemVisitor &visitor, Q3Circle *circle)
+{
+    return visitor.visit(this, circle);
+}
+
+bool Q3PointConnection::accept(Q3ItemVisitor &visitor)
+{
+    return visitor.visit(this);
 }

@@ -1,12 +1,13 @@
 #include "q3sceletonitem.h"
 #include "q3plot.h"
+#include "q3itemvisitor.h"
 
 const QColor Q3SceletonItem::BackgroundColor =
         QColor(Q3Plot::DefaultForegroundColor);
 const QColor Q3SceletonItem::SelectedBackgroundColor = QColor(Qt::red);
 const QColor Q3SceletonItem::PenColor =
         QColor(Q3Plot::DefaultPenColor);
-const QColor Q3SceletonItem::SelectedPenColor = QColor(Qt::lightGray);
+const QColor Q3SceletonItem::SelectedPenColor = QColor(100, 100, 100);
 
 Q3SceletonItem::Q3SceletonItem(Type type) :
     selected_(false),

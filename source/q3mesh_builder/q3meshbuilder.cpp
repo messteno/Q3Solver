@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include <QMessageBox>
 #include <QDebug>
 
 #include "q3movedirector.h"
@@ -189,4 +190,16 @@ void Q3MeshBuilder::on_circleButton_clicked(bool checked)
             director->setItemType(Q3SceletonItem::Base);
     }
     ui->plotWidget->update();
+}
+
+void Q3MeshBuilder::on_createMeshButton_clicked()
+{
+    // 1. Disable all directors
+    // 2. Try create mesh
+    // 3. If creation fails then enable all directors
+    if (sceleton_->createMesh() == false)
+    {
+    }
+
+    update();
 }

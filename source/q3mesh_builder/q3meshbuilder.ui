@@ -93,7 +93,7 @@
       <layout class="QVBoxLayout" name="directorLayout"/>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="createMeshButton">
        <property name="text">
         <string>Создать сетку</string>
        </property>

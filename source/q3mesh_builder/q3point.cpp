@@ -2,6 +2,7 @@
 
 #include "q3sceletonitem.h"
 #include "q3point.h"
+#include "q3itemvisitor.h"
 
 const int Q3Point::PointSize = 5;
 
@@ -54,8 +55,9 @@ qreal Q3Point::distanceFromBoundaryTo(const QPointF &pos) const
 
 QRectF Q3Point::boundingRect() const
 {
-    return QRectF(point_.x() - 0.5 * PointSize, point_.y() - 0.5 * PointSize,
-                  PointSize, PointSize);
+    // return QRectF(point_.x() - 0.5 * PointSize, point_.y() - 0.5 * PointSize,
+    //              PointSize, PointSize);
+    return QRectF(point_.x(), point_.y(), 0, 0);
 }
 
 qreal Q3Point::x()
@@ -71,4 +73,29 @@ qreal Q3Point::y()
 QPointF Q3Point::point()
 {
     return point_;
+}
+
+bool Q3Point::accept(Q3ItemVisitor &visitor, Q3SceletonItem *item)
+{
+    return item->accept(visitor, this);
+}
+
+bool Q3Point::accept(Q3ItemVisitor &visitor, Q3Point *point)
+{
+    return visitor.visit(this, point);
+}
+
+bool Q3Point::accept(Q3ItemVisitor &visitor, Q3PointConnection *conn)
+{
+    return visitor.visit(this, conn);
+}
+
+bool Q3Point::accept(Q3ItemVisitor &visitor, Q3Circle *circle)
+{
+    return visitor.visit(this, circle);
+}
+
+bool Q3Point::accept(Q3ItemVisitor &visitor)
+{
+    visitor.visit(this);
 }

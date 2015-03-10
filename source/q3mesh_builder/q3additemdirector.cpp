@@ -90,9 +90,10 @@ bool Q3AddItemDirector::processClick(Q3Plot *plot,
                                           Q3SceletonItem::Point));
                 if (b && conn && conn->a() != b)
                 {
-                    delete conn->b();
-                    item_ = NULL;
+                    Q3Point *oldB = conn->b();
                     conn->setB(b);
+                    delete oldB;
+                    item_ = NULL;
                     sceleton->addItem(conn);
                     return true;
                 }

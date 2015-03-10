@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include "q3circle.h"
+#include "q3itemvisitor.h"
 
 const qreal Q3Circle::MinRadius = 1e-5;
 
@@ -87,3 +88,27 @@ void Q3Circle::setRadius(qreal radius)
         radius_ = radius;
 }
 
+bool Q3Circle::accept(Q3ItemVisitor &visitor, Q3SceletonItem *item)
+{
+    return item->accept(visitor, this);
+}
+
+bool Q3Circle::accept(Q3ItemVisitor &visitor, Q3Point *point)
+{
+    return visitor.visit(point, this);
+}
+
+bool Q3Circle::accept(Q3ItemVisitor &visitor, Q3PointConnection *conn)
+{
+    return visitor.visit(conn, this);
+}
+
+bool Q3Circle::accept(Q3ItemVisitor &visitor, Q3Circle *circle)
+{
+    return visitor.visit(circle, this);
+}
+
+bool Q3Circle::accept(Q3ItemVisitor &visitor)
+{
+    visitor.visit(this);
+}

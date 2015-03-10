@@ -26,6 +26,12 @@ public:
     Q3Point* a();
     Q3Point* b();
 
+    bool accept(Q3ItemVisitor &visitor, Q3SceletonItem *item);
+    bool accept(Q3ItemVisitor &visitor, Q3Point *point);
+    bool accept(Q3ItemVisitor &visitor, Q3PointConnection *conn);
+    bool accept(Q3ItemVisitor &visitor, Q3Circle *circle);
+
+    bool accept(Q3ItemVisitor &visitor);
 };
 
 #endif // Q3POINTCONNECTION_H

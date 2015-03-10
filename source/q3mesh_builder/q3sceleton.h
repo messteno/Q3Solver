@@ -26,6 +26,7 @@ public:
     void removeItem(Q3SceletonItem *item);
     void removeSelectedItems();
     void draw(Q3Painter &painter) const;
+    bool createMesh();
 };
 
 #endif // Q3SCELETON_H

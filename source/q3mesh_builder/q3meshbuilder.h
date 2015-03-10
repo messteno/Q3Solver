@@ -42,8 +42,9 @@ private slots:
 
     void on_pointButton_clicked(bool checked);
     void on_pointConnectionButton_clicked(bool checked);
-
     void on_circleButton_clicked(bool checked);
+
+    void on_createMeshButton_clicked();
 
 private:
     Q3Sceleton *sceleton_;

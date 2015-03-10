@@ -25,6 +25,13 @@ public:
 
     qreal radius();
     void setRadius(qreal radius);
+
+    bool accept(Q3ItemVisitor &visitor, Q3SceletonItem *item);
+    bool accept(Q3ItemVisitor &visitor, Q3Point *point);
+    bool accept(Q3ItemVisitor &visitor, Q3PointConnection *conn);
+    bool accept(Q3ItemVisitor &visitor, Q3Circle *circle);
+
+    bool accept(Q3ItemVisitor &visitor);
 };
 
 #endif // Q3CIRCLE_H

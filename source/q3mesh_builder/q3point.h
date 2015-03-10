@@ -4,6 +4,8 @@
 #include "q3sceletonitem.h"
 #include "q3painter.h"
 
+class Q3PointConnection;
+
 class Q3Point : public Q3SceletonItem
 {
 private:
@@ -26,6 +28,13 @@ public:
     qreal y();
 
     QPointF point();
+
+    bool accept(Q3ItemVisitor &visitor, Q3SceletonItem *item);
+    bool accept(Q3ItemVisitor &visitor, Q3Point *point);
+    bool accept(Q3ItemVisitor &visitor, Q3PointConnection *conn);
+    bool accept(Q3ItemVisitor &visitor, Q3Circle *circle);
+
+    bool accept(Q3ItemVisitor &visitor);
 };
 
 #endif // Q3POINT_H

@@ -93,9 +93,11 @@ bool Q3SelectDirector::processDropped(Q3Plot *plot, Q3Sceleton *sceleton,
             item->setSelected(false);
     }
     if (itemType_ != Q3SceletonItem::Base)
+    {
         selectedItems_.clear();
+        setActive(false);
+    }
 
-    setActive(false);
     return true;
 }
 

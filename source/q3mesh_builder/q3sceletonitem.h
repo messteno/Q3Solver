@@ -3,6 +3,11 @@
 
 #include <q3painter.h>
 
+class Q3ItemVisitor;
+class Q3Point;
+class Q3PointConnection;
+class Q3Circle;
+
 class Q3SceletonItem
 {
 public:
@@ -48,6 +53,13 @@ public:
 
     const QColor &backgroundColor() const;
     const QColor &penColor() const;
+
+    virtual bool accept(Q3ItemVisitor &visitor, Q3SceletonItem *item) = 0;
+    virtual bool accept(Q3ItemVisitor &visitor, Q3Point *point) = 0;
+    virtual bool accept(Q3ItemVisitor &visitor, Q3PointConnection *conn) = 0;
+    virtual bool accept(Q3ItemVisitor &visitor, Q3Circle *circle) = 0;
+
+    virtual bool accept(Q3ItemVisitor &visitor) = 0;
 
 protected:
     Type type_;

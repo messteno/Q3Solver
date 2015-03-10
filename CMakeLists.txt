@@ -33,6 +33,7 @@ find_package(Qt5Widgets)
 
 include(ExternalProject)
 
+set(PATCH_DIR ${CMAKE_SOURCE_DIR}/patch)
 set(3RDPARTY_DIR ${CMAKE_SOURCE_DIR}/3rdparty)
 
 set(ANI2D_VERSION 3.0)
@@ -51,6 +52,7 @@ ExternalProject_Add(ani2D
     TMP_DIR ${ANI_TMP_DIR}
     URL http://sourceforge.net/projects/ani2d/files/ani2d/${ANI2D_PROJECT}/${ANI2D_PROJECT}.tar.gz
     URL_MD5 3a0f5942d8466ccb86ed87de5aa56a23
+    PATCH_COMMAND patch -p1 < ${PATCH_DIR}/ani2d_0001.patch
 )
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)

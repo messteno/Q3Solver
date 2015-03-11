@@ -96,7 +96,8 @@ bool Q3ItemLeftmostVisitor::visit(Q3Point *point)
 
 bool Q3ItemLeftmostVisitor::visit(Q3PointConnection *conn)
 {
-    return checkLeftmost(conn);
+    // Не будем рассматривать самый левый отрезок, ищем точку
+    return false;
 }
 
 bool Q3ItemLeftmostVisitor::visit(Q3Circle *circle)
@@ -299,5 +300,159 @@ bool Q3ItemRayTraceVisitor::visit(Q3Circle *circle)
         return true;
     }
 
+    return false;
+}
+
+
+Q3ItemInnerBoundaryVisitor::Q3ItemInnerBoundaryVisitor(
+        QList<Q3SceletonItem *> items) :
+    items_(items)
+{
+
+}
+
+QList<Q3SceletonItem *> Q3ItemInnerBoundaryVisitor::getBoundary() const
+{
+    return boundary_;
+}
+
+bool Q3ItemInnerBoundaryVisitor::visit(Q3Point *point)
+{
+    QMap<Q3Point*, QList<Q3PointConnection*> > pointConnMap;
+    foreach (Q3SceletonItem *item, items_)
+    {
+        if (item->type() == Q3SceletonItem::PointConnection)
+        {
+            Q3PointConnection *conn = dynamic_cast<Q3PointConnection*>(item);
+            if (conn)
+            {
+                pointConnMap[conn->a()].append(conn);
+                pointConnMap[conn->b()].append(conn);
+            }
+        }
+    }
+
+    boundary_.append(point);
+    Q3Point *lastPoint = point;
+    Q3PointConnection *lastConn = NULL;
+    while(!boundary_.empty())
+    {
+        Q_ASSERT(lastPoint);
+
+        Q3PointConnection *maxAngleConnection = NULL;
+        qreal maxAngle = 0;
+        foreach (Q3PointConnection *conn, pointConnMap[lastPoint])
+        {
+            QVector2D v1(0, -1);
+            if (lastConn)
+            {
+                if (lastPoint == lastConn->a())
+                    v1 = QVector2D(lastConn->b()->point() - lastPoint->point());
+                else
+                    v1 = QVector2D(lastConn->a()->point() - lastPoint->point());
+            }
+
+            QVector2D v2(0, 1);
+            if (conn)
+            {
+                if (lastPoint == conn->a())
+                    v2 = QVector2D(conn->b()->point() - lastPoint->point());
+                else
+                    v2 = QVector2D(conn->a()->point() - lastPoint->point());
+            }
+
+            qreal angle = acos(QVector2D::dotProduct(v1, v2)
+                               / v1.length() / v2.length());
+            if (v1.x() * v2.y() - v1.y() * v2.x() < 0)
+                angle = 2 * M_PI - angle;
+
+            if (!maxAngleConnection || maxAngle < angle)
+            {
+                maxAngleConnection = conn;
+                maxAngle = angle;
+            }
+        }
+
+        if (!maxAngleConnection)
+        {
+            if (!boundary_.empty())
+                boundary_.removeLast();
+            if (!boundary_.empty())
+                boundary_.removeLast();
+
+            if (!boundary_.empty())
+            {
+                lastPoint = dynamic_cast<Q3Point*>(boundary_.takeLast());
+                if (!boundary_.empty())
+                    lastConn = dynamic_cast<Q3PointConnection*>(boundary_.last());
+                boundary_.append(lastPoint);
+            }
+            continue;
+        }
+
+        lastConn = maxAngleConnection;
+        pointConnMap[lastPoint].removeAll(lastConn);
+        boundary_.append(lastConn);
+
+        if (maxAngleConnection->a() == lastPoint)
+            lastPoint = maxAngleConnection->b();
+        else
+            lastPoint = maxAngleConnection->a();
+
+        if (lastPoint == boundary_.first())
+            break;
+
+        pointConnMap[lastPoint].removeAll(lastConn);
+        boundary_.append(lastPoint);
+    }
+
+    if (boundary_.empty())
+        return false;
+    return true;
+}
+
+bool Q3ItemInnerBoundaryVisitor::visit(Q3PointConnection *conn)
+{
+    return false;
+}
+
+bool Q3ItemInnerBoundaryVisitor::visit(Q3Circle *circle)
+{
+    boundary_.append(circle);
+    return true;
+}
+
+
+Q3ItemBoundaryClockwiseVisitor::Q3ItemBoundaryClockwiseVisitor() :
+    square_(0),
+    previous_(NULL)
+{
+
+}
+
+bool Q3ItemBoundaryClockwiseVisitor::clockwise() const
+{
+    return square_ < 0;
+}
+
+bool Q3ItemBoundaryClockwiseVisitor::visit(Q3Point *point)
+{
+    if (!previous_)
+    {
+        previous_ = point;
+        return true;
+    }
+    square_ += previous_->x() * point->y() - previous_->y() * point->x();
+    previous_ = point;
+    return true;
+}
+
+bool Q3ItemBoundaryClockwiseVisitor::visit(Q3PointConnection *conn)
+{
+    return false;
+}
+
+bool Q3ItemBoundaryClockwiseVisitor::visit(Q3Circle *circle)
+{
     return false;
 }

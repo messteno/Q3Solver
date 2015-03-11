@@ -137,6 +137,7 @@ bool Q3AddItemDirector::processClick(Q3Plot *plot,
             }
             case Q3SceletonItem::PointConnection:
             {
+                // TODO: Не создавать отрезок, если две точки уже соединены
                 Q3Point *a = dynamic_cast<Q3Point *>
                         (sceleton->itemAt(scenePos, radius,
                                           Q3SceletonItem::Point));

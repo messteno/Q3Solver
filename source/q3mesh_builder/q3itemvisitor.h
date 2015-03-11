@@ -115,4 +115,47 @@ public:
     bool visit(Q3Circle *circle);
 };
 
+class Q3ItemInnerBoundaryVisitor : public Q3ItemVisitor
+{
+private:
+    QList<Q3SceletonItem *> items_;
+    QList<Q3SceletonItem *> boundary_;
+public:
+    Q3ItemInnerBoundaryVisitor(QList<Q3SceletonItem *> items);
+
+    QList<Q3SceletonItem *> getBoundary() const;
+
+    bool visit(Q3Point *point1, Q3Point *point2) { return false; }
+    bool visit(Q3Point *point, Q3PointConnection *conn) { return false; }
+    bool visit(Q3Point *point, Q3Circle *circle) { return false; }
+    bool visit(Q3PointConnection *conn1, Q3PointConnection *conn2) { return false; }
+    bool visit(Q3PointConnection *conn, Q3Circle *circle) { return false; }
+    bool visit(Q3Circle *circle1, Q3Circle *circle2) { return false; }
+
+    bool visit(Q3Point *point);
+    bool visit(Q3PointConnection *conn);
+    bool visit(Q3Circle *circle);
+};
+
+class Q3ItemBoundaryClockwiseVisitor : public Q3ItemVisitor
+{
+private:
+    qreal square_;
+    Q3Point *previous_;
+public:
+    Q3ItemBoundaryClockwiseVisitor();
+    bool clockwise() const;
+
+    bool visit(Q3Point *point1, Q3Point *point2) { return false; }
+    bool visit(Q3Point *point, Q3PointConnection *conn) { return false; }
+    bool visit(Q3Point *point, Q3Circle *circle) { return false; }
+    bool visit(Q3PointConnection *conn1, Q3PointConnection *conn2) { return false; }
+    bool visit(Q3PointConnection *conn, Q3Circle *circle) { return false; }
+    bool visit(Q3Circle *circle1, Q3Circle *circle2) { return false; }
+
+    bool visit(Q3Point *point);
+    bool visit(Q3PointConnection *conn);
+    bool visit(Q3Circle *circle);
+};
+
 #endif // Q3ITEMVISITOR_H

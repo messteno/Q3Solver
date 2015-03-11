@@ -50,6 +50,7 @@ public:
 
     void setBackgroundColor(const QColor &backgroundColor);
     void setSelectedBackgroundColor(const QColor &backgroundColor);
+    void setPenColor(const QColor &penColor);
 
     const QColor &backgroundColor() const;
     const QColor &penColor() const;
@@ -60,6 +61,8 @@ public:
     virtual bool accept(Q3ItemVisitor &visitor, Q3Circle *circle) = 0;
 
     virtual bool accept(Q3ItemVisitor &visitor) = 0;
+
+    static bool lefterThan(const Q3SceletonItem *i1, const Q3SceletonItem *i2);
 
 protected:
     Type type_;

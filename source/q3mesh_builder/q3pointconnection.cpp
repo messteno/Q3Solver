@@ -1,6 +1,7 @@
 #include <math.h>
 
 #include <QDebug>
+#include <QVector2D>
 
 #include "q3sceletonitem.h"
 #include "q3pointconnection.h"

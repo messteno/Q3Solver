@@ -7,6 +7,7 @@
 #include "q3sceletonitem.h"
 #include "q3painter.h"
 #include "q3plotdrawable.h"
+#include "q3meshadapter.h"
 
 class Q3Plot;
 
@@ -16,6 +17,9 @@ class Q3Sceleton : public Q3PlotDrawable
 
 private:
     QList<Q3SceletonItem *> items_;
+    QList<Q3SceletonItem *> outerBoundary_;
+    QList<QList<Q3SceletonItem *> > innerBoundaries_;
+    QList<Q3SceletonItem *> innerElements_;
 public:
     Q3Sceleton(QWidget *parent);
     virtual ~Q3Sceleton();
@@ -26,7 +30,7 @@ public:
     void removeItem(Q3SceletonItem *item);
     void removeSelectedItems();
     void draw(Q3Painter &painter) const;
-    bool createMesh();
+    bool createMesh(Q3MeshAdapter *adapter);
 };
 
 #endif // Q3SCELETON_H

@@ -1,5 +1,8 @@
+#include <QtAlgorithms>
 #include <QDebug>
 #include <QMessageBox>
+#include <QtGlobal>
+#include <QTime>
 
 #include "q3sceleton.h"
 #include "q3pointconnection.h"
@@ -161,8 +164,11 @@ void Q3Sceleton::draw(Q3Painter &painter) const
     painter.restore();
 }
 
-bool Q3Sceleton::createMesh()
+bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
 {
+    outerBoundary_.clear();
+    innerBoundaries_.clear();
+
     if (!items_.count())
     {
         QMessageBox::warning(this, tr("Q3Solver"),
@@ -221,10 +227,9 @@ bool Q3Sceleton::createMesh()
             connectedVisitor.backward();
     }
 
-    QList<Q3SceletonItem *> leftmostConnectedItems =
-            connectedVisitor.connectedItems();
+    outerBoundary_ = connectedVisitor.connectedItems();
 
-    if (leftmostConnectedItems.empty())
+    if (outerBoundary_.empty())
     {
         QMessageBox::warning(this, tr("Q3Solver"),
                              tr("Невозможно создать сетку, "
@@ -233,14 +238,17 @@ bool Q3Sceleton::createMesh()
         return false;
     }
 
+    // TODO: проверить, что из каждой точки внешней границы выходит ровно два
+    //       отрезка границы
+
     // Проверить, что все остальные элементы внутри выделенной области
     foreach (Q3SceletonItem *item, items_)
     {
-        if (leftmostConnectedItems.contains(item))
+        if (outerBoundary_.contains(item))
             continue;
 
         Q3ItemRayTraceVisitor rayTraceVisitor(item);
-        foreach (Q3SceletonItem *chainItem, leftmostConnectedItems)
+        foreach (Q3SceletonItem *chainItem, outerBoundary_)
             chainItem->accept(rayTraceVisitor);
 
         if (rayTraceVisitor.rayCrossCount() % 2 == 0)
@@ -253,9 +261,80 @@ bool Q3Sceleton::createMesh()
         }
     }
 
-    // Найти аналогично все замкнутые области внутри (нужно подумать как)
-    // Проверить, что лишних элементов нет
-    // В случае ошибки подсвечивать элементы с ошибкой
+    // TODO: возможно, переписать то, что выше =)
+
+    // Сделать копию списка элементов
+    // Убрать отрезки внешней границы
+    QList<Q3SceletonItem *> activeItems = items_;
+    foreach (Q3SceletonItem *item, outerBoundary_)
+        activeItems.removeAll(item);
+
+    // Сортируем элементы по оси OX
+    QList<Q3SceletonItem *> leftOrderItems = items_;
+    qSort(leftOrderItems.begin(), leftOrderItems.end(),
+          Q3SceletonItem::lefterThan);
+
+    // Ищем внутренние замкнутые границы
+    foreach (Q3SceletonItem *item, leftOrderItems)
+    {
+        Q3ItemInnerBoundaryVisitor innerBoundaryVisitor(activeItems);
+        bool found = item->accept(innerBoundaryVisitor);
+        if (found)
+        {
+            QList<Q3SceletonItem *> boundary = \
+                    innerBoundaryVisitor.getBoundary();
+            foreach (Q3SceletonItem *item, boundary)
+                activeItems.removeAll(item);
+            innerBoundaries_.append(boundary);
+        }
+    }
+
+    // Проверяем, что внутри внутренних областей нет других элементов
+    QList<QList<Q3SceletonItem *> >::iterator it;
+    for (it = innerBoundaries_.begin(); it != innerBoundaries_.end(); ++it)
+    {
+        foreach (Q3SceletonItem *item, items_)
+        {
+            if ((*it).contains(item))
+                continue;
+
+            Q3ItemRayTraceVisitor rayTraceVisitor(item);
+            foreach (Q3SceletonItem *chainItem, *it)
+                chainItem->accept(rayTraceVisitor);
+
+            if (rayTraceVisitor.rayCrossCount() % 2 == 1)
+            {
+                QMessageBox::warning(this, tr("Q3Solver"),
+                                     tr("Невозможно создать сетку, "
+                                        "внутренняя обасть содержит элементы"),
+                                     QMessageBox::Ok);
+                return false;
+            }
+        }
+    }
+
+    adapter->generateMesh(items_,
+                          outerBoundary_,
+                          innerBoundaries_,
+                          activeItems);
+
+//    qsrand(QTime::currentTime().msec());
+//    QColor color(qrand() % 0xff, qrand() % 0xff, qrand() %0xff);
+//    foreach (Q3SceletonItem *item, outerBoundary_)
+//    {
+//        item->setBackgroundColor(color);
+//        item->setPenColor(color);
+//    }
+
+//    for (it = innerBoundaries_.begin(); it != innerBoundaries_.end(); ++it)
+//    {
+//        QColor color(qrand() % 0xff, qrand() % 0xff, qrand() %0xff);
+//        foreach (Q3SceletonItem *item, *it)
+//        {
+//            item->setBackgroundColor(color);
+//            item->setPenColor(color);
+//        }
+//    }
 
     return true;
 }

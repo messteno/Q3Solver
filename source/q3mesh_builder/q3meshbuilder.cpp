@@ -16,7 +16,8 @@
 Q3MeshBuilder::Q3MeshBuilder(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Q3MeshBuilder),
-    sceleton_(NULL)
+    sceleton_(NULL),
+    meshAdapter_(new Q3Ani2DMeshAdapter)
 {
     ui->setupUi(this);
     sceleton_ = new Q3Sceleton(this);
@@ -52,6 +53,7 @@ Q3MeshBuilder::Q3MeshBuilder(QWidget *parent) :
 Q3MeshBuilder::~Q3MeshBuilder()
 {
     delete ui;
+    delete meshAdapter_;
     directors_.clear();
 }
 
@@ -197,7 +199,7 @@ void Q3MeshBuilder::on_createMeshButton_clicked()
     // 1. Disable all directors
     // 2. Try create mesh
     // 3. If creation fails then enable all directors
-    if (sceleton_->createMesh() == false)
+    if (sceleton_->createMesh(meshAdapter_) == false)
     {
     }
 

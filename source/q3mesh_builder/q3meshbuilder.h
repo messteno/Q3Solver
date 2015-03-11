@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QKeyEvent>
 
+#include "q3meshadapter.h"
 #include "q3sceleton.h"
 #include "q3director.h"
 #include "q3plot.h"
@@ -49,6 +50,7 @@ private slots:
 private:
     Q3Sceleton *sceleton_;
     QList<Q3Director *> directors_;
+    Q3MeshAdapter *meshAdapter_;
 
     Ui::Q3MeshBuilder *ui;
 };

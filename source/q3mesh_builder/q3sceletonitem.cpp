@@ -98,6 +98,11 @@ void Q3SceletonItem::setSelectedBackgroundColor(const QColor &color)
     selectedBackgroundColor_ = color;
 }
 
+void Q3SceletonItem::setPenColor(const QColor &penColor)
+{
+    penColor_ = penColor;
+}
+
 const QColor &Q3SceletonItem::backgroundColor() const
 {
     if (selected_)
@@ -110,4 +115,10 @@ const QColor &Q3SceletonItem::penColor() const
     if (selected_)
         return selectedPenColor_;
     return penColor_;
+}
+
+bool Q3SceletonItem::lefterThan(const Q3SceletonItem *i1,
+                                const Q3SceletonItem *i2)
+{
+    return i1->boundingRect().left() < i2->boundingRect().left();
 }

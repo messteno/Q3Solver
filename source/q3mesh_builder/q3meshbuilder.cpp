@@ -63,6 +63,9 @@ void Q3MeshBuilder::keyReleaseEvent(QKeyEvent *event)
             Q3Director::orderListByActivity(directors_);
     foreach(Q3Director *director, orderedByActivityDirectors)
     {
+        if (!director->isEnabled())
+            continue;
+
         bool processed = director->processKeyRelease(ui->plotWidget,
                                                      sceleton_,
                                                      event->key(),
@@ -81,6 +84,9 @@ void Q3MeshBuilder::plotMouseClicked(const QPointF &scenePos)
             Q3Director::orderListByActivity(directors_);
     foreach(Q3Director *director, orderedByActivityDirectors)
     {
+        if (!director->isEnabled())
+            continue;
+
         bool processed = director->processClick(ui->plotWidget,
                                                 sceleton_,
                                                 scenePos,
@@ -98,6 +104,9 @@ void Q3MeshBuilder::plotMouseDragged(const QPointF &oldScenePos,
             Q3Director::orderListByActivity(directors_);
     foreach(Q3Director *director, orderedByActivityDirectors)
     {
+        if (!director->isEnabled())
+            continue;
+
         bool processed = director->processDragged(ui->plotWidget,
                                                   sceleton_,
                                                   oldScenePos,
@@ -115,6 +124,9 @@ void Q3MeshBuilder::plotMouseDropped(const QPointF &scenePos)
             Q3Director::orderListByActivity(directors_);
     foreach(Q3Director *director, orderedByActivityDirectors)
     {
+        if (!director->isEnabled())
+            continue;
+
         bool processed = director->processDropped(ui->plotWidget,
                                                   sceleton_,
                                                   scenePos,
@@ -132,6 +144,9 @@ void Q3MeshBuilder::plotMouseMoved(const QPointF &oldScenePos,
             Q3Director::orderListByActivity(directors_);
     foreach(Q3Director *director, orderedByActivityDirectors)
     {
+        if (!director->isEnabled())
+            continue;
+
         bool processed = director->processMoved(ui->plotWidget,
                                                 sceleton_,
                                                 oldScenePos,
@@ -196,12 +211,33 @@ void Q3MeshBuilder::on_circleButton_clicked(bool checked)
 
 void Q3MeshBuilder::on_createMeshButton_clicked()
 {
-    // 1. Disable all directors
-    // 2. Try create mesh
-    // 3. If creation fails then enable all directors
-    if (sceleton_->createMesh(meshAdapter_) == false)
-    {
-    }
+    foreach (Q3Director *director, directors_)
+        director->stop();
 
+    if (sceleton_->createMesh(meshAdapter_) == true)
+    {
+        foreach (Q3Director *director, directors_)
+        {
+            if (director->type() != Q3Director::Move)
+                director->setEnabled(false);
+        }
+
+        ui->pointButton->setEnabled(false);
+        ui->pointConnectionButton->setEnabled(false);
+        ui->circleButton->setEnabled(false);
+        ui->createMeshButton->setEnabled(false);
+        ui->removeMeshButton->setEnabled(true);
+    }
     update();
+}
+
+void Q3MeshBuilder::on_removeMeshButton_clicked()
+{
+    ui->pointButton->setEnabled(true);
+    ui->pointConnectionButton->setEnabled(true);
+    ui->circleButton->setEnabled(true);
+    ui->createMeshButton->setEnabled(true);
+    ui->removeMeshButton->setEnabled(false);
+    foreach (Q3Director *director, directors_)
+        director->setEnabled(true);
 }

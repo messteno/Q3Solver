@@ -47,6 +47,8 @@ private slots:
 
     void on_createMeshButton_clicked();
 
+    void on_removeMeshButton_clicked();
+
 private:
     Q3Sceleton *sceleton_;
     QList<Q3Director *> directors_;

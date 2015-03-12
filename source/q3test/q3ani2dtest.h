@@ -6,6 +6,7 @@
 class Q3Ani2DTest : public QObject
 {
     Q_OBJECT
+    static void boundary(int *param, double *t, double *x, double *y);
 public:
     Q3Ani2DTest();
     ~Q3Ani2DTest();

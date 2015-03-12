@@ -295,7 +295,7 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
     {
         foreach (Q3SceletonItem *item, items_)
         {
-            if ((*it).contains(item))
+            if ((*it).contains(item) || outerBoundary_.contains(item))
                 continue;
 
             Q3ItemRayTraceVisitor rayTraceVisitor(item);
@@ -313,12 +313,7 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
         }
     }
 
-    adapter->generateMesh(items_,
-                          outerBoundary_,
-                          innerBoundaries_,
-                          activeItems);
-
-//    qsrand(QTime::currentTime().msec());
+//    qsrand(3);
 //    QColor color(qrand() % 0xff, qrand() % 0xff, qrand() %0xff);
 //    foreach (Q3SceletonItem *item, outerBoundary_)
 //    {
@@ -336,5 +331,8 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
 //        }
 //    }
 
-    return true;
+    return adapter->generateMesh(items_,
+                                 outerBoundary_,
+                                 innerBoundaries_,
+                                 activeItems);
 }

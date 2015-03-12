@@ -3,7 +3,7 @@
 #include "q3selectdirector.h"
 
 Q3SelectDirector::Q3SelectDirector(QWidget *parent) :
-    Q3Director(parent)
+    Q3Director(Q3Director::Select, parent)
 {
 
 }

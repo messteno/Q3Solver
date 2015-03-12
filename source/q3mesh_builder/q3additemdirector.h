@@ -18,7 +18,6 @@ class Q3AddItemDirector : public Q3Director
 
 private:
     Q3SceletonItem *item_;
-    Ui::Q3AddItemDirector *ui;
 
 protected:
     virtual bool isActive();

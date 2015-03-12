@@ -3,7 +3,7 @@
 #include "q3resizedirector.h"
 
 Q3ResizeDirector::Q3ResizeDirector(QWidget *parent) :
-    Q3Director(parent)
+    Q3Director(Q3Director::Resize, parent)
 {
 
 }

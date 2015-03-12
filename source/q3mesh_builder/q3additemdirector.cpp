@@ -7,16 +7,13 @@
 #include "q3circle.h"
 #include "q3sceleton.h"
 #include "q3additemdirector.h"
-#include "ui_q3additemdirector.h"
 
 #include <QDebug>
 
 Q3AddItemDirector::Q3AddItemDirector(QWidget *parent) :
-    Q3Director(parent),
-    ui(new Ui::Q3AddItemDirector),
+    Q3Director(Q3Director::Add, parent),
     item_(NULL)
 {
-    ui->setupUi(this);
 }
 
 Q3AddItemDirector::~Q3AddItemDirector()

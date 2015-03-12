@@ -418,6 +418,8 @@ bool Q3ItemInnerBoundaryVisitor::visit(Q3PointConnection *conn)
 
 bool Q3ItemInnerBoundaryVisitor::visit(Q3Circle *circle)
 {
+    if (!items_.contains(circle))
+        return false;
     boundary_.append(circle);
     return true;
 }

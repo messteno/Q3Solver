@@ -2,7 +2,7 @@
 #include "q3movedirector.h"
 
 Q3MoveDirector::Q3MoveDirector(QWidget *parent) :
-    Q3Director(parent)
+    Q3Director(Q3Director::Move, parent)
 {
 
 }

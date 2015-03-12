@@ -13,18 +13,17 @@ const double Q3Ani2D::quality_ = 0.7;
 
 extern "C" {
 
-int aft2dboundary_( int *pnVert, double *bv,
-             int *pnLine, int *bl, double *bltail, double *hsze,
-             int *pnVRT, double *vrt,
-             int *pnTRI, int *tri, int *labtri,
-             int *pnBND, int *bnd, int *labbnd,
-             int *pnCRV, double *crv, int *iFNC );
+int aft2dboundary_(int *pnVert, double *bv,
+                   int *pnLine, int *bl, double *bltail, double *hsze,
+                   int *pnVRT, double *vrt,
+                   int *pnTRI, int *tri, int *labtri,
+                   int *pnBND, int *bnd, int *labbnd,
+                   int *pnCRV, double *crv, int *iFNC);
 
-int aft2dfront_( 
-             int *pnBr, int *br, int *pnVr, double *vrbr, 
-             int *pnVRT, double *vrt, 
-             int *pnTRI, int *tri, int *labtri, 
-             int *pnBND, int *bnd, int *labbnd);
+int aft2dfront_(int *pnBr, int *br, int *pnVr, double *vrbr,
+                int *pnVRT, double *vrt,
+                int *pnTRI, int *tri, int *labtri,
+                int *pnBND, int *bnd, int *labbnd);
 
 typedef void (*userfn_t) (int *, double *, double *, double *);
 typedef double (*sizefn_t) (double *);
@@ -138,14 +137,14 @@ void Q3Ani2D::setMaxIters(int iters)
     ani_.control[ANI2D_CONTROL_MaxQItr] = iters;
 }
 
-void Q3Ani2D::addVertex(double x, double y)
+int Q3Ani2D::addVertex(double x, double y)
 {
     if (verticesCount_ >= ani_.nvmax)
-        return;
+        return -1;
     vertices_[2 * verticesCount_ + 0] = x;
     vertices_[2 * verticesCount_ + 1] = y;
 
-    verticesCount_++;
+    return verticesCount_++;
 }
 
 void Q3Ani2D::addEdge(int v0, int v1, int label, int domain, int slitDomain)
@@ -169,7 +168,7 @@ void Q3Ani2D::addEdge(int v0, int v1, int label, int domain, int slitDomain)
 }
 
 void Q3Ani2D::addCurveEdge(int v0, int v1, double t0, double t1,
-                          int label, int curveId, int domain, int slitDomain)
+                           int label, int curveId, int domain, int slitDomain)
 {
 	if (edgesCount_ >= ani_.nbmax)
 		return;
@@ -189,8 +188,9 @@ void Q3Ani2D::addCurveEdge(int v0, int v1, double t0, double t1,
     edgesCount_++;
 }
 
-void Q3Ani2D::genMeshAnalytic(double (*sizeFunc)(double *),
-                             void (*boundaryFunc)(int *, double *, double *, double *))
+bool Q3Ani2D::genMeshAnalytic(double (*sizeFunc)(double *),
+                              void (*boundaryFunc)(int *, double *,
+                                                   double *, double *))
 {
     double h = 1e-2;
 
@@ -200,21 +200,24 @@ void Q3Ani2D::genMeshAnalytic(double (*sizeFunc)(double *),
     if (boundaryFunc)
         userfn = (userfn_t) boundaryFunc;
 
-    int ret = aft2dboundary_(&verticesCount_, vertices_, &edgesCount_, edges_, curveEdges_, &h,
-                             &ani_.nv, ani_.vrt, &ani_.nt, ani_.tri, ani_.labelT,
-                             &ani_.nb, ani_.bnd, ani_.labelB, &ani_.nc, ani_.crv, ani_.labelC);
-    std::cout << ret << std::endl;
+    int ret = aft2dboundary_(&verticesCount_,
+                             vertices_,
+                             &edgesCount_,
+                             edges_, curveEdges_,
+                             &h,
+                             &ani_.nv, ani_.vrt, &ani_.nt,
+                             ani_.tri, ani_.labelT,
+                             &ani_.nb, ani_.bnd, ani_.labelB,
+                             &ani_.nc, ani_.crv, ani_.labelC);
+    return (ret == 0);
 }
 
-int Q3Ani2D::genMeshFront()
+bool Q3Ani2D::genMeshFront()
 {
-	int res;
-	
-	res = aft2dfront_ (&edgesCount_, edges_, &verticesCount_, vertices_,
-			&ani_.nv, ani_.vrt, &ani_.nt, ani_.tri, ani_.labelT,
-			&ani_.nb, ani_.bnd, ani_.labelB);
-
-	return res;
+    int res = aft2dfront_ (&edgesCount_, edges_, &verticesCount_, vertices_,
+                           &ani_.nv, ani_.vrt, &ani_.nt, ani_.tri, ani_.labelT,
+                           &ani_.nb, ani_.bnd, ani_.labelB);
+    return (res == 0);
 }
 
 void Q3Ani2D::save(const std::string &aniFile, const std::string& psFile)

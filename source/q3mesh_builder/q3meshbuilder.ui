@@ -25,7 +25,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="userLayout" stretch="0,0,0,0">
+    <layout class="QVBoxLayout" name="userLayout" stretch="0,0,0,0,0">
      <property name="spacing">
       <number>5</number>
      </property>
@@ -96,6 +96,16 @@
       <widget class="QPushButton" name="createMeshButton">
        <property name="text">
         <string>Создать сетку</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="removeMeshButton">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
+       <property name="text">
+        <string>Удалить сетку</string>
        </property>
       </widget>
      </item>

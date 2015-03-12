@@ -9,16 +9,29 @@ class Q3Sceleton;
 
 class Q3Director : public Q3PlotDrawable
 {
+public:
+    enum Type
+    {
+        Move,
+        Select,
+        Add,
+        Resize,
+    };
+
 protected:
     Q3SceletonItem::Type itemType_;
     static const int SelectRadius;
     bool active_;
+    bool enabled_;
+    Type type_;
 
 public:
-    Q3Director(QWidget *pranet = NULL);
+    Q3Director(Type type, QWidget *pranet = NULL);
     virtual ~Q3Director();
 
     Q3SceletonItem::Type itemType() const;
+    Q3Director::Type type() const;
+
     virtual void setItemType(Q3SceletonItem::Type type);
 
     virtual bool processClick(Q3Plot *plot,
@@ -48,7 +61,11 @@ public:
     virtual bool isActive() const;
     void setActive(bool active);
 
-    static QList<Q3Director *> orderListByActivity(const QList<Q3Director *> &directors);
+    bool isEnabled() const;
+    void setEnabled(bool enabled);
+
+    static QList<Q3Director *> orderListByActivity(
+            const QList<Q3Director *> &directors);
 };
 
 #endif // Q3DIRECTOR_H

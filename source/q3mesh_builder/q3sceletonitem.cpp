@@ -14,6 +14,7 @@ Q3SceletonItem::Q3SceletonItem(Type type) :
     selectable_(true),
     resizing_(false),
     resizable_(false),
+    moved_(false),
     backgroundColor_(BackgroundColor),
     selectedBackgroundColor_(SelectedBackgroundColor),
     penColor_(PenColor),
@@ -122,3 +123,13 @@ bool Q3SceletonItem::lefterThan(const Q3SceletonItem *i1,
 {
     return i1->boundingRect().left() < i2->boundingRect().left();
 }
+bool Q3SceletonItem::moved() const
+{
+    return moved_;
+}
+
+void Q3SceletonItem::setMoved(bool moved)
+{
+    moved_ = moved;
+}
+

@@ -190,10 +190,9 @@ void Q3Ani2D::addCurveEdge(int v0, int v1, double t0, double t1,
 
 bool Q3Ani2D::genMeshAnalytic(double (*sizeFunc)(double *),
                               void (*boundaryFunc)(int *, double *,
-                                                   double *, double *))
+                                                   double *, double *),
+                              double elementSize)
 {
-    double h = 1e-2;
-
     if (sizeFunc)
         sizefn = (sizefn_t) sizeFunc;
 
@@ -204,7 +203,7 @@ bool Q3Ani2D::genMeshAnalytic(double (*sizeFunc)(double *),
                              vertices_,
                              &edgesCount_,
                              edges_, curveEdges_,
-                             &h,
+                             &elementSize,
                              &ani_.nv, ani_.vrt, &ani_.nt,
                              ani_.tri, ani_.labelT,
                              &ani_.nb, ani_.bnd, ani_.labelB,
@@ -226,7 +225,8 @@ void Q3Ani2D::save(const std::string &aniFile, const std::string& psFile)
     ani2D_draw_mesh(&ani_, psFile.c_str());
 }
 
-ani2D* Q3Ani2D::getAni2D () {
-	return &ani_;
+ani2D& Q3Ani2D::getAni2D()
+{
+    return ani_;
 }
 

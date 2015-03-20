@@ -32,6 +32,8 @@ public:
     bool accept(Q3ItemVisitor &visitor, Q3Circle *circle);
 
     bool accept(Q3ItemVisitor &visitor);
+
+    void setMoved(bool moved);
 };
 
 #endif // Q3POINTCONNECTION_H

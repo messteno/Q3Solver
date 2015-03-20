@@ -1,19 +1,27 @@
 #include <qmath.h>
 #include <QVector2D>
 
+#include "q3pointconnectionform.h"
+#include "q3circleform.h"
+#include "q3pointform.h"
 #include "q3pointconnection.h"
 #include "q3plot.h"
 #include "q3point.h"
 #include "q3circle.h"
 #include "q3sceleton.h"
 #include "q3additemdirector.h"
+#include "ui_q3additemdirector.h"
 
 #include <QDebug>
 
 Q3AddItemDirector::Q3AddItemDirector(QWidget *parent) :
     Q3Director(Q3Director::Add, parent),
-    item_(NULL)
+    item_(NULL),
+    addForm_(NULL),
+    ui(new Ui::Q3AddItemDirector)
 {
+    ui->setupUi(this);
+    this->hide();
 }
 
 Q3AddItemDirector::~Q3AddItemDirector()
@@ -26,13 +34,16 @@ void Q3AddItemDirector::setItemType(Q3SceletonItem::Type type)
     if (itemType_ != type)
         stop();
     itemType_ = type;
+
+    setupAddForm();
 }
 
 void Q3AddItemDirector::stop()
 {
     if (item_)
     {
-        switch (item_->type()) {
+        switch (item_->type())
+        {
             case Q3SceletonItem::PointConnection:
             {
                 Q3PointConnection *conn =
@@ -60,19 +71,17 @@ void Q3AddItemDirector::draw(Q3Painter &painter) const
         item_->draw(painter);
 }
 
-bool Q3AddItemDirector::processClick(Q3Plot *plot,
-                                     Q3Sceleton *sceleton,
-                                     const QPointF &scenePos,
+bool Q3AddItemDirector::processClick(QMouseEvent *event, const QPointF &scenePos,
                                      bool snapToGrid)
 {
-    if (!plot || !sceleton)
+    if (!plot_ || !sceleton_)
         return false;
 
     QPointF snappedScenePos = scenePos;
     if (snapToGrid)
-        snappedScenePos = plot->snapScenePosToGrid(scenePos);
+        snappedScenePos = plot_->snapScenePosToGrid(scenePos);
 
-    qreal radius = SelectRadius / plot->sx();
+    qreal radius = SelectRadius / plot_->sx();
 
     if (isActive())
     {
@@ -83,7 +92,7 @@ bool Q3AddItemDirector::processClick(Q3Plot *plot,
                 Q3PointConnection *conn =
                         dynamic_cast<Q3PointConnection *>(item_);
                 Q3Point *b = dynamic_cast<Q3Point *>
-                        (sceleton->itemAt(scenePos, radius,
+                        (sceleton_->itemAt(scenePos, radius,
                                           Q3SceletonItem::Point));
                 if (b && conn && conn->a() != b)
                 {
@@ -91,7 +100,7 @@ bool Q3AddItemDirector::processClick(Q3Plot *plot,
                     conn->setB(b);
                     delete oldB;
                     item_ = NULL;
-                    sceleton->addItem(conn);
+                    sceleton_->addItem(conn);
                     return true;
                 }
                 break;
@@ -107,7 +116,7 @@ bool Q3AddItemDirector::processClick(Q3Plot *plot,
                     radius = radiusVector.length();
                     item_ = NULL;
                     circle->setRadius(radius);
-                    sceleton->addItem(circle);
+                    sceleton_->addItem(circle);
                     return true;
                 }
                 break;
@@ -122,12 +131,12 @@ bool Q3AddItemDirector::processClick(Q3Plot *plot,
         {
             case Q3SceletonItem::Point:
             {
-                Q3SceletonItem *item = sceleton->itemAt(scenePos, radius,
+                Q3SceletonItem *item = sceleton_->itemAt(scenePos, radius,
                                                         Q3SceletonItem::Point);
                 if (!item)
                 {
                     Q3Point *point = new Q3Point(snappedScenePos);
-                    sceleton->addItem(point);
+                    sceleton_->addItem(point);
                     return true;
                 }
                 break;
@@ -136,7 +145,7 @@ bool Q3AddItemDirector::processClick(Q3Plot *plot,
             {
                 // TODO: Не создавать отрезок, если две точки уже соединены
                 Q3Point *a = dynamic_cast<Q3Point *>
-                        (sceleton->itemAt(scenePos, radius,
+                        (sceleton_->itemAt(scenePos, radius,
                                           Q3SceletonItem::Point));
                 if (a)
                 {
@@ -159,22 +168,23 @@ bool Q3AddItemDirector::processClick(Q3Plot *plot,
     return false;
 }
 
-bool Q3AddItemDirector::processDragged(Q3Plot *plot, Q3Sceleton *sceleton,
-                                       const QPointF &oldScenePos,
+bool Q3AddItemDirector::processDragged(const QPointF &oldScenePos,
                                        const QPointF &newScenePos,
                                        bool snapToGrid)
 {
+    if (!plot_ || !sceleton_)
+        return false;
+
     if (isActive())
     {
         QPointF diffScenePos = newScenePos - oldScenePos;
-        plot->moveScene(diffScenePos);
+        plot_->moveScene(diffScenePos);
         return true;
     }
     return false;
 }
 
-bool Q3AddItemDirector::processMoved(Q3Plot *plot, Q3Sceleton *sceleton,
-                                     const QPointF &oldScenePos,
+bool Q3AddItemDirector::processMoved(const QPointF &oldScenePos,
                                      const QPointF &newScenePos,
                                      bool snapToGrid)
 {
@@ -212,8 +222,7 @@ bool Q3AddItemDirector::processMoved(Q3Plot *plot, Q3Sceleton *sceleton,
     return false;
 }
 
-bool Q3AddItemDirector::processKeyRelease(Q3Plot *plot, Q3Sceleton *sceleton,
-                                          int key, bool snapToGrid)
+bool Q3AddItemDirector::processKeyRelease(int key, bool snapToGrid)
 {
     if (!isActive())
         return false;
@@ -227,4 +236,56 @@ bool Q3AddItemDirector::processKeyRelease(Q3Plot *plot, Q3Sceleton *sceleton,
             return false;
     }
     return false;
+}
+
+void Q3AddItemDirector::on_createElementButton_clicked()
+{
+    if (addForm_)
+    {
+        Q3SceletonItem *item = addForm_->createItem();
+        if (item)
+        {
+            sceleton_->addItem(item);
+            addForm_->clear();
+            plot_->update();
+        }
+    }
+}
+
+void Q3AddItemDirector::setupAddForm()
+{
+    delete addForm_;
+    addForm_ = NULL;
+
+    switch(itemType_)
+    {
+        case Q3SceletonItem::Base:
+            this->hide();
+            break;
+        case Q3SceletonItem::Point:
+            addForm_ = new Q3PointForm(this);
+            ui->elementFormLayout->addWidget(addForm_);
+            this->show();
+            break;
+        case Q3SceletonItem::PointConnection:
+        {
+            addForm_ = new Q3PointConnectionForm(this);
+            ui->elementFormLayout->addWidget(addForm_);
+            foreach (Q3SceletonItem *item, sceleton_->items())
+            {
+                if(item->type() == Q3SceletonItem::Point)
+                    item->accept(*addForm_);
+            }
+            this->show();
+            break;
+        }
+        case Q3SceletonItem::Circle:
+            addForm_ = new Q3CircleForm(this);
+            ui->elementFormLayout->addWidget(addForm_);
+            this->show();
+            break;
+        default:
+            this->show();
+            break;
+    }
 }

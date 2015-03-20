@@ -7,6 +7,8 @@ Q3Director::Q3Director(Type type, QWidget *pranet) :
     type_(type),
     itemType_(Q3SceletonItem::Base),
     enabled_(true),
+    sceleton_(NULL),
+    plot_(NULL),
     active_(false)
 {
 
@@ -34,35 +36,30 @@ void Q3Director::setItemType(Q3SceletonItem::Type type)
     itemType_ = type;
 }
 
-bool Q3Director::processClick(Q3Plot *plot, Q3Sceleton *sceleton,
-                              const QPointF &scenePos, bool snapToGrid)
+bool Q3Director::processClick(QMouseEvent *event, const QPointF &scenePos, bool snapToGrid)
 {
     return false;
 }
 
-bool Q3Director::processDragged(Q3Plot *plot, Q3Sceleton *sceleton,
-                                const QPointF &oldScenePos,
+bool Q3Director::processDragged(const QPointF &oldScenePos,
                                 const QPointF &newScenePos, bool snapToGrid)
 {
     return false;
 }
 
-bool Q3Director::processDropped(Q3Plot *plot, Q3Sceleton *sceleton,
-                                const QPointF &scenePos, bool snapToGrid)
+bool Q3Director::processDropped(const QPointF &scenePos, bool snapToGrid)
 {
     return false;
 }
 
-bool Q3Director::processMoved(Q3Plot *plot, Q3Sceleton *sceleton,
-                              const QPointF &oldScenePos,
+bool Q3Director::processMoved(const QPointF &oldScenePos,
                               const QPointF &newScenePos,
                               bool snapToGrid)
 {
     return false;
 }
 
-bool Q3Director::processKeyRelease(Q3Plot *plot, Q3Sceleton *sceleton,
-                                   int key, bool snapToGrid)
+bool Q3Director::processKeyRelease(int key, bool snapToGrid)
 {
     return false;
 }
@@ -85,6 +82,16 @@ bool Q3Director::isEnabled() const
 void Q3Director::setEnabled(bool enabled)
 {
     enabled_ = enabled;
+}
+
+void Q3Director::setSceleton(Q3Sceleton *sceleton)
+{
+    sceleton_ = sceleton;
+}
+
+void Q3Director::setPlot(Q3Plot *plot)
+{
+    plot_ = plot;
 }
 
 QList<Q3Director *> Q3Director::orderListByActivity(

@@ -85,7 +85,7 @@ void Q3Plot::mouseReleaseEvent(QMouseEvent *event)
     QPointF sceneClickedPos = mapToScene(event->pos());
     if (leftButtonMousePos_.isNull())
     {
-        emit mouseClicked(sceneClickedPos);
+        emit mouseClicked(event, sceneClickedPos);
     }
     else
     {

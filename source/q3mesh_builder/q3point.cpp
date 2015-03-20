@@ -4,6 +4,9 @@
 #include "q3point.h"
 #include "q3itemvisitor.h"
 
+#include <QLineEdit>
+#include <QLabel>
+
 const int Q3Point::PointSize = 5;
 
 Q3Point::Q3Point() :
@@ -40,6 +43,7 @@ void Q3Point::draw(Q3Painter &painter)
 void Q3Point::move(const QPointF diff)
 {
     point_ += diff;
+    moved_ = true;
 }
 
 qreal Q3Point::distanceTo(const QPointF &pos) const
@@ -70,6 +74,16 @@ qreal Q3Point::y()
     return point_.y();
 }
 
+void Q3Point::setX(qreal x)
+{
+    point_.setX(x);
+}
+
+void Q3Point::setY(qreal y)
+{
+    point_.setY(y);
+}
+
 QPointF Q3Point::point()
 {
     return point_;
@@ -98,4 +112,10 @@ bool Q3Point::accept(Q3ItemVisitor &visitor, Q3Circle *circle)
 bool Q3Point::accept(Q3ItemVisitor &visitor)
 {
     visitor.visit(this);
+}
+
+void Q3Point::editUI(QFormLayout *layout)
+{
+    QLineEdit *xEdit = new QLineEdit;
+    layout->addRow("x:", xEdit);
 }

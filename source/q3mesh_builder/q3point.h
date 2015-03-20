@@ -18,14 +18,17 @@ public:
     Q3Point(const Q3Point &q3point);
     Q3Point(const QPointF &point);
     virtual ~Q3Point();
-    virtual void draw(Q3Painter &painter);
-    virtual void move(const QPointF diff);
-    virtual qreal distanceTo(const QPointF &pos) const;
-    virtual qreal distanceFromBoundaryTo(const QPointF &pos) const;
-    virtual QRectF boundingRect() const;
+    void draw(Q3Painter &painter);
+    void move(const QPointF diff);
+    qreal distanceTo(const QPointF &pos) const;
+    qreal distanceFromBoundaryTo(const QPointF &pos) const;
+    QRectF boundingRect() const;
 
     qreal x();
     qreal y();
+
+    void setX(qreal x);
+    void setY(qreal y);
 
     QPointF point();
 
@@ -35,6 +38,8 @@ public:
     bool accept(Q3ItemVisitor &visitor, Q3Circle *circle);
 
     bool accept(Q3ItemVisitor &visitor);
+
+    void editUI(QFormLayout *layout);
 };
 
 #endif // Q3POINT_H

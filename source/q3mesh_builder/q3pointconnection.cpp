@@ -60,10 +60,11 @@ QRectF Q3PointConnection::boundingRect() const
 
 void Q3PointConnection::move(const QPointF diff)
 {
-    if (!a_->isSelected())
+    if (!a_->isSelected() && !a_->moved())
         a_->move(diff);
-    if (!b_->isSelected())
+    if (!b_->isSelected() && !b_->moved())
         b_->move(diff);
+    moved_ = true;
 }
 
 void Q3PointConnection::setA(Q3Point *a)
@@ -109,4 +110,11 @@ bool Q3PointConnection::accept(Q3ItemVisitor &visitor, Q3Circle *circle)
 bool Q3PointConnection::accept(Q3ItemVisitor &visitor)
 {
     return visitor.visit(this);
+}
+
+void Q3PointConnection::setMoved(bool moved)
+{
+    moved_ = moved;
+    a_->setMoved(moved);
+    b_->setMoved(moved);
 }

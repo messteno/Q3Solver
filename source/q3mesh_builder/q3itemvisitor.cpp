@@ -437,6 +437,11 @@ bool Q3ItemBoundaryClockwiseVisitor::clockwise() const
     return square_ < 0;
 }
 
+qreal Q3ItemBoundaryClockwiseVisitor::square()
+{
+    return fabs(square_);
+}
+
 bool Q3ItemBoundaryClockwiseVisitor::visit(Q3Point *point)
 {
     if (!previous_)
@@ -444,7 +449,7 @@ bool Q3ItemBoundaryClockwiseVisitor::visit(Q3Point *point)
         previous_ = point;
         return true;
     }
-    square_ += previous_->x() * point->y() - previous_->y() * point->x();
+    square_ += 0.5 * (previous_->x() * point->y() - previous_->y() * point->x());
     previous_ = point;
     return true;
 }

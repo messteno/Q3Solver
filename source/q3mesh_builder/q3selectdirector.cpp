@@ -1,11 +1,19 @@
-#include "q3plot.h"
+#include "q3circleform.h"
+#include "q3pointconnectionform.h"
+#include "q3pointform.h"
 #include "q3sceleton.h"
+#include "q3plot.h"
 #include "q3selectdirector.h"
+#include "ui_q3selectdirector.h"
 
 Q3SelectDirector::Q3SelectDirector(QWidget *parent) :
-    Q3Director(Q3Director::Select, parent)
+    Q3Director(Q3Director::Select, parent),
+    ui(new Ui::Q3SelectDirector),
+    editForm_(NULL),
+    moving_(false)
 {
-
+    ui->setupUi(this);
+    this->hide();
 }
 
 Q3SelectDirector::~Q3SelectDirector()
@@ -13,14 +21,26 @@ Q3SelectDirector::~Q3SelectDirector()
     selectedItems_.clear();
 }
 
-bool Q3SelectDirector::processClick(Q3Plot *plot, Q3Sceleton *sceleton,
-                                    const QPointF &scenePos, bool snapToGrid)
+bool Q3SelectDirector::processClick(QMouseEvent *event, const QPointF &scenePos,
+                                    bool snapToGrid)
 {
+    if (!plot_ || !sceleton_)
+        return false;
+
     if (itemType_ != Q3SceletonItem::Base)
         return false;
 
-    qreal radius = SelectRadius / plot->sx();
-    Q3SceletonItem *item = sceleton->itemAt(scenePos, radius);
+    qreal radius = SelectRadius / plot_->sx();
+    Q3SceletonItem *item = sceleton_->itemAt(scenePos, radius);
+
+    if (event->button() == Qt::LeftButton &&
+        event->modifiers() != Qt::ControlModifier)
+    {
+        foreach (Q3SceletonItem *deselectItem, selectedItems_)
+            deselectItem->setSelected(false);
+        selectedItems_.clear();
+    }
+
     if (item)
     {
         if (!selectedItems_.contains(item))
@@ -34,10 +54,10 @@ bool Q3SelectDirector::processClick(Q3Plot *plot, Q3Sceleton *sceleton,
             selectedItems_.removeAll(item);
         }
     }
-    else
+    else if (event->modifiers() != Qt::ControlModifier)
     {
-        foreach (Q3SceletonItem *item, selectedItems_)
-            item->setSelected(false);
+        foreach (Q3SceletonItem *deselectItem, selectedItems_)
+            deselectItem->setSelected(false);
         selectedItems_.clear();
     }
 
@@ -46,38 +66,62 @@ bool Q3SelectDirector::processClick(Q3Plot *plot, Q3Sceleton *sceleton,
     else
         setActive(true);
 
+    setupEditForm();
+
     return false;
 }
 
-bool Q3SelectDirector::processDragged(Q3Plot *plot, Q3Sceleton *sceleton,
-                                      const QPointF &oldScenePos,
+bool Q3SelectDirector::processDragged(const QPointF &oldScenePos,
                                       const QPointF &newScenePos,
                                       bool snapToGrid)
 {
-    if (selectedItems_.empty())
+    if (!plot_ || !sceleton_)
+        return false;
+
+    qreal radius = SelectRadius / plot_->sx();
+    Q3SceletonItem *item = sceleton_->itemAt(oldScenePos, radius);
+    if (!item && !moving_)
+        return false;
+
+    if (!moving_)
     {
-        qreal radius = SelectRadius / plot->sx();
-        Q3SceletonItem *item = sceleton->itemAt(oldScenePos, radius);
-        if (item)
+        if (!selectedItems_.contains(item))
+        {
+            foreach (Q3SceletonItem *item, selectedItems_)
+                item->setSelected(false);
+            selectedItems_.clear();
+        }
+
+        if (selectedItems_.empty())
         {
             selectedItems_.append(item);
             item->setSelected(true);
         }
-        else
-            return false;
     }
 
     QPointF diffScenePos = newScenePos - oldScenePos;
+
     foreach (Q3SceletonItem *item, selectedItems_)
         item->move(diffScenePos);
 
+    foreach (Q3SceletonItem *item, selectedItems_)
+        item->setMoved(false);
+
+    moving_ = true;
     setActive(true);
+
+    setupEditForm();
+
     return true;
 }
 
-bool Q3SelectDirector::processDropped(Q3Plot *plot, Q3Sceleton *sceleton,
-                                      const QPointF &scenePos, bool snapToGrid)
+bool Q3SelectDirector::processDropped(const QPointF &scenePos, bool snapToGrid)
 {
+    moving_ = false;
+
+    if (!plot_)
+        return false;
+
     if (selectedItems_.empty())
         return false;
 
@@ -86,7 +130,7 @@ bool Q3SelectDirector::processDropped(Q3Plot *plot, Q3Sceleton *sceleton,
         if (snapToGrid)
         {
             QPointF oldCenter = item->boundingRect().center();
-            QPointF newCenter = plot->snapScenePosToGrid(oldCenter);
+            QPointF newCenter = plot_->snapScenePosToGrid(oldCenter);
             item->move(newCenter - oldCenter);
         }
         if (itemType_ != Q3SceletonItem::Base)
@@ -98,19 +142,24 @@ bool Q3SelectDirector::processDropped(Q3Plot *plot, Q3Sceleton *sceleton,
         setActive(false);
     }
 
+    emit itemMoved();
+    setupEditForm();
+
     return true;
 }
 
-bool Q3SelectDirector::processKeyRelease(Q3Plot *plot, Q3Sceleton *sceleton,
-                                         int key, bool snapToGrid)
+bool Q3SelectDirector::processKeyRelease(int key, bool snapToGrid)
 {
+    if (!sceleton_)
+        return false;
+
     if (!isActive())
         return false;
 
     switch (key)
     {
         case Qt::Key_Delete:
-            sceleton->removeSelectedItems();
+            sceleton_->removeSelectedItems();
             selectedItems_.clear();
             stop();
             return true;
@@ -126,9 +175,65 @@ void Q3SelectDirector::stop()
         item->setSelected(false);
     selectedItems_.clear();
     setActive(false);
+    setupEditForm();
 }
 
 void Q3SelectDirector::draw(Q3Painter &painter) const
 {
 
+}
+
+void Q3SelectDirector::setupEditForm()
+{
+    delete editForm_;
+    editForm_ = NULL;
+
+    if (itemType_ != Q3SceletonItem::Base || selectedItems_.empty() ||
+        selectedItems_.count() != 1)
+    {
+        this->hide();
+        return;
+    }
+
+    Q3SceletonItem *item = selectedItems_.first();
+    switch (item->type())
+    {
+        case Q3SceletonItem::Point:
+            editForm_ = new Q3PointForm(this);
+            break;
+        case Q3SceletonItem::PointConnection:
+        {
+            editForm_ = new Q3PointConnectionForm(this);
+            foreach (Q3SceletonItem *checkedItem, sceleton_->items())
+            {
+                if (checkedItem->type() == Q3SceletonItem::Point)
+                    checkedItem->accept(*editForm_);
+            }
+            break;
+        }
+        case Q3SceletonItem::Circle:
+            editForm_ = new Q3CircleForm(this);
+            break;
+        default:
+            break;
+    }
+
+    if (editForm_)
+    {
+        ui->elementFormLayout->addWidget(editForm_);
+        item->accept(*editForm_);
+        this->show();
+    }
+    else
+        this->hide();
+}
+
+void Q3SelectDirector::on_editElementButton_clicked()
+{
+    if (editForm_ && selectedItems_.count() == 1)
+    {
+        Q3SceletonItem *item = selectedItems_.first();
+        item->accept(*editForm_);
+    }
+    plot_->update();
 }

@@ -2,6 +2,7 @@
 #define Q3SCELETONITEM_H
 
 #include <q3painter.h>
+#include <QFormLayout>
 
 class Q3ItemVisitor;
 class Q3Point;
@@ -64,8 +65,12 @@ public:
 
     static bool lefterThan(const Q3SceletonItem *i1, const Q3SceletonItem *i2);
 
+    bool moved() const;
+    virtual void setMoved(bool moved);
+
 protected:
     Type type_;
+    bool moved_;
 
 private:
     bool selected_;

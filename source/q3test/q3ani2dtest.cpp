@@ -36,7 +36,7 @@ void Q3Ani2DTest::ani2DCreateMesh()
     qAni.addCurveEdge(2, 3, 0.5, 0.75, 1, 1, 1, 0);
     qAni.addCurveEdge(3, 0, 0.75, 1, 1, 1, 1, 0);
 
-    qAni.genMeshAnalytic(NULL, Q3Ani2DTest::boundary);
+    qAni.genMeshAnalytic(NULL, Q3Ani2DTest::boundary, 0.01);
 
     qAni.save ("out.ani", "out.ps");
 }

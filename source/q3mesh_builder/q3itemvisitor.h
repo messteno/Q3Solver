@@ -145,6 +145,7 @@ private:
 public:
     Q3ItemBoundaryClockwiseVisitor();
     bool clockwise() const;
+    qreal square();
 
     bool visit(Q3Point *point1, Q3Point *point2) { return false; }
     bool visit(Q3Point *point, Q3PointConnection *conn) { return false; }

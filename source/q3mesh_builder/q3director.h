@@ -1,6 +1,8 @@
 #ifndef Q3DIRECTOR_H
 #define Q3DIRECTOR_H
 
+#include <QMouseEvent>
+
 #include "q3plotdrawable.h"
 #include "q3sceletonitem.h"
 
@@ -20,6 +22,8 @@ public:
 
 protected:
     Q3SceletonItem::Type itemType_;
+    Q3Sceleton *sceleton_;
+    Q3Plot *plot_;
     static const int SelectRadius;
     bool active_;
     bool enabled_;
@@ -34,28 +38,17 @@ public:
 
     virtual void setItemType(Q3SceletonItem::Type type);
 
-    virtual bool processClick(Q3Plot *plot,
-                              Q3Sceleton *sceleton,
-                              const QPointF &scenePos,
+    virtual bool processClick(QMouseEvent *event, const QPointF &scenePos,
                               bool snapToGrid);
-    virtual bool processDragged(Q3Plot *plot,
-                                Q3Sceleton *sceleton,
-                                const QPointF &oldScenePos,
+    virtual bool processDragged(const QPointF &oldScenePos,
                                 const QPointF &newScenePos,
                                 bool snapToGrid);
-    virtual bool processDropped(Q3Plot *plot,
-                                Q3Sceleton *sceleton,
-                                const QPointF &scenePos,
+    virtual bool processDropped(const QPointF &scenePos,
                                 bool snapToGrid);
-    virtual bool processMoved(Q3Plot *plot,
-                              Q3Sceleton *sceleton,
-                              const QPointF &oldScenePos,
+    virtual bool processMoved(const QPointF &oldScenePos,
                               const QPointF &newScenePos,
                               bool snapToGrid);
-    virtual bool processKeyRelease(Q3Plot *plot,
-                                   Q3Sceleton *sceleton,
-                                   int key,
-                                   bool snapToGrid);
+    virtual bool processKeyRelease(int key, bool snapToGrid);
     virtual void stop() = 0;
 
     virtual bool isActive() const;
@@ -66,6 +59,9 @@ public:
 
     static QList<Q3Director *> orderListByActivity(
             const QList<Q3Director *> &directors);
+
+    void setSceleton(Q3Sceleton *sceleton);
+    void setPlot(Q3Plot *plot);
 };
 
 #endif // Q3DIRECTOR_H

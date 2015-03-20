@@ -27,10 +27,11 @@ public:
                       int label, int curveId, int domain, int slitDomain = 0);
 
     bool genMeshAnalytic(double (*sizeFunc)(double *),
-                         void (*boundaryFunc) (int *, double *, double *, double *));
+                         void (*boundaryFunc) (int *, double *, double *, double *),
+                         double elementSize);
     bool genMeshFront();
     void save(const std::string& aniFile, const std::string& psFile);
-	ani2D* getAni2D ();
+    ani2D& getAni2D();
 
 private:
     ani2D ani_;

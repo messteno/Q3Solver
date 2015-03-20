@@ -12,19 +12,20 @@ Q3MoveDirector::~Q3MoveDirector()
 
 }
 
-bool Q3MoveDirector::processDragged(Q3Plot *plot, Q3Sceleton *sceleton,
-                                    const QPointF &oldScenePos,
+bool Q3MoveDirector::processDragged(const QPointF &oldScenePos,
                                     const QPointF &newScenePos,
                                     bool snapToGrid)
 {
+    if (!plot_)
+        return false;
+
     QPointF diffScenePos = newScenePos - oldScenePos;
-    plot->moveScene(diffScenePos);
+    plot_->moveScene(diffScenePos);
     setActive(true);
     return true;
 }
 
-bool Q3MoveDirector::processDropped(Q3Plot *plot, Q3Sceleton *sceleton,
-                                    const QPointF &scenePos, bool snapToGrid)
+bool Q3MoveDirector::processDropped(const QPointF &scenePos, bool snapToGrid)
 {
     setActive(false);
 }

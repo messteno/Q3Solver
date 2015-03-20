@@ -68,7 +68,7 @@ public:
     void paintEvent(QPaintEvent *event);
     void wheelEvent(QWheelEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *event);
 
     qreal sx() const;
     qreal sy() const;
@@ -89,7 +89,7 @@ public:
     QPointF snapScenePosToGrid (const QPointF pos);
 
 signals:
-    void mouseClicked(const QPointF scenePos);
+    void mouseClicked(QMouseEvent *event, const QPointF scenePos);
     void mouseDragged(const QPointF oldScenePos, const QPointF newScenePos);
     void mouseDropped(const QPointF scenePos);
     void mouseMoved(const QPointF oldScenePos, const QPointF newScenePos);

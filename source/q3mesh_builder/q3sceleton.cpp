@@ -16,7 +16,7 @@ Q3Sceleton::Q3Sceleton(QWidget *parent) :
 
 Q3Sceleton::~Q3Sceleton()
 {
-
+    
 }
 
 Q3SceletonItem* Q3Sceleton::itemAt(const QPointF &pos, qreal radius,
@@ -82,31 +82,6 @@ Q3SceletonItem *Q3Sceleton::itemToResizeAt(const QPointF &pos,
 void Q3Sceleton::addItem(Q3SceletonItem *item)
 {
     items_.append(item);
-}
-
-void Q3Sceleton::removeItem(Q3SceletonItem *item)
-{
-    if (item->type() == Q3SceletonItem::Point)
-    {
-        Q3Point *point = dynamic_cast<Q3Point *>(item);
-        if (point)
-        {
-            foreach(Q3SceletonItem *testItem, items_)
-            {
-                Q3PointConnection *conn = \
-                        dynamic_cast<Q3PointConnection *>(testItem);
-                if (conn)
-                {
-                    if (conn->a() == item)
-                        conn->setA(new Q3Point(*point));
-                    if (conn->b() == item)
-                        conn->setB(new Q3Point(*point));
-                }
-            }
-        }
-    }
-    items_.removeAll(item);
-    delete item;
 }
 
 void Q3Sceleton::removeSelectedItems()
@@ -178,6 +153,8 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
         return false;
     }
 
+    emit createMeshProgress(10);
+
     // Проверить отсутствие пересечения элементов
     Q3ItemCrossVisitor crossVisitor;
     foreach (Q3SceletonItem *item1, items_)
@@ -199,12 +176,16 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
         }
     }
 
+    emit createMeshProgress(20);
+
     // Найти самый левый элемент
     Q3ItemLeftmostVisitor leftmostVisitor;
     foreach (Q3SceletonItem *item, items_)
         item->accept(leftmostVisitor);
     Q3SceletonItem *leftmost = leftmostVisitor.leftmost();
     Q_ASSERT(leftmost);
+
+    emit createMeshProgress(30);
 
     // Найти все связанные элементы
     // Проверить, что получилась замкнутая область
@@ -226,6 +207,8 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
         if (!found)
             connectedVisitor.backward();
     }
+
+    emit createMeshProgress(40);
 
     outerBoundary_ = connectedVisitor.connectedItems();
 
@@ -261,6 +244,8 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
         }
     }
 
+    emit createMeshProgress(50);
+
     // TODO: возможно, переписать то, что выше =)
 
     // Сделать копию списка элементов
@@ -289,6 +274,8 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
         }
     }
 
+    emit createMeshProgress(60);
+
     // Проверяем, что внутри внутренних областей нет других элементов
     QList<QList<Q3SceletonItem *> >::iterator it;
     for (it = innerBoundaries_.begin(); it != innerBoundaries_.end(); ++it)
@@ -313,6 +300,8 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
         }
     }
 
+    emit createMeshProgress(70);
+
 //    qsrand(3);
 //    QColor color(qrand() % 0xff, qrand() % 0xff, qrand() %0xff);
 //    foreach (Q3SceletonItem *item, outerBoundary_)
@@ -331,8 +320,16 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
 //        }
 //    }
 
-    return adapter->generateMesh(items_,
-                                 outerBoundary_,
-                                 innerBoundaries_,
-                                 activeItems);
+    bool generated = adapter->generateMesh(items_,
+                                           outerBoundary_,
+                                           innerBoundaries_,
+                                           activeItems);
+    emit createMeshProgress(90);
+
+    return generated;
+}
+
+QList<Q3SceletonItem *> Q3Sceleton::items() const
+{
+    return items_;
 }

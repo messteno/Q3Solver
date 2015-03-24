@@ -40,6 +40,9 @@ public:
     bool accept(Q3ItemVisitor &visitor);
 
     void editUI(QFormLayout *layout);
+
+    QString toString();
+    QString typeToString();
 };
 
 #endif // Q3POINT_H

@@ -5,12 +5,10 @@
 
 #include "q3painter.h"
 
-class Q3PlotDrawable : public QWidget
+class Q3PlotDrawable
 {
-    Q_OBJECT
-
 public:
-    Q3PlotDrawable(QWidget *parent = NULL);
+    Q3PlotDrawable();
     virtual ~Q3PlotDrawable();
 
     virtual void draw(Q3Painter &painter) const = 0;

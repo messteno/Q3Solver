@@ -15,6 +15,7 @@ Q3SceletonItem::Q3SceletonItem(Type type) :
     resizing_(false),
     resizable_(false),
     moved_(false),
+    boundaryType_(Q3Mesh::CannotBeBoundary),
     backgroundColor_(BackgroundColor),
     selectedBackgroundColor_(SelectedBackgroundColor),
     penColor_(PenColor),
@@ -133,3 +134,18 @@ void Q3SceletonItem::setMoved(bool moved)
     moved_ = moved;
 }
 
+bool Q3SceletonItem::canBeBoundary()
+{
+    return boundaryType_ != Q3Mesh::CannotBeBoundary;
+}
+Q3Mesh::BoundaryType Q3SceletonItem::boundaryType() const
+{
+    return boundaryType_;
+}
+
+void Q3SceletonItem::setBoundaryType(const Q3Mesh::BoundaryType &boundaryType)
+{
+    if (!canBeBoundary())
+        return;
+    boundaryType_ = boundaryType;
+}

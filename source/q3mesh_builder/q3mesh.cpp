@@ -92,7 +92,8 @@ Q3MeshEdge *Q3MeshTriangle::c() const
 }
 
 Q3Mesh::Q3Mesh(QWidget *parent) :
-    Q3PlotDrawable(parent)
+    Q3PlotDrawable(),
+    QWidget(parent)
 {
 
 }
@@ -158,4 +159,24 @@ void Q3Mesh::clear()
     nodes_.clear();
     edges_.clear();
     triangles_.clear();
+}
+
+QString Q3Mesh::boundaryTypeToString(const Q3Mesh::BoundaryType &type)
+{
+    switch (type)
+    {
+        case CannotBeBoundary:
+            return "";
+        case NotBoundary:
+            return "---";
+        case InBoundary:
+            return "Вток";
+        case OutBoundary:
+            return "Сток";
+        case MoveBoundary:
+            return "Подвижная";
+        default:
+            break;
+    }
+    return "";
 }

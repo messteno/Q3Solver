@@ -236,4 +236,5 @@ void Q3SelectDirector::on_editElementButton_clicked()
         item->accept(*editForm_);
     }
     plot_->update();
+    emit itemMoved();
 }

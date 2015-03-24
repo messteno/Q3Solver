@@ -30,10 +30,8 @@ bool Q3PointConnectionForm::visit(Q3Point *point)
     int index = pointMap_.size();
     pointMap_[index] = point;
 
-    ui->p1ComboBox->addItem("(" + QString::number(point->x()) + ", " +
-                            QString::number(point->y()) + ")", index);
-    ui->p2ComboBox->addItem("(" + QString::number(point->x()) + ", " +
-                            QString::number(point->y()) + ")", index);
+    ui->p1ComboBox->addItem(point->toString(), index);
+    ui->p2ComboBox->addItem(point->toString(), index);
     return true;
 }
 

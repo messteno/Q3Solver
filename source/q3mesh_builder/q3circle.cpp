@@ -113,3 +113,13 @@ bool Q3Circle::accept(Q3ItemVisitor &visitor)
 {
     visitor.visit(this);
 }
+
+QString Q3Circle::toString()
+{
+    return Q3Point(center_).toString() + ", r = " + QString::number(radius_);
+}
+
+QString Q3Circle::typeToString()
+{
+    return "Окружность";
+}

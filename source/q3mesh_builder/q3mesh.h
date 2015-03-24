@@ -63,10 +63,19 @@ private:
     Q3MeshEdge *c_;
 };
 
-class Q3Mesh : public Q3PlotDrawable
+class Q3Mesh : public QWidget, public Q3PlotDrawable
 {
     Q_OBJECT
 public:
+    enum BoundaryType
+    {
+        CannotBeBoundary,
+        NotBoundary,
+        InBoundary,
+        OutBoundary,
+        MoveBoundary,
+    };
+
     Q3Mesh(QWidget *parent);
     ~Q3Mesh();
 
@@ -87,6 +96,8 @@ public:
     void draw(Q3Painter &painter) const;
 
     void clear();
+
+    static QString boundaryTypeToString(const BoundaryType &type);
 private:
     QVector<Q3MeshNode> nodes_;			// all points
     QVector<Q3MeshEdge> edges_;			// all edges

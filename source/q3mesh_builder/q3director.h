@@ -9,8 +9,10 @@
 class Q3Plot;
 class Q3Sceleton;
 
-class Q3Director : public Q3PlotDrawable
+class Q3Director : public QWidget, public Q3PlotDrawable
 {
+    Q_OBJECT
+
 public:
     enum Type
     {
@@ -30,7 +32,7 @@ protected:
     Type type_;
 
 public:
-    Q3Director(Type type, QWidget *pranet = NULL);
+    Q3Director(Type type, QWidget *parent = NULL);
     virtual ~Q3Director();
 
     Q3SceletonItem::Type itemType() const;

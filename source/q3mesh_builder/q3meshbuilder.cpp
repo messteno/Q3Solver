@@ -12,6 +12,7 @@
 #include "q3point.h"
 #include "q3circle.h"
 #include "q3meshbuilder.h"
+#include "q3sceletonitemdelegate.h"
 #include "ui_q3meshbuilder.h"
 
 Q3MeshBuilder::Q3MeshBuilder(QWidget *parent) :
@@ -44,11 +45,15 @@ Q3MeshBuilder::Q3MeshBuilder(QWidget *parent) :
     ui->directorsLayout->addWidget(addItemDirector);
     ui->directorsLayout->addWidget(selectDirector);
 
-    connect(resizeDirector, SIGNAL(resized()),
+    connect(resizeDirector, SIGNAL(itemResized()),
             selectDirector, SLOT(setupEditForm()));
+    connect(resizeDirector, SIGNAL(itemResized()),
+            sceleton_, SLOT(itemsUpdated()));
 
     connect(selectDirector, SIGNAL(itemMoved()),
             addItemDirector, SLOT(setupAddForm()));
+    connect(selectDirector, SIGNAL(itemMoved()),
+            sceleton_, SLOT(itemsUpdated()));
 
     ui->plotWidget->addDrawable(static_cast<Q3PlotDrawable *>(mesh_));
     ui->plotWidget->addDrawable(static_cast<Q3PlotDrawable *>(sceleton_));
@@ -56,20 +61,24 @@ Q3MeshBuilder::Q3MeshBuilder(QWidget *parent) :
 
     connect(ui->plotWidget, SIGNAL(mouseClicked(QMouseEvent *, const QPointF)),
             this, SLOT(plotMouseClicked(QMouseEvent *, const QPointF)));
-
     connect(ui->plotWidget, SIGNAL(mouseDragged(const QPointF, const QPointF)),
             this, SLOT(plotMouseDragged(const QPointF, const QPointF)));
-
     connect(ui->plotWidget, SIGNAL(mouseDropped(const QPointF)),
             this, SLOT(plotMouseDropped(const QPointF)));
-
     connect(ui->plotWidget, SIGNAL(mouseMoved(const QPointF, const QPointF)),
             this, SLOT(plotMouseMoved(const QPointF, const QPointF)));
+    connect(ui->plotWidget, SIGNAL(keyReleased(QKeyEvent *)),
+            this, SLOT(plotKeyReleaseEvent(QKeyEvent *)));
 
     connect(sceleton_, SIGNAL(createMeshProgress(int)),
             this->ui->actionProgress, SLOT(setValue(int)));
 
     ui->meshParametersBox->setEnabled(false);
+
+    ui->elementsTableView->setModel(sceleton_);
+    ui->elementsTableView->setItemDelegate(new Q3SceletonItemDelegate(this));
+    ui->elementsTableView->horizontalHeader()->setSectionResizeMode(
+                QHeaderView::ResizeToContents);
 }
 
 Q3MeshBuilder::~Q3MeshBuilder()
@@ -79,7 +88,7 @@ Q3MeshBuilder::~Q3MeshBuilder()
     directors_.clear();
 }
 
-void Q3MeshBuilder::keyReleaseEvent(QKeyEvent *event)
+void Q3MeshBuilder::plotKeyReleaseEvent(QKeyEvent *event)
 {
     QList<Q3Director *> orderedByActivityDirectors =
             Q3Director::orderListByActivity(directors_);
@@ -259,6 +268,8 @@ void Q3MeshBuilder::on_createMeshButton_clicked()
         ui->removeMeshButton->setEnabled(true);
 
         ui->actionProgress->setValue(100);
+
+        sceleton_->setActive(false);
     }
     else
     {
@@ -279,6 +290,8 @@ void Q3MeshBuilder::on_removeMeshButton_clicked()
     foreach (Q3Director *director, directors_)
         director->setEnabled(true);
     ui->actionProgress->setValue(0);
+    sceleton_->setActive(true);
+
     update();
 }
 
@@ -289,6 +302,7 @@ void Q3MeshBuilder::on_autoParameters_toggled(bool checked)
 
 void Q3MeshBuilder::on_elementsCountSlider_valueChanged(int value)
 {
+    ui->meshParameter_1->setChecked(true);
     ui->elementsCountSpinBox->setValue(value);
 }
 
@@ -299,10 +313,11 @@ void Q3MeshBuilder::on_elementsCountSpinBox_valueChanged(int arg1)
 
 void Q3MeshBuilder::on_elementSizeSlider_valueChanged(int value)
 {
+    ui->meshParameter_2->setChecked(true);
     ui->elementSizeSpinBox->setValue(0.01 * value);
 }
 
-void Q3MeshBuilder::on_elemetSizeSpinBox_valueChanged(double arg1)
+void Q3MeshBuilder::on_elementSizeSpinBox_valueChanged(double arg1)
 {
     ui->elementSizeSlider->setValue(100 * arg1);
 }

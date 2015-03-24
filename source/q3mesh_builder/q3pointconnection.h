@@ -34,6 +34,9 @@ public:
     bool accept(Q3ItemVisitor &visitor);
 
     void setMoved(bool moved);
+
+    QString toString();
+    QString typeToString();
 };
 
 #endif // Q3POINTCONNECTION_H

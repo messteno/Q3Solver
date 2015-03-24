@@ -12,6 +12,7 @@ Q3PointConnection::Q3PointConnection(Q3Point *a, Q3Point *b) :
     a_(a),
     b_(b)
 {
+    boundaryType_ = Q3Mesh::NotBoundary;
 }
 
 Q3PointConnection::~Q3PointConnection()
@@ -117,4 +118,14 @@ void Q3PointConnection::setMoved(bool moved)
     moved_ = moved;
     a_->setMoved(moved);
     b_->setMoved(moved);
+}
+
+QString Q3PointConnection::toString()
+{
+    return a_->toString() + " - " + b_->toString();
+}
+
+QString Q3PointConnection::typeToString()
+{
+    return "Отрезок";
 }

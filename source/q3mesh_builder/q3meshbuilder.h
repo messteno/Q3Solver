@@ -22,8 +22,6 @@ public:
     explicit Q3MeshBuilder(QWidget *parent = 0);
     ~Q3MeshBuilder();
 
-    void keyReleaseEvent(QKeyEvent *event);
-
 private slots:
 
     // in local coordinates
@@ -31,6 +29,7 @@ private slots:
     void plotMouseDragged(const QPointF &oldScenePos, const QPointF &newScenePos);
     void plotMouseDropped(const QPointF &scenePos);
     void plotMouseMoved(const QPointF &oldScenePos, const QPointF &newScenePos);
+    void plotKeyReleaseEvent(QKeyEvent *event);
 
     void on_pointButton_clicked(bool checked);
     void on_pointConnectionButton_clicked(bool checked);
@@ -48,7 +47,7 @@ private slots:
 
     void on_elementSizeSlider_valueChanged(int value);
 
-    void on_elemetSizeSpinBox_valueChanged(double arg1);
+    void on_elementSizeSpinBox_valueChanged(double arg1);
 
 private:
     QList<Q3Director *> directors_;

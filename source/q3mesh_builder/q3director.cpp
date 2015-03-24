@@ -2,8 +2,9 @@
 
 const int Q3Director::SelectRadius = 10;
 
-Q3Director::Q3Director(Type type, QWidget *pranet) :
-    Q3PlotDrawable(pranet),
+Q3Director::Q3Director(Type type, QWidget *parent) :
+    Q3PlotDrawable(),
+    QWidget(parent),
     type_(type),
     itemType_(Q3SceletonItem::Base),
     enabled_(true),

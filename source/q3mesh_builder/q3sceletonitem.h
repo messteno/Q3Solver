@@ -1,8 +1,10 @@
 #ifndef Q3SCELETONITEM_H
 #define Q3SCELETONITEM_H
 
-#include <q3painter.h>
 #include <QFormLayout>
+
+#include "q3mesh.h"
+#include "q3painter.h"
 
 class Q3ItemVisitor;
 class Q3Point;
@@ -33,6 +35,9 @@ public:
     virtual qreal distanceFromBoundaryTo(const QPointF &pos) const = 0;
     virtual QRectF boundingRect() const = 0;
     virtual void move(const QPointF diff) = 0;
+    virtual QString toString() = 0;
+    virtual QString typeToString() = 0;
+
     virtual void resize(const QPointF from, const QPointF to);
 
     bool isSelectable() const;
@@ -68,9 +73,15 @@ public:
     bool moved() const;
     virtual void setMoved(bool moved);
 
+    bool canBeBoundary();
+
+    Q3Mesh::BoundaryType boundaryType() const;
+    void setBoundaryType(const Q3Mesh::BoundaryType &boundaryType);
+
 protected:
     Type type_;
     bool moved_;
+    Q3Mesh::BoundaryType boundaryType_;
 
 private:
     bool selected_;

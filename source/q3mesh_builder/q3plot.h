@@ -69,6 +69,7 @@ public:
     void wheelEvent(QWheelEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
 
     qreal sx() const;
     qreal sy() const;
@@ -93,6 +94,7 @@ signals:
     void mouseDragged(const QPointF oldScenePos, const QPointF newScenePos);
     void mouseDropped(const QPointF scenePos);
     void mouseMoved(const QPointF oldScenePos, const QPointF newScenePos);
+    void keyReleased(QKeyEvent *event);
 
 public slots:
 };

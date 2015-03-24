@@ -18,7 +18,7 @@ const int Q3Plot::MinTickCount = 8;
 
 Q3Plot::Q3Plot(QWidget *parent) :
     QWidget(parent),
-    sceneRect_(-2, -2, 13, 8),
+    sceneRect_(-2, -2, 10, 8),
     drawRect_(sceneRect_),
     scaleX_(1.),
     scaleY_(-1.),
@@ -82,6 +82,7 @@ void Q3Plot::wheelEvent(QWheelEvent *event)
 
 void Q3Plot::mouseReleaseEvent(QMouseEvent *event)
 {
+    this->setFocus();
     QPointF sceneClickedPos = mapToScene(event->pos());
     if (leftButtonMousePos_.isNull())
     {
@@ -92,6 +93,11 @@ void Q3Plot::mouseReleaseEvent(QMouseEvent *event)
         leftButtonMousePos_ = QPointF();
         emit mouseDropped(sceneClickedPos);
     }
+}
+
+void Q3Plot::keyReleaseEvent(QKeyEvent *event)
+{
+    emit keyReleased(event);
 }
 
 qreal Q3Plot::sx() const
@@ -106,6 +112,7 @@ qreal Q3Plot::sy() const
 
 void Q3Plot::mouseMoveEvent(QMouseEvent *event)
 {
+    this->setFocus();
     if (event->buttons() & Qt::LeftButton)
     {
         if (leftButtonMousePos_.isNull())

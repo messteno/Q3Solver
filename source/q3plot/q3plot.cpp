@@ -32,9 +32,12 @@ Q3Plot::Q3Plot(QWidget *parent) :
     penColor_(DefaultPenColor),
     bottomMargin_(25),
     leftMargin_(20),
-    wheelDelta_(0)
+    wheelDelta_(0),
+    snapToGrid_(true)
 {
     setMouseTracking(true);
+    setMinimumWidth(300);
+    setMinimumHeight(300);
 }
 
 Q3Plot::~Q3Plot()
@@ -50,7 +53,7 @@ void Q3Plot::paintEvent(QPaintEvent *event)
 {
     drawBackground();
     drawAxes();
-    drawDrawable();
+    drawDrawables();
     drawBorders();
 }
 
@@ -96,6 +99,11 @@ void Q3Plot::mouseReleaseEvent(QMouseEvent *event)
 }
 
 void Q3Plot::keyReleaseEvent(QKeyEvent *event)
+{
+    emit keyReleased(event);
+}
+
+void Q3Plot::keyPressEvent(QKeyEvent *event)
 {
     emit keyReleased(event);
 }
@@ -146,6 +154,16 @@ void Q3Plot::moveScene(const QPointF diff)
     updateScene();
 }
 
+bool Q3Plot::snapToGrid() const
+{
+    return snapToGrid_;
+}
+
+void Q3Plot::setSnapToGrid(bool snapTogrid)
+{
+    snapToGrid_ = snapTogrid;
+}
+
 void Q3Plot::updateScene()
 {
     qreal dw = sceneRect_.width();
@@ -169,13 +187,13 @@ void Q3Plot::updateScene()
     countTickX_ = ceil(drawRect_.width() / tickDx_);
     countTickY_ = ceil(drawRect_.height() / tickDy_);
 
-    while (countTickX_ < MinTickCount)
+    while (countTickX_ < MinTickCount && tickDx_ > 1e-10)
     {
         tickDx_ /= 2.;
         countTickX_ = ceil(drawRect_.width() / tickDx_);
     }
 
-    while (countTickY_ < MinTickCount)
+    while (countTickY_ < MinTickCount && tickDy_ > 1e-10)
     {
         tickDy_ /= 2.;
         countTickY_ = ceil(drawRect_.height() / tickDy_);
@@ -355,7 +373,7 @@ void Q3Plot::drawBorders()
     painter.end();
 }
 
-void Q3Plot::drawDrawable()
+void Q3Plot::drawDrawables()
 {
     Q3Painter painter;
     painter.begin(this);
@@ -367,8 +385,8 @@ void Q3Plot::drawDrawable()
     painter.setRenderHint(Q3Painter::Antialiasing);
     painter.setBrush(foregroundColor_);
     painter.translate(dx_, dy_);
-    painter.scale(scaleX_, scaleY_);
-    foreach (Q3PlotDrawable *item, drawable_) {
+    painter.doScale(scaleX_, scaleY_);
+    foreach (Q3PlotDrawable *item, drawables_) {
         item->draw(painter);
     }
     painter.restore();
@@ -407,21 +425,24 @@ void Q3Plot::setLeftMargin(int margin)
 
 void Q3Plot::addDrawable(Q3PlotDrawable *item)
 {
-    drawable_.append(item);
+    drawables_.append(item);
 }
 
 void Q3Plot::removeDrawable(Q3PlotDrawable *item)
 {
-    drawable_.removeAll(item);
+    drawables_.removeAll(item);
 }
 
 void Q3Plot::clearDrawable()
 {
-    drawable_.clear();
+    drawables_.clear();
 }
 
 QPointF Q3Plot::snapScenePosToGrid (const QPointF pos)
 {
+    if (!snapToGrid_)
+        return pos;
+
     double x = round(pos.x() / tickDx_) * tickDx_;
     double y = round(pos.y() / tickDy_) * tickDy_;
     if (fabs(x - pos.x()) < 0.3 * tickDx_ &&

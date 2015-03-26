@@ -8,7 +8,6 @@
 #include "q3sceletonitem.h"
 #include "q3painter.h"
 #include "q3plotdrawable.h"
-#include "q3meshadapter.h"
 
 class Q3Plot;
 
@@ -32,11 +31,15 @@ public:
     void addItem(Q3SceletonItem *item);
     void removeSelectedItems();
     void draw(Q3Painter &painter) const;
-    bool createMesh(Q3MeshAdapter *adapter);
-    QList<Q3SceletonItem *> items() const;
+    bool prepare();
 
     bool isActive() const;
     void setActive(bool active);
+
+    QList<Q3SceletonItem *>& items();
+    QList<Q3SceletonItem *>& outerBoundary();
+    QList<QList<Q3SceletonItem *> >& innerBoundaries();
+    QList<Q3SceletonItem *>& innerElements();
 
 signals:
     void createMeshProgress(int value);

@@ -144,7 +144,7 @@ void Q3Sceleton::removeSelectedItems()
 void Q3Sceleton::draw(Q3Painter &painter) const
 {
     painter.save();
-    QPen pen = painter.pen();
+    QPen pen;
     foreach (Q3SceletonItem *item, items_)
     {
         painter.setBrush(item->backgroundColor());
@@ -155,7 +155,7 @@ void Q3Sceleton::draw(Q3Painter &painter) const
     painter.restore();
 }
 
-bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
+bool Q3Sceleton::prepare()
 {
     bool hasInput = false;
     bool hasOutput = false;
@@ -249,17 +249,17 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
         if (outerBoundary_.contains(item))
         {
             // Проверим на наличие втока и стока
-            if (item->boundaryType() == Q3Mesh::InBoundary)
+            if (item->boundaryType() == Q3SceletonItem::InBoundary)
                 hasInput = true;
-            else if (item->boundaryType() == Q3Mesh::OutBoundary)
+            else if (item->boundaryType() == Q3SceletonItem::OutBoundary)
                 hasOutput = true;
 
             continue;
         }
 
         // Проверим, что внутренние элементы не являются втоком или стоком
-        if (item->boundaryType() != Q3Mesh::CannotBeBoundary &&
-            item->boundaryType() != Q3Mesh::NotBoundary)
+        if (item->boundaryType() != Q3SceletonItem::CannotBeBoundary &&
+            item->boundaryType() != Q3SceletonItem::NotBoundary)
         {
             QMessageBox::warning(NULL, tr("Q3Solver"),
                                  tr("Невозможно создать сетку, "
@@ -379,18 +379,8 @@ bool Q3Sceleton::createMesh(Q3MeshAdapter *adapter)
 //        }
 //    }
 
-    bool generated = adapter->generateMesh(items_,
-                                           outerBoundary_,
-                                           innerBoundaries_,
-                                           activeItems);
-    emit createMeshProgress(90);
-
-    return generated;
-}
-
-QList<Q3SceletonItem *> Q3Sceleton::items() const
-{
-    return items_;
+    innerElements_ = activeItems;
+    return true;
 }
 
 int Q3Sceleton::rowCount(const QModelIndex &parent) const
@@ -431,7 +421,7 @@ bool Q3Sceleton::setData(const QModelIndex &index, const QVariant &value, int ro
     {
         Q3SceletonItem *item = items_.at(index.row());
         if (index.column() == ColumnBoundary && item->canBeBoundary())
-            item->setBoundaryType(static_cast<Q3Mesh::BoundaryType>(value.toUInt()));
+            item->setBoundaryType(static_cast<Q3SceletonItem::BoundaryType>(value.toUInt()));
     }
     return true;
 }
@@ -478,6 +468,26 @@ void Q3Sceleton::itemsUpdated()
     QModelIndex bottom = index(items_.count() - 1, tableColumns_);
 
     emit dataChanged(top, bottom);
+}
+
+QList<Q3SceletonItem *>& Q3Sceleton::items()
+{
+    return items_;
+}
+
+QList<Q3SceletonItem *>& Q3Sceleton::innerElements()
+{
+    return innerElements_;
+}
+
+QList<QList<Q3SceletonItem *> >& Q3Sceleton::innerBoundaries()
+{
+    return innerBoundaries_;
+}
+
+QList<Q3SceletonItem *>& Q3Sceleton::outerBoundary()
+{
+    return outerBoundary_;
 }
 
 bool Q3Sceleton::isActive() const

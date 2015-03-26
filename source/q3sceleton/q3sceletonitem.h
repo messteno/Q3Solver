@@ -3,7 +3,6 @@
 
 #include <QFormLayout>
 
-#include "q3mesh.h"
 #include "q3painter.h"
 
 class Q3ItemVisitor;
@@ -20,6 +19,15 @@ public:
         PointConnection,
         Point,
         Circle,
+    };
+
+    enum BoundaryType
+    {
+        CannotBeBoundary,
+        NotBoundary,
+        InBoundary,
+        OutBoundary,
+        MoveBoundary,
     };
 
     static const QColor BackgroundColor;
@@ -75,13 +83,15 @@ public:
 
     bool canBeBoundary();
 
-    Q3Mesh::BoundaryType boundaryType() const;
-    void setBoundaryType(const Q3Mesh::BoundaryType &boundaryType);
+    BoundaryType boundaryType() const;
+    void setBoundaryType(const BoundaryType &boundaryType);
+
+    static QString boundaryTypeToString(const BoundaryType &type);
 
 protected:
     Type type_;
     bool moved_;
-    Q3Mesh::BoundaryType boundaryType_;
+    BoundaryType boundaryType_;
 
 private:
     bool selected_;

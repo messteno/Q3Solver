@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "q3meshbuilder.h"
+#include "q3solver.h"
 
 namespace Ui {
 class MainWindow;
@@ -16,9 +17,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
+private slots:
+    void on_actionMeshBuilder_triggered();
+
 private:
     Ui::MainWindow *ui;
-    Q3MeshBuilder *meshBuilder;
+    Q3Solver *solver_;
 };
 
 #endif // MAINWINDOW_H

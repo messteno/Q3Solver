@@ -71,15 +71,12 @@ void Q3AddItemDirector::draw(Q3Painter &painter) const
         item_->draw(painter);
 }
 
-bool Q3AddItemDirector::processClick(QMouseEvent *event, const QPointF &scenePos,
-                                     bool snapToGrid)
+bool Q3AddItemDirector::processClick(QMouseEvent *event, const QPointF &scenePos)
 {
     if (!plot_ || !sceleton_)
         return false;
 
-    QPointF snappedScenePos = scenePos;
-    if (snapToGrid)
-        snappedScenePos = plot_->snapScenePosToGrid(scenePos);
+    QPointF snappedScenePos = plot_->snapScenePosToGrid(scenePos);
 
     qreal radius = SelectRadius / plot_->sx();
 
@@ -169,8 +166,7 @@ bool Q3AddItemDirector::processClick(QMouseEvent *event, const QPointF &scenePos
 }
 
 bool Q3AddItemDirector::processDragged(const QPointF &oldScenePos,
-                                       const QPointF &newScenePos,
-                                       bool snapToGrid)
+                                       const QPointF &newScenePos)
 {
     if (!plot_ || !sceleton_)
         return false;
@@ -185,8 +181,7 @@ bool Q3AddItemDirector::processDragged(const QPointF &oldScenePos,
 }
 
 bool Q3AddItemDirector::processMoved(const QPointF &oldScenePos,
-                                     const QPointF &newScenePos,
-                                     bool snapToGrid)
+                                     const QPointF &newScenePos)
 {
     if (!isActive())
         return false;
@@ -222,7 +217,7 @@ bool Q3AddItemDirector::processMoved(const QPointF &oldScenePos,
     return false;
 }
 
-bool Q3AddItemDirector::processKeyRelease(int key, bool snapToGrid)
+bool Q3AddItemDirector::processKeyRelease(int key)
 {
     if (!isActive())
         return false;

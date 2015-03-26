@@ -12,7 +12,7 @@ Q3PointConnection::Q3PointConnection(Q3Point *a, Q3Point *b) :
     a_(a),
     b_(b)
 {
-    boundaryType_ = Q3Mesh::NotBoundary;
+    boundaryType_ = NotBoundary;
 }
 
 Q3PointConnection::~Q3PointConnection()

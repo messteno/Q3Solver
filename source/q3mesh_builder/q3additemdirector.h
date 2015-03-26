@@ -22,15 +22,12 @@ public:
     virtual ~Q3AddItemDirector();
 
     virtual void setItemType(Q3SceletonItem::Type type);
-    virtual bool processClick(QMouseEvent *event, const QPointF &scenePos,
-                              bool snapToGrid);
+    virtual bool processClick(QMouseEvent *event, const QPointF &scenePos);
     virtual bool processDragged(const QPointF &oldScenePos,
-                                const QPointF &newScenePos,
-                                bool snapToGrid);
+                                const QPointF &newScenePos);
     virtual bool processMoved(const QPointF &oldScenePos,
-                              const QPointF &newScenePos,
-                              bool snapToGrid);
-    virtual bool processKeyRelease(int key, bool snapToGrid);
+                              const QPointF &newScenePos);
+    virtual bool processKeyRelease(int key);
     virtual void stop();
     virtual void draw(Q3Painter &painter) const;
 

@@ -35,8 +35,9 @@ private:
 
     int wheelDelta_;
 
-    QList<Q3PlotDrawable *> drawable_;
+    bool snapToGrid_;
 
+    QList<Q3PlotDrawable *> drawables_;
     void updateScene();
 
     QPointF sceneToMap(const QPointF &pos) const;
@@ -52,7 +53,7 @@ private:
     void drawBackground();
     void drawAxes();
     void drawBorders();
-    void drawDrawable();
+    void drawDrawables();
 
 public:
     static const QColor DefaultBackgroundColor;
@@ -70,6 +71,7 @@ public:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
+    void keyPressEvent(QKeyEvent *event);
 
     qreal sx() const;
     qreal sy() const;
@@ -88,6 +90,9 @@ public:
     void clearDrawable();
 
     QPointF snapScenePosToGrid (const QPointF pos);
+
+    bool snapToGrid() const;
+    void setSnapToGrid(bool snapToGrid);
 
 signals:
     void mouseClicked(QMouseEvent *event, const QPointF scenePos);

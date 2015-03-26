@@ -9,10 +9,8 @@ public:
     Q3MoveDirector(QWidget *parent = NULL);
     virtual ~Q3MoveDirector();
     virtual bool processDragged(const QPointF &oldScenePos,
-                                const QPointF &newScenePos,
-                                bool snapToGrid);
-    virtual bool processDropped(const QPointF &scenePos,
-                                bool snapToGrid);
+                                const QPointF &newScenePos);
+    virtual bool processDropped(const QPointF &scenePos);
     virtual void stop();
     virtual void draw(Q3Painter &painter) const;
 };

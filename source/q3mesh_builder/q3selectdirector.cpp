@@ -21,8 +21,7 @@ Q3SelectDirector::~Q3SelectDirector()
     selectedItems_.clear();
 }
 
-bool Q3SelectDirector::processClick(QMouseEvent *event, const QPointF &scenePos,
-                                    bool snapToGrid)
+bool Q3SelectDirector::processClick(QMouseEvent *event, const QPointF &scenePos)
 {
     if (!plot_ || !sceleton_)
         return false;
@@ -72,8 +71,7 @@ bool Q3SelectDirector::processClick(QMouseEvent *event, const QPointF &scenePos,
 }
 
 bool Q3SelectDirector::processDragged(const QPointF &oldScenePos,
-                                      const QPointF &newScenePos,
-                                      bool snapToGrid)
+                                      const QPointF &newScenePos)
 {
     if (!plot_ || !sceleton_)
         return false;
@@ -115,7 +113,7 @@ bool Q3SelectDirector::processDragged(const QPointF &oldScenePos,
     return true;
 }
 
-bool Q3SelectDirector::processDropped(const QPointF &scenePos, bool snapToGrid)
+bool Q3SelectDirector::processDropped(const QPointF &scenePos)
 {
     moving_ = false;
 
@@ -127,12 +125,10 @@ bool Q3SelectDirector::processDropped(const QPointF &scenePos, bool snapToGrid)
 
     foreach (Q3SceletonItem *item, selectedItems_)
     {
-        if (snapToGrid)
-        {
-            QPointF oldCenter = item->boundingRect().center();
-            QPointF newCenter = plot_->snapScenePosToGrid(oldCenter);
-            item->move(newCenter - oldCenter);
-        }
+        QPointF oldCenter = item->boundingRect().center();
+        QPointF newCenter = plot_->snapScenePosToGrid(oldCenter);
+        item->move(newCenter - oldCenter);
+
         if (itemType_ != Q3SceletonItem::Base)
             item->setSelected(false);
     }
@@ -148,7 +144,7 @@ bool Q3SelectDirector::processDropped(const QPointF &scenePos, bool snapToGrid)
     return true;
 }
 
-bool Q3SelectDirector::processKeyRelease(int key, bool snapToGrid)
+bool Q3SelectDirector::processKeyRelease(int key)
 {
     if (!sceleton_)
         return false;

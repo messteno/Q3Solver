@@ -11,7 +11,7 @@ private:
 public:
     Q3Painter();
     virtual ~Q3Painter();
-    virtual void scale(qreal scaleX_, qreal scaleY_);
+    void doScale(qreal scaleX, qreal scaleY);
 
     qreal sx();
     qreal sy();

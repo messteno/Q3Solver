@@ -5,7 +5,7 @@
 
 #include "ani2D.h"
 
-typedef double real;
+// typedef double real;
 
 class Q3Ani2D
 {

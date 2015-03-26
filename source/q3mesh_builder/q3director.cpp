@@ -37,30 +37,29 @@ void Q3Director::setItemType(Q3SceletonItem::Type type)
     itemType_ = type;
 }
 
-bool Q3Director::processClick(QMouseEvent *event, const QPointF &scenePos, bool snapToGrid)
+bool Q3Director::processClick(QMouseEvent *event, const QPointF &scenePos)
 {
     return false;
 }
 
 bool Q3Director::processDragged(const QPointF &oldScenePos,
-                                const QPointF &newScenePos, bool snapToGrid)
+                                const QPointF &newScenePos)
 {
     return false;
 }
 
-bool Q3Director::processDropped(const QPointF &scenePos, bool snapToGrid)
+bool Q3Director::processDropped(const QPointF &scenePos)
 {
     return false;
 }
 
 bool Q3Director::processMoved(const QPointF &oldScenePos,
-                              const QPointF &newScenePos,
-                              bool snapToGrid)
+                              const QPointF &newScenePos)
 {
     return false;
 }
 
-bool Q3Director::processKeyRelease(int key, bool snapToGrid)
+bool Q3Director::processKeyRelease(int key)
 {
     return false;
 }

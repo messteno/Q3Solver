@@ -13,8 +13,7 @@ Q3MoveDirector::~Q3MoveDirector()
 }
 
 bool Q3MoveDirector::processDragged(const QPointF &oldScenePos,
-                                    const QPointF &newScenePos,
-                                    bool snapToGrid)
+                                    const QPointF &newScenePos)
 {
     if (!plot_)
         return false;
@@ -25,7 +24,7 @@ bool Q3MoveDirector::processDragged(const QPointF &oldScenePos,
     return true;
 }
 
-bool Q3MoveDirector::processDropped(const QPointF &scenePos, bool snapToGrid)
+bool Q3MoveDirector::processDropped(const QPointF &scenePos)
 {
     setActive(false);
 }

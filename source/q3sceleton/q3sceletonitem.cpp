@@ -1,13 +1,8 @@
+#include <QDebug>
+
 #include "q3sceletonitem.h"
 #include "q3plot.h"
 #include "q3itemvisitor.h"
-
-const QColor Q3SceletonItem::BackgroundColor =
-        QColor(Q3Plot::DefaultForegroundColor);
-const QColor Q3SceletonItem::SelectedBackgroundColor = QColor(Qt::red);
-const QColor Q3SceletonItem::PenColor =
-        QColor(Q3Plot::DefaultPenColor);
-const QColor Q3SceletonItem::SelectedPenColor = QColor(100, 100, 100);
 
 Q3SceletonItem::Q3SceletonItem(Type type) :
     selected_(false),
@@ -15,14 +10,13 @@ Q3SceletonItem::Q3SceletonItem(Type type) :
     resizing_(false),
     resizable_(false),
     moved_(false),
-    boundaryType_(Q3Mesh::CannotBeBoundary),
-    backgroundColor_(BackgroundColor),
-    selectedBackgroundColor_(SelectedBackgroundColor),
-    penColor_(PenColor),
-    selectedPenColor_(SelectedPenColor),
+    boundaryType_(CannotBeBoundary),
+    backgroundColor_(Q3Plot::DefaultForegroundColor),
+    selectedBackgroundColor_(Qt::red),
+    penColor_(Q3Plot::DefaultPenColor),
+    selectedPenColor_(QColor(100, 100, 100)),
     type_(type)
 {
-
 }
 
 Q3SceletonItem::~Q3SceletonItem()
@@ -136,16 +130,36 @@ void Q3SceletonItem::setMoved(bool moved)
 
 bool Q3SceletonItem::canBeBoundary()
 {
-    return boundaryType_ != Q3Mesh::CannotBeBoundary;
+    return boundaryType_ != CannotBeBoundary;
 }
-Q3Mesh::BoundaryType Q3SceletonItem::boundaryType() const
+
+Q3SceletonItem::BoundaryType Q3SceletonItem::boundaryType() const
 {
     return boundaryType_;
 }
 
-void Q3SceletonItem::setBoundaryType(const Q3Mesh::BoundaryType &boundaryType)
+void Q3SceletonItem::setBoundaryType(const BoundaryType &boundaryType)
 {
     if (!canBeBoundary())
         return;
     boundaryType_ = boundaryType;
 }
+
+QString Q3SceletonItem::boundaryTypeToString(const Q3SceletonItem::BoundaryType &type)
+{
+    switch (type)
+    {
+        case Q3SceletonItem::CannotBeBoundary:
+            return "";
+        case Q3SceletonItem::NotBoundary:
+            return "---";
+        case Q3SceletonItem::InBoundary:
+            return "Вток";
+        case Q3SceletonItem::OutBoundary:
+            return "Сток";
+        case Q3SceletonItem::MoveBoundary:
+            return "Подвижная";
+    }
+    return "";
+}
+

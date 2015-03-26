@@ -14,8 +14,7 @@ Q3ResizeDirector::~Q3ResizeDirector()
 }
 
 bool Q3ResizeDirector::processDragged(const QPointF &oldScenePos,
-                                      const QPointF &newScenePos,
-                                      bool snapToGrid)
+                                      const QPointF &newScenePos)
 {
     if (!plot_ || !sceleton_)
         return false;
@@ -40,7 +39,7 @@ bool Q3ResizeDirector::processDragged(const QPointF &oldScenePos,
     return true;
 }
 
-bool Q3ResizeDirector::processDropped(const QPointF &scenePos, bool snapToGrid)
+bool Q3ResizeDirector::processDropped(const QPointF &scenePos)
 {
     if (!plot_)
         return false;
@@ -50,13 +49,10 @@ bool Q3ResizeDirector::processDropped(const QPointF &scenePos, bool snapToGrid)
 
     foreach (Q3SceletonItem *item, resizingItems_)
     {
-        if (snapToGrid)
-        {
-            // TODO: maybe set only one coordinate tot resize?
-            QPointF oldCenter = item->boundingRect().center();
-            QPointF snappedScenePos = plot_->snapScenePosToGrid(scenePos);
-            item->resize(oldCenter, snappedScenePos);
-        }
+        QPointF oldCenter = item->boundingRect().center();
+        QPointF snappedScenePos = plot_->snapScenePosToGrid(scenePos);
+        item->resize(oldCenter, snappedScenePos);
+
         if (itemType_ != Q3SceletonItem::Base)
             item->setResizing(false);
     }

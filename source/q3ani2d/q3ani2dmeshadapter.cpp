@@ -5,49 +5,25 @@
 #include <QDebug>
 
 #include "q3itemvisitor.h"
-#include "q3meshadapter.h"
+#include "q3ani2dmeshadapter.h"
 #include "q3point.h"
 
 static QVector<Q3Ani2DMeshAdapter::CurveBoundary> curves_;
-
-Q3MeshAdapter::Q3MeshAdapter() :
-    created_(false),
-    sizePolicy_(ElementSizeAuto),
-    elementsCount_(20000),
-    elementSize_(0.01)
-{
-
-}
-
-void Q3MeshAdapter::setSizePolicy(const SizePolicy &sizePolicy)
-{
-    sizePolicy_ = sizePolicy;
-}
-
-void Q3MeshAdapter::setElementsCount(int elementsCount)
-{
-    elementsCount_ = elementsCount;
-}
-
-void Q3MeshAdapter::setElementSize(qreal elementSize)
-{
-    elementSize_ = elementSize;
-}
 
 Q3Ani2DMeshAdapter::Q3Ani2DMeshAdapter() :
     Q3MeshAdapter()
 {
 }
 
-bool Q3Ani2DMeshAdapter::generateMesh(QList<Q3SceletonItem *> &items,
-                                      QList<Q3SceletonItem *> &outerBoundary,
-                                      QList<QList<Q3SceletonItem *> > \
-                                        &innerBoundaries,
-                                      QList<Q3SceletonItem *> &innerItems)
+bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton)
 {
     created_ = false;
-
     curves_.clear();
+
+    QList<Q3SceletonItem *> &items = sceleton->items();
+    QList<Q3SceletonItem *> &outerBoundary = sceleton->outerBoundary();
+    QList<QList<Q3SceletonItem *> > &innerBoundaries = sceleton->innerBoundaries();
+    QList<Q3SceletonItem *> &innerItems = sceleton->innerElements();
 
     // передавать размер ячейки
     // определить площадь
@@ -112,7 +88,7 @@ bool Q3Ani2DMeshAdapter::generateMesh(QList<Q3SceletonItem *> &items,
     switch(sizePolicy_)
     {
         case ElementSizeByCount:
-            elementSize = sqrt(square / 2. / elementsCount_);
+            elementSize = sqrt(square * 2. / elementsCount_);
             break;
         case ElementSizeBySize:
             elementSize = elementSize_;
@@ -140,23 +116,28 @@ bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh)
     for (int i = 0; i < ani.nv; ++i)
         mesh->addNode(ani.vrt[2 * i], ani.vrt[2 * i + 1]);
 
-    qDebug() << ani.nt;
     for (int i = 0; i < ani.nt; ++i)
     {
-        Q3MeshNode *a = &mesh->nodes()[ani.tri[3 * i + 0] - 1];
-        Q3MeshNode *b = &mesh->nodes()[ani.tri[3 * i + 1] - 1];
-        Q3MeshNode *c = &mesh->nodes()[ani.tri[3 * i + 2] - 1];
+        Q3MeshNode *a = mesh->nodes()[ani.tri[3 * i + 0] - 1];
+        Q3MeshNode *b = mesh->nodes()[ani.tri[3 * i + 1] - 1];
+        Q3MeshNode *c = mesh->nodes()[ani.tri[3 * i + 2] - 1];
 
-        if (!a->adjacentTo(b))
-            mesh->addEdge(a, b);
+        Q3MeshEdge *ab = a->edgeAdjacentTo(b);
+        Q3MeshEdge *bc = b->edgeAdjacentTo(c);
+        Q3MeshEdge *ac = a->edgeAdjacentTo(c);
 
-        if (!b->adjacentTo(c))
-            mesh->addEdge(b, c);
+        if (!ab)
+            ab = mesh->addEdge(a, b);
 
-        if (!c->adjacentTo(a))
-            mesh->addEdge(c, a);
+        if (!bc)
+            bc = mesh->addEdge(b, c);
+
+        if (!ac)
+            ac = mesh->addEdge(a, c);
+
+        mesh->addTriangle(ab, bc, ac);
     }
-
+    mesh->check();
     return true;
 }
 
@@ -267,3 +248,4 @@ void Q3Ani2DMeshAdapter::addBoundary(QList<Q3SceletonItem *> &boundary,
             break;
     }
 }
+

@@ -38,7 +38,7 @@ void Q3Ani2DTest::ani2DCreateMesh()
 
     qAni.genMeshAnalytic(NULL, Q3Ani2DTest::boundary, 0.01);
 
-    qAni.save ("out.ani", "out.ps");
+    qAni.save ("out.ani");
 }
 
 QTEST_APPLESS_MAIN(Q3Ani2DTest)

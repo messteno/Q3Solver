@@ -1,5 +1,9 @@
 #include <math.h>
 
+#include <QString>
+#include <QFileDialog>
+#include <QDir>
+#include <QTime>
 #include <QMap>
 #include <QListIterator>
 #include <QDebug>
@@ -15,8 +19,12 @@ Q3Ani2DMeshAdapter::Q3Ani2DMeshAdapter() :
 {
 }
 
-bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton)
+bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton,
+                                      QList<Q3Boundary *> *boundaries)
 {
+    if (!sceleton->isPrepared())
+        return false;
+
     created_ = false;
     curves_.clear();
 
@@ -24,10 +32,6 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton)
     QList<Q3SceletonItem *> &outerBoundary = sceleton->outerBoundary();
     QList<QList<Q3SceletonItem *> > &innerBoundaries = sceleton->innerBoundaries();
     QList<Q3SceletonItem *> &innerItems = sceleton->innerElements();
-
-    // передавать размер ячейки
-    // определить площадь
-    // вычислить количество элементов
 
     q3ani2d_.reset();
     q3ani2d_.setMaxElements(1500000);
@@ -50,34 +54,40 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton)
     }
 
     qreal square = 0;
-    int label = 1;
     qreal boundarySquare = 0;
-    addBoundary(outerBoundary, boundarySquare, true, label);
+    bool ret = addBoundary(boundaries, outerBoundary, boundarySquare, true);
+    if (!ret)
+        return false;
     square += boundarySquare;
 
     QListIterator<QList<Q3SceletonItem *> > bit(innerBoundaries);
     while (bit.hasNext())
     {
-        label++;
-        QList<Q3SceletonItem *> boundary = bit.next();
+        QList<Q3SceletonItem *> innerBoundary = bit.next();
         boundarySquare = 0;
-        addBoundary(boundary, boundarySquare, false, label);
+        bool ret = addBoundary(boundaries, innerBoundary, boundarySquare, false);
+        if (!ret)
+            return false;
         square -= boundarySquare;
     }
 
-    label++;
     foreach (Q3SceletonItem *item, innerItems)
     {
         switch (item->type())
         {
             case Q3SceletonItem::PointConnection:
             {
+                Q3Boundary *boundary = Q3Boundary::findByElement(boundaries,
+                                                                 item);
+                if (!boundary)
+                    return false;
                 Q3PointConnection *conn = \
                         dynamic_cast<Q3PointConnection *>(item);
                 if (conn)
                 {
+                    int label = boundary->label();
                     q3ani2d_.addEdge(pointMap_[conn->a()], pointMap_[conn->b()],
-                                   label, 1, 1);
+                                     label, 1, 1);
                 }
                 break;
             }
@@ -105,7 +115,7 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton)
     return created_;
 }
 
-bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh)
+bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh, QList<Q3Boundary *> *boundaries)
 {
     if (!created_)
         return false;
@@ -115,6 +125,15 @@ bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh)
 
     for (int i = 0; i < ani.nv; ++i)
         mesh->addNode(ani.vrt[2 * i], ani.vrt[2 * i + 1]);
+
+    for (int i = 0; i < ani.nb; ++i)
+    {
+        Q3MeshNode *a = mesh->nodes()[ani.bnd[2 * i + 0] - 1];
+        Q3MeshNode *b = mesh->nodes()[ani.bnd[2 * i + 1] - 1];
+        int label = ani.labelB[i];
+        Q3Boundary *boundary = Q3Boundary::findByLabel(boundaries, label);
+        mesh->addEdge(a, b, boundary);
+    }
 
     for (int i = 0; i < ani.nt; ++i)
     {
@@ -127,17 +146,30 @@ bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh)
         Q3MeshEdge *ac = a->edgeAdjacentTo(c);
 
         if (!ab)
-            ab = mesh->addEdge(a, b);
+            ab = mesh->addEdge(a, b, 0);
 
         if (!bc)
-            bc = mesh->addEdge(b, c);
+            bc = mesh->addEdge(b, c, 0);
 
         if (!ac)
-            ac = mesh->addEdge(a, c);
+            ac = mesh->addEdge(a, c, 0);
 
         mesh->addTriangle(ab, bc, ac);
     }
     mesh->check();
+
+    return true;
+}
+
+bool Q3Ani2DMeshAdapter::saveMesh()
+{
+    if (!created_)
+        return false;
+    QString fileName = QFileDialog::getSaveFileName(NULL, QObject::tr("Save File"),
+                                                    QDir::homePath(),
+                                                    QObject::tr("*.ani"));
+    fileName += ".ani";
+    q3ani2d_.save(fileName);
     return true;
 }
 
@@ -163,31 +195,26 @@ void Q3Ani2DMeshAdapter::circleBoundary(int *param, double *t,
     }
 }
 
-void Q3Ani2DMeshAdapter::addBoundary(QList<Q3SceletonItem *> &boundary,
-                                     qreal &square, bool outer, int label)
+bool Q3Ani2DMeshAdapter::addBoundary(QList<Q3Boundary *> *boundaries,
+                                     QList<Q3SceletonItem *> boundary,
+                                     qreal &square, bool outer)
 {
     if (boundary.empty())
-        return;
+        return false;
 
-    Q3SceletonItem *item = boundary.first();
+    Q3SceletonItem *firstItem = boundary.first();
 
-    switch(item->type())
+    switch(firstItem->type())
     {
         case Q3SceletonItem::Point:
         {
-            QList<Q3Point *> boundaryPoints;
-
+            boundary.append(firstItem);
             Q3ItemBoundaryClockwiseVisitor clockwiseVisitor;
             foreach (Q3SceletonItem *item, boundary)
-            {
-                if (item->accept(clockwiseVisitor))
-                    boundaryPoints.append(dynamic_cast<Q3Point *>(item));
-            }
-            boundary.first()->accept(clockwiseVisitor);
-            boundaryPoints.append(dynamic_cast<Q3Point *>(boundary.first()));
+                item->accept(clockwiseVisitor);
 
             bool clockwise = clockwiseVisitor.clockwise() ^ outer;
-            QListIterator<Q3Point *> it(boundaryPoints);
+            QListIterator<Q3SceletonItem *> it(boundary);
             if (!clockwise)
                 it.toFront();
             else
@@ -195,17 +222,36 @@ void Q3Ani2DMeshAdapter::addBoundary(QList<Q3SceletonItem *> &boundary,
 
             Q3Point *p1 = NULL;
             Q3Point *p2 = NULL;
+
+            int label = -1;
             while ((!clockwise && it.hasNext()) ||
                    (clockwise && it.hasPrevious()))
             {
-                p2 = !clockwise ? it.next() : it.previous();
-                if (!p1)
+                Q3SceletonItem *item = !clockwise ? it.next() : it.previous();
+                if (item->type() == Q3SceletonItem::Point)
                 {
+                    p2 = dynamic_cast<Q3Point *>(item);
+                    Q_ASSERT(p2);
+
+                    if (!p1)
+                    {
+                        p1 = p2;
+                        continue;
+                    }
+                    if (label == -1)
+                        return false;
+                    q3ani2d_.addEdge(pointMap_[p1], pointMap_[p2], label, 1);
+                    label = -1;
                     p1 = p2;
-                    continue;
                 }
-                q3ani2d_.addEdge(pointMap_[p1], pointMap_[p2], label, 1);
-                p1 = p2;
+                else
+                {
+                    Q3Boundary *bnd = Q3Boundary::findByElement(boundaries,
+                                                               item);
+                    if (!bnd)
+                        return false;
+                    label = bnd->label();
+                }
             }
 
             square = clockwiseVisitor.square();
@@ -213,10 +259,16 @@ void Q3Ani2DMeshAdapter::addBoundary(QList<Q3SceletonItem *> &boundary,
         }
         case Q3SceletonItem::Circle:
         {
-            qreal left = item->boundingRect().left();
-            qreal right = item->boundingRect().right();
-            qreal bottom = item->boundingRect().bottom();
-            qreal top = item->boundingRect().top();
+            int label = -1;
+            Q3Boundary *bnd = Q3Boundary::findByElement(boundaries, firstItem);
+            if (!bnd)
+                return false;
+            label = bnd->label();
+
+            qreal left = firstItem->boundingRect().left();
+            qreal right = firstItem->boundingRect().right();
+            qreal bottom = firstItem->boundingRect().bottom();
+            qreal top = firstItem->boundingRect().top();
 
             int v0 = q3ani2d_.addVertex(left, 0.5 * (bottom + top));
             int v1 = q3ani2d_.addVertex(0.5 * (left + right), top);
@@ -237,7 +289,7 @@ void Q3Ani2DMeshAdapter::addBoundary(QList<Q3SceletonItem *> &boundary,
                                   label, curveId, 1, 0);
 
             CurveBoundary cb;
-            cb.item = item;
+            cb.item = firstItem;
             cb.outer = outer;
             curves_.push_back(cb);
 
@@ -245,7 +297,8 @@ void Q3Ani2DMeshAdapter::addBoundary(QList<Q3SceletonItem *> &boundary,
             break;
         }
         default:
-            break;
+            return false;
     }
+    return true;
 }
 

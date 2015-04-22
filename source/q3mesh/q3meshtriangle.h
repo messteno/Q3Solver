@@ -35,6 +35,12 @@ public:
 
     bool isBad() const;
 
+    QVector2D correctorVelocity() const;
+    void setCorrectorVelocity(const QVector2D &correctorVelocity);
+
+    QVector2D predictorVelocity() const;
+    void setPredictorVelocity(const QVector2D &predictorVelocity);
+
 private:
     Q3MeshNode *vA_;
     Q3MeshNode *vB_;
@@ -54,6 +60,9 @@ private:
 
     qreal square_;
     QPointF center_;
+
+    QVector2D correctorVelocity_;
+    QVector2D predictorVelocity_;
 
     bool bad_;
 };

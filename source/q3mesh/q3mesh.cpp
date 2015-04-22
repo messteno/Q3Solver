@@ -56,9 +56,9 @@ Q3MeshNode* Q3Mesh::addNode(qreal x, qreal y)
     return node;
 }
 
-Q3MeshEdge* Q3Mesh::addEdge(Q3MeshNode *a, Q3MeshNode *b)
+Q3MeshEdge* Q3Mesh::addEdge(Q3MeshNode *a, Q3MeshNode *b, Q3Boundary *boundary)
 {
-    Q3MeshEdge *edge = new Q3MeshEdge(a, b);
+    Q3MeshEdge *edge = new Q3MeshEdge(a, b, boundary);
     edges_.append(edge);
     a->addEdge(edge);
     b->addEdge(edge);
@@ -76,28 +76,7 @@ Q3MeshTriangle* Q3Mesh::addTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c)
 
 void Q3Mesh::draw(Q3Painter &painter) const
 {
-    drawTriangles(painter);
-}
-
-void Q3Mesh::check()
-{
-    square_ = 0;
-    foreach (Q3MeshTriangle *triangle, triangles_)
-        square_ += triangle->square();
-
-    angles_ = 0;
-    foreach (Q3MeshEdge *edge, edges_)
-    {
-        foreach (qreal contangent, edge->adjacentCotangents())
-        {
-            qreal actg = qAtan(contangent);
-            actg = M_PI_2 - actg;
-            actg = actg * 180. / M_PI;
-            angles_ += actg;
-        }
-    }
-    angles_ /= 2. * triangles_.count();
-    Q_ASSERT(qAbs(angles_ - 180) < 1e-4);
+    drawEdges(painter);
 }
 
 void Q3Mesh::drawEdges(Q3Painter &painter) const
@@ -110,6 +89,15 @@ void Q3Mesh::drawEdges(Q3Painter &painter) const
     while(eit.hasNext())
     {
         const Q3MeshEdge *edge = eit.next();
+
+        QColor color;
+        if (edge->label() != 0)
+            color.setHsv((73 * edge->label()) % 360, 230, 180);
+        else
+            color = QColor(Qt::white);
+
+        painter.setPen(color);
+
         painter.drawLine(edge->a()->x() * scaleX, edge->a()->y() * scaleY,
                          edge->b()->x() * scaleX, edge->b()->y() * scaleY);
     }
@@ -158,4 +146,25 @@ QString Q3Mesh::info()
     stream << tr("Площадь:          ") << QString::number(square_) << "\n";
     stream << tr("Проверка углов:   ") << QString::number(angles_) << "\n";
     return out;
+}
+
+void Q3Mesh::check()
+{
+    square_ = 0;
+    foreach (Q3MeshTriangle *triangle, triangles_)
+        square_ += triangle->square();
+
+    angles_ = 0;
+    foreach (Q3MeshEdge *edge, edges_)
+    {
+        foreach (qreal contangent, edge->adjacentCotangents())
+        {
+            qreal actg = qAtan(contangent);
+            actg = M_PI_2 - actg;
+            actg = actg * 180. / M_PI;
+            angles_ += actg;
+        }
+    }
+    angles_ /= 2. * triangles_.count();
+    Q_ASSERT(qAbs(angles_ - 180) < 1e-4);
 }

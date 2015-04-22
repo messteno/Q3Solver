@@ -20,6 +20,7 @@ public:
         Select,
         Add,
         Resize,
+        Boundary,
     };
 
 protected:
@@ -47,7 +48,7 @@ public:
     virtual bool processMoved(const QPointF &oldScenePos,
                               const QPointF &newScenePos);
     virtual bool processKeyRelease(int key);
-    virtual void stop() = 0;
+    virtual void stop();
 
     virtual bool isActive() const;
     void setActive(bool active);

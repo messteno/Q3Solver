@@ -5,13 +5,15 @@
 #include <QPointF>
 #include <QVector2D>
 
+#include "q3boundary.h"
+
 class Q3MeshNode;
 class Q3MeshTriangle;
 
 class Q3MeshEdge
 {
 public:
-    Q3MeshEdge(Q3MeshNode *a, Q3MeshNode *b);
+    Q3MeshEdge(Q3MeshNode *a, Q3MeshNode *b, Q3Boundary *boundary);
 
     Q3MeshNode *a() const;
     Q3MeshNode *b() const;
@@ -32,6 +34,14 @@ public:
     QPointF cross(const QPointF &p1, const QPointF &p2);
     QVector2D normalVector();
 
+    QVector2D velocity() const;
+    void setVelocity(const QVector2D &velocity);
+
+    qreal preassure() const;
+    void setPreassure(const qreal &preassure);
+
+    int label() const;
+
 private:
     Q3MeshNode *a_;
     Q3MeshNode *b_;
@@ -43,7 +53,12 @@ private:
     QPointF center_;
     qreal length_;
 
+    Q3Boundary *boundary_;
+
     QList<Q3MeshNode *> vertices_;
+
+    QVector2D velocity_;
+    qreal preassure_;
 };
 
 #endif // Q3MESHEDGE_H

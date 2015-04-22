@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "q3meshbuilder.h"
+#include "q3sceletoneditor.h"
 #include "q3solver.h"
 
 namespace Ui {

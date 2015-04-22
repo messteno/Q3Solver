@@ -6,17 +6,20 @@
 #include "q3meshedge.h"
 #include "q3meshtriangle.h"
 
-Q3MeshEdge::Q3MeshEdge(Q3MeshNode *a, Q3MeshNode *b) :
+Q3MeshEdge::Q3MeshEdge(Q3MeshNode *a, Q3MeshNode *b, Q3Boundary *boundary) :
     a_(a),
-    b_(b)
+    b_(b),
+    boundary_(boundary),
+    velocity_(0, 0),
+    preassure_(0)
 {
     Q_ASSERT(a_);
     Q_ASSERT(b_);
 
+    vertices_ << a << b;
+
     center_ = (*a_ + *b_) / 2.;
     length_ = QVector2D(*a_ - *b_).length();
-
-    vertices_ << a << b;
 }
 
 Q3MeshNode *Q3MeshEdge::a() const
@@ -134,4 +137,31 @@ QVector2D Q3MeshEdge::normalVector()
     QVector2D normal(edge.y(), -edge.x());
     normal.normalize();
     return normal;
+}
+
+QVector2D Q3MeshEdge::velocity() const
+{
+    return velocity_;
+}
+
+void Q3MeshEdge::setVelocity(const QVector2D &velocity)
+{
+    velocity_ = velocity;
+}
+
+qreal Q3MeshEdge::preassure() const
+{
+    return preassure_;
+}
+
+void Q3MeshEdge::setPreassure(const qreal &preassure)
+{
+    preassure_ = preassure;
+}
+
+int Q3MeshEdge::label() const
+{
+    if (!boundary_)
+        return 0;
+    return boundary_->label();
 }

@@ -1,7 +1,7 @@
 #ifndef Q3ANI2D_H
 #define Q3ANI2D_H
 
-#include <string>
+#include <QString>
 
 #include "ani2D.h"
 
@@ -30,7 +30,7 @@ public:
                          void (*boundaryFunc) (int *, double *, double *, double *),
                          double elementSize);
     bool genMeshFront();
-    void save(const std::string& aniFile, const std::string& psFile);
+    void save(const QString &aniFile);
     ani2D& getAni2D();
 
 private:

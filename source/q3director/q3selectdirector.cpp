@@ -10,6 +10,8 @@ Q3SelectDirector::Q3SelectDirector(QWidget *parent) :
     Q3Director(Q3Director::Select, parent),
     ui(new Ui::Q3SelectDirector),
     editForm_(NULL),
+    editable_(false),
+    movable_(false),
     moving_(false)
 {
     ui->setupUi(this);
@@ -18,6 +20,9 @@ Q3SelectDirector::Q3SelectDirector(QWidget *parent) :
 
 Q3SelectDirector::~Q3SelectDirector()
 {
+    foreach (Q3SceletonItem *item, selectedItems_)
+        item->setSelected(false);
+
     selectedItems_.clear();
 }
 
@@ -65,7 +70,8 @@ bool Q3SelectDirector::processClick(QMouseEvent *event, const QPointF &scenePos)
     else
         setActive(true);
 
-    setupEditForm();
+    if (editable_)
+        setupEditForm();
 
     return false;
 }
@@ -73,6 +79,9 @@ bool Q3SelectDirector::processClick(QMouseEvent *event, const QPointF &scenePos)
 bool Q3SelectDirector::processDragged(const QPointF &oldScenePos,
                                       const QPointF &newScenePos)
 {
+    if (!movable_)
+        return false;
+
     if (!plot_ || !sceleton_)
         return false;
 
@@ -115,6 +124,9 @@ bool Q3SelectDirector::processDragged(const QPointF &oldScenePos,
 
 bool Q3SelectDirector::processDropped(const QPointF &scenePos)
 {
+    if (!movable_ || !moving_)
+        return false;
+
     moving_ = false;
 
     if (!plot_)
@@ -177,6 +189,26 @@ void Q3SelectDirector::stop()
 void Q3SelectDirector::draw(Q3Painter &painter) const
 {
 
+}
+
+bool Q3SelectDirector::movable() const
+{
+    return movable_;
+}
+
+void Q3SelectDirector::setMovable(bool movable)
+{
+    movable_ = movable;
+}
+
+bool Q3SelectDirector::editable() const
+{
+    return editable_;
+}
+
+void Q3SelectDirector::setEditable(bool editable)
+{
+    editable_ = editable;
 }
 
 void Q3SelectDirector::setupEditForm()

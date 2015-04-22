@@ -2,10 +2,17 @@
 #define Q3SOLVER_H
 
 #include <QWidget>
+#include <QList>
 
 #include "q3directormanager.h"
 #include "q3mesh.h"
+#include "q3calc.h"
 #include "q3sceleton.h"
+#include "q3boundary.h"
+#include "q3sceletoneditor.h"
+#include "q3mesheditor.h"
+#include "q3boundaryeditor.h"
+#include "q3calculuseditor.h"
 
 namespace Ui {
 class Q3Solver;
@@ -24,11 +31,21 @@ public:
     Q3Mesh *mesh() const;
     Q3Sceleton *sceleton() const;
 
+private slots:
+    void on_tabWidget_currentChanged(int index);
+
 private:
     Ui::Q3Solver *ui;
-    Q3DirectorManager *directorManager_;
     Q3Mesh *mesh_;
     Q3Sceleton *sceleton_;
+    QList<Q3Boundary *> boundaries_;
+
+    Q3SceletonEditor *sceletonEditor_;
+    Q3MeshEditor *meshEditor_;
+    Q3BoundaryEditor *boundaryEditor_;
+    Q3CalculusEditor *calculusEditor_;
+
+    int tabWidgetIndex_;
 };
 
 #endif // Q3SOLVER_H

@@ -64,6 +64,11 @@ bool Q3Director::processKeyRelease(int key)
     return false;
 }
 
+void Q3Director::stop()
+{
+
+}
+
 bool Q3Director::isActive() const
 {
     return active_;

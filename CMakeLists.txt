@@ -28,6 +28,8 @@ set(PROJECT_VERSION "0.0.1")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 
+# set(CMAKE_BUILD_TYPE Release)
+
 # Configure Qt
 find_package(Qt5Widgets)
 

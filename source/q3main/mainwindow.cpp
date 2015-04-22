@@ -17,8 +17,8 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionMeshBuilder_triggered()
 {
-    Q3MeshBuilder* meshBuilder = new Q3MeshBuilder(solver_->mesh(),
-                                                   solver_->sceleton(), this);
-    meshBuilder->exec();
-    delete meshBuilder;
+//    Q3MeshBuilder* meshBuilder = new Q3MeshBuilder(solver_->mesh(),
+//                                                   solver_->sceleton(), this);
+//    meshBuilder->exec();
+//    delete meshBuilder;
 }

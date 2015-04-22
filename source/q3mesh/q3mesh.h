@@ -24,7 +24,8 @@ public:
     Q3MeshNode* addNode(QPointF &point);
     Q3MeshNode* addNode(qreal x, qreal y);
 
-    Q3MeshEdge* addEdge(Q3MeshNode *a, Q3MeshNode *b);
+    Q3MeshEdge* addEdge(Q3MeshNode *a, Q3MeshNode *b,
+                        Q3Boundary *boundary = NULL);
 
     Q3MeshTriangle* addTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c);
 
@@ -32,10 +33,9 @@ public:
 
     // Нужно вызывать после добавления всех элементов
     void check();
-
     void clear();
-
     QString info();
+
 private:
     QList<Q3MeshNode *> nodes_;			// all points
     QList<Q3MeshEdge *> edges_;			// all edges

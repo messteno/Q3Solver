@@ -12,7 +12,6 @@ Q3PointConnection::Q3PointConnection(Q3Point *a, Q3Point *b) :
     a_(a),
     b_(b)
 {
-    boundaryType_ = NotBoundary;
 }
 
 Q3PointConnection::~Q3PointConnection()

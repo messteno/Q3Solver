@@ -430,7 +430,8 @@ void Q3Plot::addDrawable(Q3PlotDrawable *item)
 
 void Q3Plot::removeDrawable(Q3PlotDrawable *item)
 {
-    drawables_.removeAll(item);
+    if (drawables_.contains(item))
+        drawables_.removeAll(item);
 }
 
 void Q3Plot::clearDrawable()

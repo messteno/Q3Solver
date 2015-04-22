@@ -8,7 +8,9 @@
 Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c) :
     a_(a),
     b_(b),
-    c_(c)
+    c_(c),
+    correctorVelocity_(0, 0),
+    predictorVelocity_(0, 0)
 {
     vA_ = b->nodeAdjacentTo(c);
     vB_ = c->nodeAdjacentTo(a);
@@ -24,7 +26,8 @@ Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c) :
     adjacentTriangles_.fill(NULL, 3);
 
     square_ = qAbs(QVector3D::crossProduct(QVector3D(*vB_ - *vA_),
-                                           QVector3D(*vC_ - *vA_)).length()) * 0.5;
+                                           QVector3D(*vC_ - *vA_)).length())
+              * 0.5;
 
     // Вычислим центр
     // 1. Если треугольник тупоугольный, то центр масс
@@ -185,4 +188,24 @@ QPointF Q3MeshTriangle::center() const
 bool Q3MeshTriangle::isBad() const
 {
     return bad_;
+}
+
+QVector2D Q3MeshTriangle::correctorVelocity() const
+{
+    return correctorVelocity_;
+}
+
+void Q3MeshTriangle::setCorrectorVelocity(const QVector2D &correctorVelocity)
+{
+    correctorVelocity_ = correctorVelocity;
+}
+
+QVector2D Q3MeshTriangle::predictorVelocity() const
+{
+    return predictorVelocity_;
+}
+
+void Q3MeshTriangle::setPredictorVelocity(const QVector2D &predictorVelocity)
+{
+    predictorVelocity_ = predictorVelocity;
 }

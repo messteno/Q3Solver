@@ -142,6 +142,8 @@ class Q3ItemBoundaryClockwiseVisitor : public Q3ItemVisitor
 private:
     qreal square_;
     Q3Point *previous_;
+    QList<Q3Point *> boundaryPoints_;
+    QList<Q3PointConnection *> boundaryConnections_;
 public:
     Q3ItemBoundaryClockwiseVisitor();
     bool clockwise() const;

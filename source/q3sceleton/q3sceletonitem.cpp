@@ -10,7 +10,6 @@ Q3SceletonItem::Q3SceletonItem(Type type) :
     resizing_(false),
     resizable_(false),
     moved_(false),
-    boundaryType_(CannotBeBoundary),
     backgroundColor_(Q3Plot::DefaultForegroundColor),
     selectedBackgroundColor_(Qt::red),
     penColor_(Q3Plot::DefaultPenColor),
@@ -127,39 +126,3 @@ void Q3SceletonItem::setMoved(bool moved)
 {
     moved_ = moved;
 }
-
-bool Q3SceletonItem::canBeBoundary()
-{
-    return boundaryType_ != CannotBeBoundary;
-}
-
-Q3SceletonItem::BoundaryType Q3SceletonItem::boundaryType() const
-{
-    return boundaryType_;
-}
-
-void Q3SceletonItem::setBoundaryType(const BoundaryType &boundaryType)
-{
-    if (!canBeBoundary())
-        return;
-    boundaryType_ = boundaryType;
-}
-
-QString Q3SceletonItem::boundaryTypeToString(const Q3SceletonItem::BoundaryType &type)
-{
-    switch (type)
-    {
-        case Q3SceletonItem::CannotBeBoundary:
-            return "";
-        case Q3SceletonItem::NotBoundary:
-            return "---";
-        case Q3SceletonItem::InBoundary:
-            return "Вток";
-        case Q3SceletonItem::OutBoundary:
-            return "Сток";
-        case Q3SceletonItem::MoveBoundary:
-            return "Подвижная";
-    }
-    return "";
-}
-

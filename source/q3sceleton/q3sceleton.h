@@ -33,16 +33,12 @@ public:
     void draw(Q3Painter &painter) const;
     bool prepare();
 
-    bool isActive() const;
-    void setActive(bool active);
+    bool isPrepared() const;
 
     QList<Q3SceletonItem *>& items();
     QList<Q3SceletonItem *>& outerBoundary();
     QList<QList<Q3SceletonItem *> >& innerBoundaries();
     QList<Q3SceletonItem *>& innerElements();
-
-signals:
-    void createMeshProgress(int value);
 
 public slots:
     void itemsUpdated();
@@ -55,12 +51,11 @@ private:
     QList<QList<Q3SceletonItem *> > innerBoundaries_;
     QList<Q3SceletonItem *> innerElements_;
 
-    bool active_;
+    bool prepared_;
 
     int rowCount(const QModelIndex &parent) const;
     int columnCount(const QModelIndex &parent) const;
     QVariant data(const QModelIndex &index, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     Qt::ItemFlags flags(const QModelIndex &index) const;
 };

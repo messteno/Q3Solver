@@ -9,12 +9,12 @@
 #include "q3plot.h"
 #include "q3itemvisitor.h"
 
-const int Q3Sceleton::tableColumns_ = 3;
+const int Q3Sceleton::tableColumns_ = 2;
 
 Q3Sceleton::Q3Sceleton(QWidget *parent) :
     QAbstractTableModel(parent),
     Q3PlotDrawable(),
-    active_(true)
+    prepared_(false)
 {
 }
 
@@ -157,6 +157,8 @@ void Q3Sceleton::draw(Q3Painter &painter) const
 
 bool Q3Sceleton::prepare()
 {
+    prepared_ = false;
+
     bool hasInput = false;
     bool hasOutput = false;
 
@@ -171,8 +173,6 @@ bool Q3Sceleton::prepare()
                              QMessageBox::Ok);
         return false;
     }
-
-    emit createMeshProgress(10);
 
     // Проверить отсутствие пересечения элементов
     Q3ItemCrossVisitor crossVisitor;
@@ -195,16 +195,12 @@ bool Q3Sceleton::prepare()
         }
     }
 
-    emit createMeshProgress(20);
-
     // Найти самый левый элемент
     Q3ItemLeftmostVisitor leftmostVisitor;
     foreach (Q3SceletonItem *item, items_)
         item->accept(leftmostVisitor);
     Q3SceletonItem *leftmost = leftmostVisitor.leftmost();
     Q_ASSERT(leftmost);
-
-    emit createMeshProgress(30);
 
     // Найти все связанные элементы
     // Проверить, что получилась замкнутая область
@@ -227,8 +223,6 @@ bool Q3Sceleton::prepare()
             connectedVisitor.backward();
     }
 
-    emit createMeshProgress(40);
-
     outerBoundary_ = connectedVisitor.connectedItems();
 
     if (outerBoundary_.empty())
@@ -249,25 +243,25 @@ bool Q3Sceleton::prepare()
         if (outerBoundary_.contains(item))
         {
             // Проверим на наличие втока и стока
-            if (item->boundaryType() == Q3SceletonItem::InBoundary)
-                hasInput = true;
-            else if (item->boundaryType() == Q3SceletonItem::OutBoundary)
-                hasOutput = true;
+//            if (item->boundaryType() == Q3SceletonItem::InBoundary)
+//                hasInput = true;
+//            else if (item->boundaryType() == Q3SceletonItem::OutBoundary)
+//                hasOutput = true;
 
             continue;
         }
 
         // Проверим, что внутренние элементы не являются втоком или стоком
-        if (item->boundaryType() != Q3SceletonItem::CannotBeBoundary &&
-            item->boundaryType() != Q3SceletonItem::NotBoundary)
-        {
-            QMessageBox::warning(NULL, tr("Q3Solver"),
-                                 tr("Невозможно создать сетку, "
-                                    "внутренние элементы не могут быть"
-                                    "втоком или стоком"),
-                                 QMessageBox::Ok);
-            return false;
-        }
+//        if (item->boundaryType() == Q3SceletonItem::InBoundary ||
+//            item->boundaryType() == Q3SceletonItem::OutBoundary)
+//        {
+//            QMessageBox::warning(NULL, tr("Q3Solver"),
+//                                 tr("Невозможно создать сетку, "
+//                                    "внутренние элементы не могут быть "
+//                                    "втоком или стоком"),
+//                                 QMessageBox::Ok);
+//            return false;
+//        }
 
         Q3ItemRayTraceVisitor rayTraceVisitor(item);
         foreach (Q3SceletonItem *chainItem, outerBoundary_)
@@ -303,8 +297,6 @@ bool Q3Sceleton::prepare()
         return false;
     }
 
-    emit createMeshProgress(50);
-
     // TODO: возможно, переписать то, что выше =)
 
     // Сделать копию списка элементов
@@ -333,8 +325,6 @@ bool Q3Sceleton::prepare()
         }
     }
 
-    emit createMeshProgress(60);
-
     // Проверяем, что внутри внутренних областей нет других элементов
     QList<QList<Q3SceletonItem *> >::iterator it;
     for (it = innerBoundaries_.begin(); it != innerBoundaries_.end(); ++it)
@@ -359,8 +349,6 @@ bool Q3Sceleton::prepare()
         }
     }
 
-    emit createMeshProgress(70);
-
 //    qsrand(3);
 //    QColor color(qrand() % 0xff, qrand() % 0xff, qrand() %0xff);
 //    foreach (Q3SceletonItem *item, outerBoundary_)
@@ -380,6 +368,9 @@ bool Q3Sceleton::prepare()
 //    }
 
     innerElements_ = activeItems;
+
+    prepared_ = true;
+
     return true;
 }
 
@@ -407,26 +398,16 @@ QVariant Q3Sceleton::data(const QModelIndex &index, int role) const
             case 1:
                 cell = item->toString();
                 break;
-            case 2:
-                return QVariant(static_cast<uint>(item->boundaryType()));
+//            case 2:
+//                return QVariant(static_cast<uint>(item->boundaryType()));
         }
         return QVariant(cell);
     }
     return QVariant();
 }
 
-bool Q3Sceleton::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    if (role == Qt::EditRole)
-    {
-        Q3SceletonItem *item = items_.at(index.row());
-        if (index.column() == ColumnBoundary && item->canBeBoundary())
-            item->setBoundaryType(static_cast<Q3SceletonItem::BoundaryType>(value.toUInt()));
-    }
-    return true;
-}
-
-QVariant Q3Sceleton::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant Q3Sceleton::headerData(int section, Qt::Orientation orientation,
+                                int role) const
 {
     if (role == Qt::DisplayRole)
     {
@@ -455,10 +436,7 @@ QVariant Q3Sceleton::headerData(int section, Qt::Orientation orientation, int ro
 
 Qt::ItemFlags Q3Sceleton::flags(const QModelIndex &index) const
 {
-    Q3SceletonItem *item = items_.at(index.row());
     Qt::ItemFlags flags = QAbstractItemModel::flags(index);
-    if (index.column() == ColumnBoundary && active_ && item->canBeBoundary())
-        flags |= Qt::ItemIsEditable;
     return flags;
 }
 
@@ -490,12 +468,7 @@ QList<Q3SceletonItem *>& Q3Sceleton::outerBoundary()
     return outerBoundary_;
 }
 
-bool Q3Sceleton::isActive() const
+bool Q3Sceleton::isPrepared() const
 {
-    return active_;
-}
-
-void Q3Sceleton::setActive(bool active)
-{
-    active_ = active;
+    return prepared_;
 }

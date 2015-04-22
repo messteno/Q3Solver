@@ -21,15 +21,6 @@ public:
         Circle,
     };
 
-    enum BoundaryType
-    {
-        CannotBeBoundary,
-        NotBoundary,
-        InBoundary,
-        OutBoundary,
-        MoveBoundary,
-    };
-
     static const QColor BackgroundColor;
     static const QColor SelectedBackgroundColor;
     static const QColor PenColor;
@@ -39,6 +30,7 @@ public:
     virtual ~Q3SceletonItem();
 
     virtual void draw(Q3Painter &painter) = 0;
+
     virtual qreal distanceTo(const QPointF &pos) const = 0;
     virtual qreal distanceFromBoundaryTo(const QPointF &pos) const = 0;
     virtual QRectF boundingRect() const = 0;
@@ -80,18 +72,9 @@ public:
 
     bool moved() const;
     virtual void setMoved(bool moved);
-
-    bool canBeBoundary();
-
-    BoundaryType boundaryType() const;
-    void setBoundaryType(const BoundaryType &boundaryType);
-
-    static QString boundaryTypeToString(const BoundaryType &type);
-
 protected:
     Type type_;
     bool moved_;
-    BoundaryType boundaryType_;
 
 private:
     bool selected_;

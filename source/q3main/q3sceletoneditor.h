@@ -1,7 +1,7 @@
 #ifndef Q3MESHBUILDER_H
 #define Q3MESHBUILDER_H
 
-#include <QDialog>
+#include <QWidget>
 #include <QKeyEvent>
 
 #include "q3meshadapter.h"
@@ -14,14 +14,14 @@ namespace Ui {
 class Q3MeshBuilder;
 }
 
-class Q3MeshBuilder : public QDialog
+class Q3SceletonEditor : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit Q3MeshBuilder(Q3Mesh *mesh, Q3Sceleton *sceleton,
-                           QWidget *parent = 0);
-    ~Q3MeshBuilder();
+    explicit Q3SceletonEditor(Q3Plot *plot, Q3Sceleton *sceleton,
+                              QWidget *parent = 0);
+    ~Q3SceletonEditor();
 
 private slots:
 
@@ -29,23 +29,21 @@ private slots:
     void on_pointConnectionButton_clicked(bool checked);
     void on_circleButton_clicked(bool checked);
 
-    void on_createMeshButton_clicked();
-    void on_removeMeshButton_clicked();
-
-    void on_autoParameters_toggled(bool checked);
-
-    void on_elementsCountSlider_valueChanged(int value);
-    void on_elementsCountSpinBox_valueChanged(int arg1);
-    void on_elementSizeSlider_valueChanged(int value);
-    void on_elementSizeSpinBox_valueChanged(double arg1);
+    void on_prepareSceletonButton_clicked();
 
     void on_snapToGrid_toggled(bool checked);
+
+    void on_saveSceletonButton_clicked();
+
+signals:
+    void goToTab(int tab);
 
 private:
     Q3Sceleton *sceleton_;
 
     Q3Mesh *mesh_;
     Q3MeshAdapter *meshAdapter_;
+    Q3Plot *plot_;
 
     Q3DirectorManager *directorManager_;
 

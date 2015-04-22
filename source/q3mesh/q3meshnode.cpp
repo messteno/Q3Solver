@@ -4,7 +4,6 @@
 Q3MeshNode::Q3MeshNode(const QPointF &point) :
     QPointF(point)
 {
-
 }
 
 Q3MeshNode::Q3MeshNode(qreal x, qreal y) :

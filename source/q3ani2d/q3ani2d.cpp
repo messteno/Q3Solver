@@ -219,10 +219,9 @@ bool Q3Ani2D::genMeshFront()
     return (res == 0);
 }
 
-void Q3Ani2D::save(const std::string &aniFile, const std::string& psFile)
+void Q3Ani2D::save(const QString &aniFile)
 {
-    ani2D_save_mesh(&ani_, aniFile.c_str());
-    ani2D_draw_mesh(&ani_, psFile.c_str());
+    ani2D_save_mesh(&ani_, aniFile.toStdString().c_str());
 }
 
 ani2D& Q3Ani2D::getAni2D()

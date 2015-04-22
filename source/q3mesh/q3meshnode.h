@@ -3,6 +3,7 @@
 
 #include <QList>
 #include <QPointF>
+#include <QVector2D>
 
 class Q3MeshEdge;
 

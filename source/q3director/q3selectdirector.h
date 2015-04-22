@@ -18,6 +18,8 @@ class Q3SelectDirector : public Q3Director
 private:
     QList<Q3SceletonItem*> selectedItems_;
     bool moving_;
+    bool movable_;
+    bool editable_;
     Q3SceletonItemForm *editForm_;
     Ui::Q3SelectDirector *ui;
 
@@ -38,6 +40,12 @@ public:
     virtual bool processKeyRelease(int key);
     virtual void stop();
     virtual void draw(Q3Painter &painter) const;
+
+    bool movable() const;
+    void setMovable(bool movable);
+
+    bool editable() const;
+    void setEditable(bool editable);
 
 private slots:
     void on_editElementButton_clicked();

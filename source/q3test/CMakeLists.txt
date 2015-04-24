@@ -1,20 +1,16 @@
 find_package(Qt5Test REQUIRED)
 
-if (ENABLE_SYSTEM_LAPACK)
-  set(LAPACK_LIBS "lapack;blas")
-else ()
-  set(LAPACK_LIBS "lapack-3.2;lapack_ext-3.2;blas-3.2")
-endif()
-
 include_directories(
-    ${ANI_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3ani2d
-    ${ANI_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3mesh
-    ${ANI_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3sceleton
-    ${ANI_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3boundary
-    ${ANI_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3plot
-    ${ANI_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3calc
+    ${ANI_HEADERS_DIR}
+    ${QCUSTOM_PLOT_HEADERS_DIR}
+    ${CMAKE_SOURCE_DIR}/source/q3ani2d
+    ${CMAKE_SOURCE_DIR}/source/q3mesh
+    ${CMAKE_SOURCE_DIR}/source/q3sceleton
+    ${CMAKE_SOURCE_DIR}/source/q3boundary
+    ${CMAKE_SOURCE_DIR}/source/q3plot
+    ${CMAKE_SOURCE_DIR}/source/q3calc
 )
-link_directories(${ANI_LIBS_DIR})
+link_directories(${ANI_LIBS_DIR} ${QCUSTOM_PLOT_LIBS_DIR})
 
 
 set(q3ani2dtest_SRC
@@ -34,7 +30,6 @@ set(q3calctest_SRC
 )
 add_executable(q3calctest ${q3calctest_SRC})
 qt5_use_modules(q3calctest Test)
-add_dependencies(q3calctest ani2D)
 target_link_libraries(q3calctest
     q3calc
     q3mesh
@@ -43,3 +38,15 @@ target_link_libraries(q3calctest
     q3plot
     m)
 add_test(NAME q3calctest COMMAND q3calctest)
+
+
+set(q3qcustomplottest_SRC
+    q3qcustomplottest.cpp
+)
+add_definitions(-DQCUSTOMPLOT_USE_LIBRARY)
+add_executable(q3qcustomplottest ${q3qcustomplottest_SRC})
+qt5_use_modules(q3qcustomplottest Test Widgets PrintSupport)
+add_dependencies(q3qcustomplottest qcustomplot-sharedlib)
+target_link_libraries(q3qcustomplottest
+    ${QCUSTOM_PLOT_LIBS_DIR}/${QCUSTOM_PLOT_LIB}
+    m)

@@ -3,7 +3,9 @@
 
 #include <QWidget>
 #include <QString>
+#include <QVector2D>
 
+#include "q3sceletonitem.h"
 #include "q3itemvisitor.h"
 
 class Q3BoundaryType : public QWidget
@@ -19,6 +21,8 @@ public:
 
     Q3BoundaryType(Type toEnum, QWidget *parent = NULL);
     virtual ~Q3BoundaryType();
+
+    virtual QVector2D velocity(Q3SceletonItem *item, QPointF point);
 
     Type toEnum();
 

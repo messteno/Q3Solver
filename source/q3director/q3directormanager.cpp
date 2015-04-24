@@ -2,15 +2,14 @@
 
 #include "q3directormanager.h"
 
-Q3DirectorManager::Q3DirectorManager(QObject *parent) :
-    QObject(parent)
+Q3DirectorManager::Q3DirectorManager(QWidget *parent) :
+    QWidget(parent)
 {
 
 }
 
 Q3DirectorManager::~Q3DirectorManager()
 {
-
 }
 
 void Q3DirectorManager::plotKeyReleaseEvent(QKeyEvent *event)

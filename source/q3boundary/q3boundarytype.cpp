@@ -18,6 +18,11 @@ Q3BoundaryType::~Q3BoundaryType()
 {
 }
 
+QVector2D Q3BoundaryType::velocity(Q3SceletonItem *item, QPointF point)
+{
+   return QVector2D(0, 0);
+}
+
 Q3BoundaryType::Type Q3BoundaryType::toEnum()
 {
     return type_;
@@ -64,7 +69,7 @@ QString Q3BoundaryType::typeToString(Q3BoundaryType::Type type)
         case OutBoundary:
             return "Сток";
         case NoSlipBoundary:
-            return "Непротекание";
+            return "Непротекание и прилипание";
         case FixedVelocity:
             return "Заданная скорость";
     }

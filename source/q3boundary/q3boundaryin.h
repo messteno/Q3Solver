@@ -15,6 +15,8 @@ public:
     explicit Q3BoundaryIn(QWidget *parent = 0);
     ~Q3BoundaryIn();
 
+    QVector2D velocity(Q3SceletonItem *item, QPointF point);
+
 private:
     Ui::Q3BoundaryIn *ui;
 };

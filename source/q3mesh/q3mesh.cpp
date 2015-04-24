@@ -11,7 +11,9 @@ Q3Mesh::Q3Mesh(QWidget *parent) :
     Q3PlotDrawable(),
     QWidget(parent),
     square_(0),
-    angles_(0)
+    edgeSquare_(0),
+    angles_(0),
+    obtuseTriangles_(0)
 {
 
 }
@@ -58,7 +60,8 @@ Q3MeshNode* Q3Mesh::addNode(qreal x, qreal y)
 
 Q3MeshEdge* Q3Mesh::addEdge(Q3MeshNode *a, Q3MeshNode *b, Q3Boundary *boundary)
 {
-    Q3MeshEdge *edge = new Q3MeshEdge(a, b, boundary);
+    // id доолжен совпадать с индексом в списке
+    Q3MeshEdge *edge = new Q3MeshEdge(a, b, boundary, edges_.count());
     edges_.append(edge);
     a->addEdge(edge);
     b->addEdge(edge);
@@ -71,12 +74,29 @@ Q3MeshTriangle* Q3Mesh::addTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c)
     Q3MeshTriangle *triangle = new Q3MeshTriangle(a, b, c);
     triangles_.append(triangle);
 
+    if (triangle->isBad())
+        obtuseTriangles_++;
+
     return triangle;
 }
 
 void Q3Mesh::draw(Q3Painter &painter) const
 {
     drawEdges(painter);
+
+    qreal scaleX = painter.sx();
+    qreal scaleY = painter.sy();
+
+    for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
+    {
+        Q3MeshTriangle *triangle = triangles_.at(trIndex);
+        QPointF begin = triangle->center();
+        begin = QPointF(begin.x() * scaleX, begin.y() * scaleY);
+        QPointF end = (QVector2D(triangle->center())
+                       + 10. * triangle->correctorVelocity()).toPointF();
+        end = QPointF(end.x() * scaleX, end.y() * scaleY);
+        painter.drawLine(begin, end);
+    }
 }
 
 void Q3Mesh::drawEdges(Q3Painter &painter) const
@@ -108,6 +128,7 @@ void Q3Mesh::drawTriangles(Q3Painter &painter) const
     qreal scaleX = painter.sx();
     qreal scaleY = painter.sy();
 
+    // Возможно переделать на count циклы
     QListIterator<Q3MeshTriangle *> tit(triangles_);
     while(tit.hasNext())
     {
@@ -140,11 +161,21 @@ QString Q3Mesh::info()
 {
     QString out;
     QTextStream stream(&out);
-    stream << tr("Количество узлов: ") << QString::number(nodes_.count()) << "\n";
-    stream << tr("Количество ребер: ") << QString::number(edges_.count()) << "\n";
-    stream << tr("Количество эл-ов: ") << QString::number(triangles_.count()) << "\n";
-    stream << tr("Площадь:          ") << QString::number(square_) << "\n";
-    stream << tr("Проверка углов:   ") << QString::number(angles_) << "\n";
+    stream << tr("Количество узлов:  ")
+           << QString::number(nodes_.count()) << "\n";
+    stream << tr("Количество ребер:  ")
+           << QString::number(edges_.count()) << "\n";
+    stream << tr("Количество тр-в:   ")
+           << QString::number(triangles_.count()) << "\n";
+    stream << tr("Площадь:           ")
+           << QString::number(square_) << "\n";
+    stream << tr("Площадь (ребра):   ")
+           << QString::number(edgeSquare_) << "\n";
+    stream << tr("Проверка углов:    ")
+           << QString::number(angles_) << "\n";
+    stream << tr("Тупоугольных тр-в: ")
+           << QString::number((100. * obtuseTriangles_) / triangles_.count())
+           << "\n";
     return out;
 }
 
@@ -155,6 +186,7 @@ void Q3Mesh::check()
         square_ += triangle->square();
 
     angles_ = 0;
+    edgeSquare_ = 0;
     foreach (Q3MeshEdge *edge, edges_)
     {
         foreach (qreal contangent, edge->adjacentCotangents())
@@ -164,6 +196,8 @@ void Q3Mesh::check()
             actg = actg * 180. / M_PI;
             angles_ += actg;
         }
+
+        edgeSquare_ += edge->adjacentSquare();
     }
     angles_ /= 2. * triangles_.count();
     Q_ASSERT(qAbs(angles_ - 180) < 1e-4);

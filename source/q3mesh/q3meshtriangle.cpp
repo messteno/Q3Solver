@@ -10,7 +10,8 @@ Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c) :
     b_(b),
     c_(c),
     correctorVelocity_(0, 0),
-    predictorVelocity_(0, 0)
+    predictorVelocity_(0, 0),
+    tempVelocity_(0, 0)
 {
     vA_ = b->nodeAdjacentTo(c);
     vB_ = c->nodeAdjacentTo(a);
@@ -77,16 +78,18 @@ Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c) :
     distanceToTriangles_ = distancesToEdges_;
 
     int vertexIndex = 0;
-    foreach (Q3MeshEdge *edge, edges_)
+    foreach (Q3MeshEdge* const& edge, edges_)
     {
         QVector2D normalVector = edge->normalVector();
 
         // Проверим нормали на в(шив/неш)ость =)
         QPointF oppositePoint = *vertices_.at(vertexIndex);
-        qreal cross1 = QVector3D::crossProduct(QVector3D(*edge->b() - *edge->a()),
-                                               QVector3D(oppositePoint - *edge->a())).z();
-        qreal cross2 = QVector3D::crossProduct(QVector3D(*edge->b() - *edge->a()),
-                                               QVector3D(normalVector)).z();
+        qreal cross1 = QVector3D::crossProduct(
+                           QVector3D(*edge->b() - *edge->a()),
+                           QVector3D(oppositePoint - *edge->a())).z();
+        qreal cross2 = QVector3D::crossProduct(
+                           QVector3D(*edge->b() - *edge->a()),
+                           QVector3D(normalVector)).z();
         if (cross1 * cross2 > 0)
             normalVector *= -1;
 
@@ -95,7 +98,7 @@ Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c) :
         ++vertexIndex;
     }
 
-    foreach (Q3MeshEdge *edge, edges_)
+    foreach (Q3MeshEdge* const &edge, edges_)
         edge->addAdjacentTriangle(this);
 }
 
@@ -129,22 +132,22 @@ Q3MeshEdge *Q3MeshTriangle::c() const
     return c_;
 }
 
-QList<Q3MeshNode *> Q3MeshTriangle::vertices() const
+QList<Q3MeshNode *> &Q3MeshTriangle::vertices()
 {
     return vertices_;
 }
 
-QList<Q3MeshEdge *> Q3MeshTriangle::edges() const
+QList<Q3MeshEdge *> &Q3MeshTriangle::edges()
 {
     return edges_;
 }
 
-QVector<Q3MeshTriangle *> Q3MeshTriangle::adjacentTriangles() const
+QVector<Q3MeshTriangle *> &Q3MeshTriangle::adjacentTriangles()
 {
     return adjacentTriangles_;
 }
 
-QVector<QVector2D> Q3MeshTriangle::normalVectors() const
+QVector<QVector2D> &Q3MeshTriangle::normalVectors()
 {
     return normalVectors_;
 }
@@ -160,9 +163,9 @@ void Q3MeshTriangle::addAdjacentTriangle(Q3MeshTriangle *triangle,
     Q_ASSERT(index >= 0 && index < 3);
 
     adjacentTriangles_[index] = triangle;
-    distanceToTriangles_[index] = QVector2D(this->center()
-                                            - triangle->center()).length();
-    distancesToEdges_[index] = QVector2D(this->center() - edge->center()).length();
+    distanceToTriangles_[index] =
+            QVector2D(center_ - triangle->center()).length();
+    distancesToEdges_[index] = QVector2D(center_ - edge->center()).length();
 }
 
 QPolygonF Q3MeshTriangle::toPolygonF(qreal sx, qreal sy) const
@@ -208,4 +211,24 @@ QVector2D Q3MeshTriangle::predictorVelocity() const
 void Q3MeshTriangle::setPredictorVelocity(const QVector2D &predictorVelocity)
 {
     predictorVelocity_ = predictorVelocity;
+}
+
+QVector2D Q3MeshTriangle::tempVelocity() const
+{
+    return tempVelocity_;
+}
+
+void Q3MeshTriangle::setTempVelocity(const QVector2D &tempVelocity)
+{
+    tempVelocity_ = tempVelocity;
+}
+
+QVector<qreal> Q3MeshTriangle::distancesToEdges() const
+{
+    return distancesToEdges_;
+}
+
+QVector<qreal> Q3MeshTriangle::distanceToTriangles() const
+{
+    return distanceToTriangles_;
 }

@@ -14,7 +14,12 @@ Q3CalculusEditor::Q3CalculusEditor(Q3Plot *plot, Q3Mesh *mesh, QWidget *parent) 
     directorManager_->addDirector(moveDirector);
     directorManager_->setPlot(plot);
 
-    calc_ = new Q3Calc(mesh, this);
+    // TODO:
+    qreal tau = 0.001;
+    qreal Re = 100;
+    calc_ = new Q3Calc(mesh, tau, Re, this);
+
+    connect(calc_, SIGNAL(updateInfo()), this, SLOT(updateInfo()));
 }
 
 Q3CalculusEditor::~Q3CalculusEditor()
@@ -30,4 +35,9 @@ void Q3CalculusEditor::on_startCalculusButton_clicked()
 void Q3CalculusEditor::on_stopalculusButton_clicked()
 {
     calc_->abort();
+}
+
+void Q3CalculusEditor::updateInfo()
+{
+    ui->calcInfoLabel->setText(calc_->info());
 }

@@ -42,7 +42,9 @@ private:
     QList<Q3MeshTriangle *> triangles_;	// all triangles
 
     qreal square_;
+    qreal edgeSquare_;
     qreal angles_;
+    int obtuseTriangles_;
 
     void drawEdges(Q3Painter &painter) const;
     void drawTriangles(Q3Painter &painter) const;

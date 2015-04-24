@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>154</width>
+    <width>223</width>
     <height>35</height>
    </rect>
   </property>
@@ -23,7 +23,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Условие непротекания</string>
+      <string>Условие непротекания и прилапания</string>
      </property>
     </widget>
    </item>

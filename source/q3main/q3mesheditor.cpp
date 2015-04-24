@@ -12,20 +12,36 @@ Q3MeshEditor::Q3MeshEditor(Q3Plot *plot, Q3Mesh *mesh,
     sceleton_(sceleton),
     boundaries_(boundaries),
     meshAdapter_(new Q3Ani2DMeshAdapter),
+    directorManager_(NULL),
+    enabled_(false),
     ui(new Ui::Q3MeshEditor)
 {
     ui->setupUi(this);
 
-    directorManager_ = new Q3DirectorManager(this);
-    Q3Director *moveDirector = new Q3MoveDirector(this);
-    directorManager_->addDirector(moveDirector);
-    directorManager_->setPlot(plot_);
 }
 
 Q3MeshEditor::~Q3MeshEditor()
 {
     delete ui;
     delete meshAdapter_;
+}
+
+void Q3MeshEditor::disable()
+{
+    enabled_ = false;
+    delete directorManager_;
+    directorManager_ = NULL;
+}
+
+void Q3MeshEditor::enable()
+{
+    if (enabled_)
+        return;
+
+    directorManager_ = new Q3DirectorManager(this);
+    Q3Director *moveDirector = new Q3MoveDirector(directorManager_);
+    directorManager_->addDirector(moveDirector);
+    directorManager_->setPlot(plot_);
 }
 
 void Q3MeshEditor::on_createMeshButton_clicked()

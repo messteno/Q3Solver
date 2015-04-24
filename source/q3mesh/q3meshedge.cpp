@@ -1,4 +1,5 @@
 #include <QVector2D>
+#include <QVector3D>
 #include <QDebug>
 #include <qmath.h>
 
@@ -6,12 +7,15 @@
 #include "q3meshedge.h"
 #include "q3meshtriangle.h"
 
-Q3MeshEdge::Q3MeshEdge(Q3MeshNode *a, Q3MeshNode *b, Q3Boundary *boundary) :
+Q3MeshEdge::Q3MeshEdge(Q3MeshNode *a, Q3MeshNode *b,
+                       Q3Boundary *boundary, int id) :
     a_(a),
     b_(b),
+    id_(id),
     boundary_(boundary),
     velocity_(0, 0),
-    preassure_(0)
+    preassure_(0),
+    adjacentSquare_(0)
 {
     Q_ASSERT(a_);
     Q_ASSERT(b_);
@@ -51,6 +55,11 @@ qreal Q3MeshEdge::length() const
     return length_;
 }
 
+qreal Q3MeshEdge::adjacentSquare() const
+{
+    return adjacentSquare_;
+}
+
 void Q3MeshEdge::addAdjacentTriangle(Q3MeshTriangle *triangle)
 {
     if (adjacentTriangles_.contains(triangle))
@@ -68,6 +77,11 @@ void Q3MeshEdge::addAdjacentTriangle(Q3MeshTriangle *triangle)
 
     foreach (Q3MeshEdge *edge, triangle->edges())
         addAdjacentEdge(edge);
+
+    QPointF triangleCenter = triangle->center();
+    adjacentSquare_ += 0.5 * qAbs(QVector3D::crossProduct(
+                                      QVector3D(triangleCenter - *a_),
+                                      QVector3D(*b_ - *a_)).length());
 }
 
 void Q3MeshEdge::addAdjacentEdge(Q3MeshEdge *edge)
@@ -91,22 +105,22 @@ void Q3MeshEdge::addAdjacentEdge(Q3MeshEdge *edge)
     adjacentCotangents_.append(cotangent);
 }
 
-QList<Q3MeshNode *> Q3MeshEdge::vertices() const
+QList<Q3MeshNode *> &Q3MeshEdge::vertices()
 {
     return vertices_;
 }
 
-QList<Q3MeshEdge *> Q3MeshEdge::adjacentEdges() const
+QList<Q3MeshEdge *> &Q3MeshEdge::adjacentEdges()
 {
     return adjacentEdges_;
 }
 
-QList<Q3MeshTriangle *> Q3MeshEdge::adjacentTriangles() const
+QList<Q3MeshTriangle *> &Q3MeshEdge::adjacentTriangles()
 {
     return adjacentTriangles_;
 }
 
-QList<qreal> Q3MeshEdge::adjacentCotangents() const
+QList<qreal> &Q3MeshEdge::adjacentCotangents()
 {
     return adjacentCotangents_;
 }
@@ -131,10 +145,10 @@ QPointF Q3MeshEdge::cross(const QPointF &p1, const QPointF &p2)
     return *a_ + t * QPointF(*b_ - *a_);
 }
 
-QVector2D Q3MeshEdge::normalVector()
+QVector2D Q3MeshEdge::normalVector() const
 {
     QVector2D edge(*b_ - *a_);
-    QVector2D normal(edge.y(), -edge.x());
+    QVector2D normal(edge.y(), - edge.x());
     normal.normalize();
     return normal;
 }
@@ -164,4 +178,118 @@ int Q3MeshEdge::label() const
     if (!boundary_)
         return 0;
     return boundary_->label();
+}
+
+Q3Boundary *Q3MeshEdge::boundary() const
+{
+    return boundary_;
+}
+
+int Q3MeshEdge::id() const
+{
+    return id_;
+}
+
+qreal Q3MeshEdge::processBoundaryPredictor(qreal Re)
+{
+    if (!boundary_)
+        return 0;
+
+    Q3MeshTriangle *triangle = adjacentTriangles_.at(0);
+    int edgeIndex = triangle->edges().indexOf(this);
+    qreal dl = triangle->distancesToEdges().at(edgeIndex);
+
+    // TODO: подумать, как перенести в Q3Boundary
+    switch (boundary()->type()->toEnum())
+    {
+        case Q3BoundaryType::NoSlipBoundary:
+        {
+            return length_ / Re / dl;
+        }
+        case Q3BoundaryType::InBoundary:
+        case Q3BoundaryType::FixedVelocity: // Проверить
+        {
+            QVector2D normal = triangle->normalVectors().at(edgeIndex);
+            qreal vni = - QVector2D::dotProduct(velocity_, normal);
+            qreal tnu = dl * fabs (vni) * Re;
+            QVector2D deltaV = length_ / Re * (1. + tnu) * velocity_ / dl;
+            triangle->setTempVelocity(triangle->tempVelocity() + deltaV);
+            return length_ / Re * (1. + tnu) / dl + length_ * vni;
+        }
+        case Q3BoundaryType::OutBoundary:
+        {
+            qreal vni = QVector2D::dotProduct(
+                            triangle->correctorVelocity(),
+                            triangle->normalVectors().at(edgeIndex));
+            qreal tnu = dl * fabs (vni) * Re;
+            qreal deltaA = length_ / Re / dl * (1. + tnu - dl * vni * Re);
+
+            triangle->setTempVelocity(triangle->tempVelocity()
+                                      + deltaA * triangle->predictorVelocity());
+            return deltaA;
+        }
+        default:
+            break;
+    }
+    return 0;
+}
+
+qreal Q3MeshEdge::processBoundaryFlow()
+{
+    if (!boundary_)
+        return 0;
+
+    Q3MeshTriangle *triangle = adjacentTriangles_.at(0);
+    int edgeIndex = triangle->edges().indexOf(this);
+    QVector2D normal = triangle->normalVectors().at(edgeIndex);
+
+    // TODO: подумать, как перенести в Q3Boundary
+    switch (boundary()->type()->toEnum())
+    {
+        case Q3BoundaryType::InBoundary:
+            return length_ * QVector2D::dotProduct(velocity_, normal);
+        case Q3BoundaryType::OutBoundary:
+            return length_ * QVector2D::dotProduct(triangle->predictorVelocity(),
+                                                   normal);
+        default:
+            break;
+    }
+
+    return 0;
+}
+
+qreal Q3MeshEdge::processBoundaryCorrector()
+{
+    if (!boundary_)
+        return 0;
+
+    Q3MeshTriangle *triangle = adjacentTriangles_.at(0);
+    int edgeIndex = triangle->edges().indexOf(this);
+    QVector2D normal = triangle->normalVectors().at(edgeIndex);
+    QVector2D predictorVelocity = triangle->predictorVelocity();
+
+    // TODO: подумать, как перенести в Q3Boundary
+    switch (boundary()->type()->toEnum())
+    {
+        case Q3BoundaryType::InBoundary:
+        case Q3BoundaryType::FixedVelocity:
+        {
+            return QVector2D::dotProduct(velocity_, normal)
+                    - QVector2D::dotProduct(predictorVelocity, normal);
+        }
+        case Q3BoundaryType::NoSlipBoundary:
+            return - QVector2D::dotProduct(predictorVelocity, normal);
+        default:
+            break;
+    }
+
+    return 0;
+}
+
+void Q3MeshEdge::processBoundaryVelocity()
+{
+    if (!boundary_)
+        return;
+
+    velocity_ = boundary_->velocity(center_);
 }

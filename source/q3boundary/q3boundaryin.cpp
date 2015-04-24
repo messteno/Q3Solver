@@ -12,3 +12,9 @@ Q3BoundaryIn::~Q3BoundaryIn()
 {
     delete ui;
 }
+
+QVector2D Q3BoundaryIn::velocity(Q3SceletonItem *item, QPointF point)
+{
+    return QVector2D(ui->vxEdit->text().toDouble(),
+                     ui->vyEdit->text().toDouble());
+}

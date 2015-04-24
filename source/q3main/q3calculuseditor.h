@@ -25,6 +25,7 @@ public:
 private slots:
     void on_startCalculusButton_clicked();
     void on_stopalculusButton_clicked();
+    void updateInfo();
 
 private:
     Ui::Q3CalculusEditor *ui;

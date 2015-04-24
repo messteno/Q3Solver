@@ -21,10 +21,10 @@ public:
     Q3MeshEdge *b() const;
     Q3MeshEdge *c() const;
 
-    QList<Q3MeshNode *> vertices() const;
-    QList<Q3MeshEdge *> edges() const;
-    QVector<Q3MeshTriangle *> adjacentTriangles() const;
-    QVector<QVector2D> normalVectors() const;
+    QList<Q3MeshNode *>& vertices();
+    QList<Q3MeshEdge *>& edges();
+    QVector<Q3MeshTriangle *>& adjacentTriangles();
+    QVector<QVector2D>& normalVectors();
 
     void addAdjacentTriangle(Q3MeshTriangle *triangle, Q3MeshEdge *edge);
 
@@ -40,6 +40,15 @@ public:
 
     QVector2D predictorVelocity() const;
     void setPredictorVelocity(const QVector2D &predictorVelocity);
+
+    QVector2D tempVelocity() const;
+    void setTempVelocity(const QVector2D &tempVelocity);
+
+    QVector<qreal> distancesToEdges() const;
+    void setDistancesToEdges(const QVector<qreal> &distancesToEdges);
+
+    QVector<qreal> distanceToTriangles() const;
+    void setDistanceToTriangles(const QVector<qreal> &distanceToTriangles);
 
 private:
     Q3MeshNode *vA_;
@@ -63,6 +72,7 @@ private:
 
     QVector2D correctorVelocity_;
     QVector2D predictorVelocity_;
+    QVector2D tempVelocity_;
 
     bool bad_;
 };

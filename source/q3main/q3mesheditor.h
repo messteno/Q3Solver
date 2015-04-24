@@ -23,6 +23,9 @@ public:
                           QList<Q3Boundary *> *boundaries, QWidget *parent = 0);
     ~Q3MeshEditor();
 
+    void disable();
+    void enable();
+
 private slots:
     void on_createMeshButton_clicked();
     void on_meshParameter_count_clicked();
@@ -47,6 +50,8 @@ private:
     Q3Sceleton *sceleton_;
     Q3MeshAdapter *meshAdapter_;
     Q3DirectorManager *directorManager_;
+
+    bool enabled_;
 };
 
 #endif // Q3MESHEDITOR_H

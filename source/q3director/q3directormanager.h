@@ -2,16 +2,16 @@
 #define Q3DIRECTORMANAGER_H
 
 #include <QList>
-#include <QObject>
+#include <QWidget>
 
 #include "q3plot.h"
 #include "q3director.h"
 
-class Q3DirectorManager : public QObject
+class Q3DirectorManager : public QWidget
 {
     Q_OBJECT
 public:
-    Q3DirectorManager(QObject *parent = NULL);
+    Q3DirectorManager(QWidget *parent = NULL);
     ~Q3DirectorManager();
 
     void addDirector(Q3Director *director);

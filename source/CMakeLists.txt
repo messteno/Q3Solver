@@ -8,7 +8,10 @@ add_subdirectory(q3calc)
 add_subdirectory(q3main)
 add_subdirectory(q3test)
 
-include_directories(${ANI_HEADERS_DIR} ${QCUSTOM_PLOT_HEADERS_DIR} q3plot q3sceleton q3boundary q3mesh q3ani2d q3director q3calc q3main)
+include_directories(
+    ${ANI_HEADERS_DIR}
+    ${QCUSTOM_PLOT_HEADERS_DIR}
+    q3plot q3sceleton q3boundary q3mesh q3ani2d q3director q3calc q3main)
 link_directories(${ANI_LIBS_DIR} ${QCUSTOM_PLOT_LIBS_DIR})
 
 aux_source_directory(. q3solver_SRC)

@@ -145,14 +145,9 @@ bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh, QList<Q3Boundary *> *boundar
         Q3MeshEdge *bc = b->edgeAdjacentTo(c);
         Q3MeshEdge *ac = a->edgeAdjacentTo(c);
 
-        if (!ab)
-            ab = mesh->addEdge(a, b, 0);
-
-        if (!bc)
-            bc = mesh->addEdge(b, c, 0);
-
-        if (!ac)
-            ac = mesh->addEdge(a, c, 0);
+        ab = ab ? ab : mesh->addEdge(a, b, 0);
+        bc = bc ? bc : mesh->addEdge(b, c, 0);
+        ac = ac ? ac : mesh->addEdge(a, c, 0);
 
         mesh->addTriangle(ab, bc, ac);
     }

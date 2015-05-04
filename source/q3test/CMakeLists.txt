@@ -40,13 +40,13 @@ target_link_libraries(q3calctest
 add_test(NAME q3calctest COMMAND q3calctest)
 
 
-set(q3qcustomplottest_SRC
-    q3qcustomplottest.cpp
-)
-add_definitions(-DQCUSTOMPLOT_USE_LIBRARY)
-add_executable(q3qcustomplottest ${q3qcustomplottest_SRC})
-qt5_use_modules(q3qcustomplottest Test Widgets PrintSupport)
-add_dependencies(q3qcustomplottest qcustomplot-sharedlib)
-target_link_libraries(q3qcustomplottest
-    ${QCUSTOM_PLOT_LIBS_DIR}/${QCUSTOM_PLOT_LIB}
-    m)
+# set(q3qcustomplottest_SRC
+#     q3qcustomplottest.cpp
+# )
+# add_definitions(-DQCUSTOMPLOT_USE_LIBRARY)
+# add_executable(q3qcustomplottest ${q3qcustomplottest_SRC})
+# qt5_use_modules(q3qcustomplottest Test Widgets PrintSupport)
+# add_dependencies(q3qcustomplottest qcustomplot-sharedlib)
+# target_link_libraries(q3qcustomplottest
+#     ${QCUSTOM_PLOT_LIBS_DIR}/${QCUSTOM_PLOT_LIB}
+#     m)

@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QMainWindow>
+
 #include "qcustomplot.h"
 
 int main(int argc, char *argv[])
@@ -14,11 +15,11 @@ int main(int argc, char *argv[])
     QCPColorMap *colorMap = new QCPColorMap(customPlot->xAxis, customPlot->yAxis);
     customPlot->addPlottable(colorMap);
     colorMap->data()->setSize(50, 50);
-    colorMap->data()->setRange(QCPRange(0, 2), QCPRange(0, 2));
-    for (int x=0; x<50; ++x)
-        for (int y=0; y<50; ++y)
+    colorMap->data()->setRange(QCPRange(0, 1), QCPRange(0, 1));
+    for (int x=0; x<100; ++x)
+        for (int y=0; y<100; ++y)
             colorMap->data()->setCell(x, y, qCos(x/10.0)+qSin(y/10.0));
-    colorMap->setGradient(QCPColorGradient::gpPolar);
+    colorMap->setGradient(QCPColorGradient::gpSpectrum);
     colorMap->rescaleDataRange(true);
     customPlot->rescaleAxes();
     customPlot->replot();

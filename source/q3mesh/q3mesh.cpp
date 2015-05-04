@@ -74,9 +74,6 @@ Q3MeshTriangle* Q3Mesh::addTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c)
     Q3MeshTriangle *triangle = new Q3MeshTriangle(a, b, c);
     triangles_.append(triangle);
 
-    if (triangle->isBad())
-        obtuseTriangles_++;
-
     return triangle;
 }
 
@@ -155,6 +152,8 @@ void Q3Mesh::clear()
 
     square_ = 0;
     angles_ = 0;
+    edgeSquare_ = 0;
+    obtuseTriangles_ = 0;
 }
 
 QString Q3Mesh::info()
@@ -182,8 +181,13 @@ QString Q3Mesh::info()
 void Q3Mesh::check()
 {
     square_ = 0;
+    obtuseTriangles_ = 0;
     foreach (Q3MeshTriangle *triangle, triangles_)
+    {
         square_ += triangle->square();
+        if (triangle->isBad())
+            obtuseTriangles_++;
+    }
 
     angles_ = 0;
     edgeSquare_ = 0;

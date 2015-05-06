@@ -1,6 +1,9 @@
+#include <qmath.h>
+
 #include "q3mesheditor.h"
 #include "q3ani2dmeshadapter.h"
 #include "q3movedirector.h"
+#include "q3contour.h"
 #include "ui_q3mesheditor.h"
 
 Q3MeshEditor::Q3MeshEditor(Q3Plot *plot, Q3Mesh *mesh,
@@ -14,10 +17,10 @@ Q3MeshEditor::Q3MeshEditor(Q3Plot *plot, Q3Mesh *mesh,
     meshAdapter_(new Q3Ani2DMeshAdapter),
     directorManager_(NULL),
     enabled_(false),
+    contourPlot_(mesh_),
     ui(new Ui::Q3MeshEditor)
 {
     ui->setupUi(this);
-
 }
 
 Q3MeshEditor::~Q3MeshEditor()
@@ -42,13 +45,16 @@ void Q3MeshEditor::enable()
     Q3Director *moveDirector = new Q3MoveDirector(directorManager_);
     directorManager_->addDirector(moveDirector);
     directorManager_->setPlot(plot_);
+    plot_->addDrawable(&contourPlot_);
 }
 
 void Q3MeshEditor::on_createMeshButton_clicked()
 {
-    Q3Boundary::setUniqLabels(boundaries_);
+    Q3Boundary::setUniqueLabels(boundaries_);
     meshAdapter_->generateMesh(sceleton_, boundaries_);
     meshAdapter_->meshToQ3Mesh(mesh_, boundaries_);
+
+    contourPlot_ = Q3ContourPlot(mesh_);
 
     ui->meshInfoLabel->setText(mesh_->info());
 
@@ -107,6 +113,7 @@ void Q3MeshEditor::on_elementSizeSpinBox_valueChanged(double arg1)
 void Q3MeshEditor::on_removeMeshButton_clicked()
 {
     mesh_->clear();
+    contourPlot_ = Q3ContourPlot(mesh_);
     ui->meshInfoLabel->clear();
     plot_->update();
 }
@@ -114,4 +121,16 @@ void Q3MeshEditor::on_removeMeshButton_clicked()
 void Q3MeshEditor::on_saveMeshButton_clicked()
 {
     meshAdapter_->saveMesh();
+}
+
+void Q3MeshEditor::on_contourPlotTestButton_clicked()
+{
+    QVector<qreal>& values = contourPlot_.values();
+    for (int i = 0; i < mesh_->nodes().count(); ++i)
+    {
+        Q3MeshNode *node = mesh_->nodes().at(i);
+        values[i] = qCos(2 * M_PI * node->x()) * qSin(2 * M_PI * node->y());
+    }
+    contourPlot_.createContour(100);
+    plot_->update();
 }

@@ -6,6 +6,7 @@
 #include "q3plot.h"
 #include "q3sceleton.h"
 #include "q3mesh.h"
+#include "q3contour.h"
 #include "q3boundary.h"
 #include "q3meshadapter.h"
 #include "q3directormanager.h"
@@ -38,6 +39,8 @@ private slots:
     void on_removeMeshButton_clicked();
     void on_saveMeshButton_clicked();
 
+    void on_contourPlotTestButton_clicked();
+
 signals:
     void goToTab(int tab);
 
@@ -50,6 +53,7 @@ private:
     Q3Sceleton *sceleton_;
     Q3MeshAdapter *meshAdapter_;
     Q3DirectorManager *directorManager_;
+    Q3ContourPlot contourPlot_;
 
     bool enabled_;
 };

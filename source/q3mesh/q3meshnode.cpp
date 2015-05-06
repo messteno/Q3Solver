@@ -1,15 +1,10 @@
 #include "q3meshnode.h"
 #include "q3meshedge.h"
 
-Q3MeshNode::Q3MeshNode(const QPointF &point) :
-    QPointF(point)
+Q3MeshNode::Q3MeshNode(const QPointF &point, int id) :
+    QPointF(point),
+    id_(id)
 {
-}
-
-Q3MeshNode::Q3MeshNode(qreal x, qreal y) :
-    QPointF(x, y)
-{
-
 }
 
 QList<Q3MeshEdge *>& Q3MeshNode::edges()
@@ -32,4 +27,9 @@ Q3MeshEdge *Q3MeshNode::edgeAdjacentTo(const Q3MeshNode *node) const
             return edge;
     }
     return NULL;
+}
+
+int Q3MeshNode::id() const
+{
+    return id_;
 }

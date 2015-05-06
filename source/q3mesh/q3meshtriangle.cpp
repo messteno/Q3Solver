@@ -5,10 +5,14 @@
 #include "q3meshnode.h"
 #include "q3meshtriangle.h"
 
-Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c) :
+Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a,
+                               Q3MeshEdge *b,
+                               Q3MeshEdge *c,
+                               int id) :
     a_(a),
     b_(b),
     c_(c),
+    id_(id),
     correctorVelocity_(0, 0),
     predictorVelocity_(0, 0),
     tempVelocity_(0, 0)
@@ -231,4 +235,9 @@ QVector<qreal> Q3MeshTriangle::distancesToEdges() const
 QVector<qreal> Q3MeshTriangle::distanceToTriangles() const
 {
     return distanceToTriangles_;
+}
+
+int Q3MeshTriangle::id() const
+{
+    return id_;
 }

@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include "q3boundary.h"
 
 Q3Boundary::Q3Boundary() :
@@ -77,9 +79,9 @@ Q3Boundary *Q3Boundary::findByLabel(QList<Q3Boundary *> *boundaries, int label)
     return NULL;
 }
 
-void Q3Boundary::setUniqLabels(QList<Q3Boundary *> *boundaries)
+void Q3Boundary::setUniqueLabels(QList<Q3Boundary *> *boundaries)
 {
-    int label = 0;
+    int label = 1;
     foreach (Q3Boundary *boundary, *boundaries)
-        boundary->setLabel(++label);
+        boundary->setLabel(label++);
 }

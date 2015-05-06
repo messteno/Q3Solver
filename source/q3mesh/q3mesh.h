@@ -20,7 +20,6 @@ public:
     QList<Q3MeshEdge *>& edges();
     QList<Q3MeshTriangle *>& triangles();
 
-    Q3MeshNode* addNode(Q3MeshNode *node);
     Q3MeshNode* addNode(QPointF &point);
     Q3MeshNode* addNode(qreal x, qreal y);
 
@@ -36,10 +35,16 @@ public:
     void clear();
     QString info();
 
+    typedef QList<Q3MeshEdge *> EdgeBoundary;
+    typedef QList<EdgeBoundary> EdgeBoundaries;
+    EdgeBoundaries& boundaries();
+
 private:
     QList<Q3MeshNode *> nodes_;			// all points
     QList<Q3MeshEdge *> edges_;			// all edges
     QList<Q3MeshTriangle *> triangles_;	// all triangles
+
+    EdgeBoundaries boundaries_;
 
     qreal square_;
     qreal edgeSquare_;

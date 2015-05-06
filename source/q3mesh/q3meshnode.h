@@ -10,16 +10,18 @@ class Q3MeshEdge;
 class Q3MeshNode : public QPointF
 {
 public:
-    Q3MeshNode(const QPointF &point);
-    Q3MeshNode(qreal x, qreal y);
+    Q3MeshNode(const QPointF &point, int id);
 
     QList<Q3MeshEdge *>& edges();
     void addEdge(Q3MeshEdge *edge);
 
     Q3MeshEdge *edgeAdjacentTo(const Q3MeshNode *node) const;
 
+    int id() const;
+
 private:
     QList<Q3MeshEdge *> edges_;
+    int id_;
 };
 
 

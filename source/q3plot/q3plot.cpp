@@ -386,9 +386,8 @@ void Q3Plot::drawDrawables()
     painter.setBrush(foregroundColor_);
     painter.translate(dx_, dy_);
     painter.doScale(scaleX_, scaleY_);
-    foreach (Q3PlotDrawable *item, drawables_) {
+    foreach (Q3PlotDrawable *item, drawables_)
         item->draw(painter);
-    }
     painter.restore();
     painter.end();
 }

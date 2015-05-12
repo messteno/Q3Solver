@@ -192,6 +192,13 @@
     </spacer>
    </item>
    <item>
+    <widget class="QPushButton" name="contourPlotTestButton">
+     <property name="text">
+      <string>Тест линий тока</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QPushButton" name="createMeshButton">
      <property name="text">
       <string>Создать</string>

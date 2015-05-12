@@ -54,7 +54,7 @@ Q3Solver::Q3Solver(QWidget *parent) :
 
     sceleton_->prepare();
 
-    Q3Boundary::setUniqLabels(&boundaries_);
+    Q3Boundary::setUniqueLabels(&boundaries_);
     Q3MeshAdapter *adapter = new Q3Ani2DMeshAdapter();
     adapter->setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter->setElementsCount(10000);

@@ -208,6 +208,7 @@ void Q3BoundaryEditor::on_removeBoundaryButton_clicked()
     if (!boundary_)
         return;
     ui->boundaryTypeComboBox->setCurrentIndex(0);
+    boundaries_->removeAll(boundary_);
     delete boundary_;
 }
 
@@ -215,6 +216,9 @@ void Q3BoundaryEditor::on_defaultBoundaryButton_clicked()
 {
     foreach (Q3SceletonItem *item, sceleton_->items())
     {
+        if (!Q3BoundaryType::supportedBoundaryTypes(item->type()).contains(Q3BoundaryType::NoSlipBoundary))
+            continue;
+
         Q3Boundary *boundary = Q3Boundary::findByElement(boundaries_, item);
         if (!boundary)
         {

@@ -19,7 +19,9 @@ int main(int argc, char *argv[])
     for (int x=0; x<100; ++x)
         for (int y=0; y<100; ++y)
             colorMap->data()->setCell(x, y, qCos(x/10.0)+qSin(y/10.0));
-    colorMap->setGradient(QCPColorGradient::gpSpectrum);
+    QCPColorGradient gradient(QCPColorGradient::gpJet);
+    gradient.setLevelCount(100);
+    colorMap->setGradient(gradient);
     colorMap->rescaleDataRange(true);
     customPlot->rescaleAxes();
     customPlot->replot();

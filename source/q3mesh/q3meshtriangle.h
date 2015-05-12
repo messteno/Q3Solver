@@ -11,7 +11,7 @@ class Q3MeshEdge;
 class Q3MeshTriangle
 {
 public:
-    Q3MeshTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c);
+    Q3MeshTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c, int id);
 
     Q3MeshNode *vA() const;
     Q3MeshNode *vB() const;
@@ -50,6 +50,8 @@ public:
     QVector<qreal> distanceToTriangles() const;
     void setDistanceToTriangles(const QVector<qreal> &distanceToTriangles);
 
+    int id() const;
+
 private:
     Q3MeshNode *vA_;
     Q3MeshNode *vB_;
@@ -75,6 +77,7 @@ private:
     QVector2D tempVelocity_;
 
     bool bad_;
+    int id_;
 };
 
 #endif // Q3MESHTRIANGLE_H

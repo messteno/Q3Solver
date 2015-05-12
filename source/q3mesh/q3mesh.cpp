@@ -38,30 +38,28 @@ QList<Q3MeshTriangle *>& Q3Mesh::triangles()
     return triangles_;
 }
 
-Q3MeshNode* Q3Mesh::addNode(Q3MeshNode *node)
-{
-    nodes_.append(node);
-    return nodes_.last();
-}
-
 Q3MeshNode* Q3Mesh::addNode(QPointF &point)
 {
-    Q3MeshNode *node = new Q3MeshNode(point);
+    Q3MeshNode *node = new Q3MeshNode(point, nodes_.count());
     nodes_.append(node);
     return node;
 }
 
 Q3MeshNode* Q3Mesh::addNode(qreal x, qreal y)
 {
-    Q3MeshNode *node = new Q3MeshNode(x, y);
+    Q3MeshNode *node = new Q3MeshNode(QPointF(x, y), nodes_.count());
     nodes_.append(node);
     return node;
 }
 
 Q3MeshEdge* Q3Mesh::addEdge(Q3MeshNode *a, Q3MeshNode *b, Q3Boundary *boundary)
 {
+    Q3MeshEdge *edge = a->edgeAdjacentTo(b);
+    if (edge)
+        return edge;
+
     // id доолжен совпадать с индексом в списке
-    Q3MeshEdge *edge = new Q3MeshEdge(a, b, boundary, edges_.count());
+    edge = new Q3MeshEdge(a, b, boundary, edges_.count());
     edges_.append(edge);
     a->addEdge(edge);
     b->addEdge(edge);
@@ -71,7 +69,7 @@ Q3MeshEdge* Q3Mesh::addEdge(Q3MeshNode *a, Q3MeshNode *b, Q3Boundary *boundary)
 
 Q3MeshTriangle* Q3Mesh::addTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c)
 {
-    Q3MeshTriangle *triangle = new Q3MeshTriangle(a, b, c);
+    Q3MeshTriangle *triangle = new Q3MeshTriangle(a, b, c, triangles_.count());
     triangles_.append(triangle);
 
     return triangle;
@@ -80,20 +78,21 @@ Q3MeshTriangle* Q3Mesh::addTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c)
 void Q3Mesh::draw(Q3Painter &painter) const
 {
     drawEdges(painter);
+//    drawTriangles(painter);
 
-    qreal scaleX = painter.sx();
-    qreal scaleY = painter.sy();
+//    qreal scaleX = painter.sx();
+//    qreal scaleY = painter.sy();
 
-    for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
-    {
-        Q3MeshTriangle *triangle = triangles_.at(trIndex);
-        QPointF begin = triangle->center();
-        begin = QPointF(begin.x() * scaleX, begin.y() * scaleY);
-        QPointF end = (QVector2D(triangle->center())
-                       + 10. * triangle->correctorVelocity()).toPointF();
-        end = QPointF(end.x() * scaleX, end.y() * scaleY);
-        painter.drawLine(begin, end);
-    }
+//    for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
+//    {
+//        Q3MeshTriangle *triangle = triangles_.at(trIndex);
+//        QPointF begin = triangle->center();
+//        begin = QPointF(begin.x() * scaleX, begin.y() * scaleY);
+//        QPointF end = (QVector2D(triangle->center())
+//                       + 10. * triangle->correctorVelocity()).toPointF();
+//        end = QPointF(end.x() * scaleX, end.y() * scaleY);
+//        painter.drawLine(begin, end);
+//    }
 }
 
 void Q3Mesh::drawEdges(Q3Painter &painter) const
@@ -106,6 +105,8 @@ void Q3Mesh::drawEdges(Q3Painter &painter) const
     while(eit.hasNext())
     {
         const Q3MeshEdge *edge = eit.next();
+        if (!edge->boundary())
+            continue;
 
         QColor color;
         if (edge->label() != 0)
@@ -131,10 +132,10 @@ void Q3Mesh::drawTriangles(Q3Painter &painter) const
     {
         const Q3MeshTriangle *triangle = tit.next();
 
-        if (triangle->isBad())
-            painter.setBrush(QColor(163, 39, 39));
-        else
-            painter.setBrush(QColor(122, 163, 39));
+//        if (triangle->isBad())
+//            painter.setBrush(QColor(163, 39, 39));
+//        else
+//            painter.setBrush(QColor(122, 163, 39));
 
         QPolygonF polygon = triangle->toPolygonF(scaleX, scaleY);
         painter.drawPolygon(polygon);
@@ -149,6 +150,8 @@ void Q3Mesh::clear()
     edges_.clear();
     qDeleteAll(triangles_.begin(), triangles_.end());
     triangles_.clear();
+
+    boundaries_.clear();
 
     square_ = 0;
     angles_ = 0;
@@ -170,12 +173,19 @@ QString Q3Mesh::info()
            << QString::number(square_) << "\n";
     stream << tr("Площадь (ребра):   ")
            << QString::number(edgeSquare_) << "\n";
+    stream << tr("Кол-во границ:     ")
+           << QString::number(boundaries_.count()) << "\n";
     stream << tr("Проверка углов:    ")
            << QString::number(angles_) << "\n";
     stream << tr("Тупоугольных тр-в: ")
            << QString::number((100. * obtuseTriangles_) / triangles_.count())
            << "\n";
     return out;
+}
+
+Q3Mesh::EdgeBoundaries &Q3Mesh::boundaries()
+{
+    return boundaries_;
 }
 
 void Q3Mesh::check()

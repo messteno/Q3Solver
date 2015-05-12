@@ -1,6 +1,9 @@
 #ifndef Q3ANI2DMESHADAPTER_H
 #define Q3ANI2DMESHADAPTER_H
 
+#include <QVector>
+#include <QList>
+
 #include "q3meshadapter.h"
 #include "q3ani2d.h"
 #include "q3boundary.h"
@@ -22,8 +25,7 @@ public:
 private:
     Q3Ani2D q3ani2d_;
     QMap<Q3Point*, int> pointMap_;
-    QMap<int, Q3Boundary *> labelBoundaryMap_;
-    QMap<Q3Boundary *, int> boundaryLabelMap_;
+    QList<int> labelBoundaryDelimeters_;
 
     bool addBoundary(QList<Q3Boundary *> *boundaries,
                      QList<Q3SceletonItem *> boundary, qreal &square,

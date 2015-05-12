@@ -75,3 +75,8 @@ QString Q3BoundaryType::typeToString(Q3BoundaryType::Type type)
     }
     return "";
 }
+
+void Q3BoundaryType::save()
+{
+
+}

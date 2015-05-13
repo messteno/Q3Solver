@@ -2,14 +2,14 @@
 
 q3XYExpression::q3XYExpression ()
 {
-   symbol_table.add_variable("x", x_);
-   symbol_table.add_variable("y", y_);
-   symbol_table.add_constants();
+   symbolTable_.add_variable("x", x_);
+   symbolTable_.add_variable("y", y_);
+   symbolTable_.add_constants();
 
-   expression.register_symbol_table(symbol_table);
-   s_expr = "0";
+   expression_.register_symbol_table(symbolTable_);
+   sExpr_ = "0";
 
-   parser.compile(s_expr, expression);
+   parser_.compile(sExpr_, expression_);
 }
 
 q3XYExpression::~q3XYExpression ()
@@ -17,18 +17,18 @@ q3XYExpression::~q3XYExpression ()
 
 }
 
-int q3XYExpression::setString (std::string str)
+bool q3XYExpression::setString (std::string str)
 {
-	s_expr	= str;
+    sExpr_	= str;
 
-	if (!parser.compile(s_expr, expression))
+    if (!parser_.compile(sExpr_, expression_))
 	{
-		s_expr = "0";
-		parser.compile(s_expr, expression);
-		return 0;
+        sExpr_ = "0";
+        parser_.compile(sExpr_, expression_);
+        return false;
 	}
 
-	return 1;
+    return true;
 }
 
 
@@ -37,6 +37,6 @@ double q3XYExpression::getValue (double x, double y)
 	x_ = x;
 	y_ = y;
 
-	return expression.value();
+    return expression_.value();
 }
 

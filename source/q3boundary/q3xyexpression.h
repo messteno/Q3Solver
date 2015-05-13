@@ -2,9 +2,9 @@
 #include <string>
 #include "exprtk.h"
 
-typedef exprtk::symbol_table<double> symbol_table_t;
-typedef exprtk::expression<double>     expression_t;
-typedef exprtk::parser<double>             parser_t;
+typedef exprtk::symbol_table<double>  symbolTableT;
+typedef exprtk::expression<double>     expressionT;
+typedef exprtk::parser<double>             parserT;
 
 
 class q3XYExpression
@@ -12,17 +12,17 @@ class q3XYExpression
 public:
 	q3XYExpression ();
 	~q3XYExpression ();
-	int setString (std::string str);
+    bool setString (std::string str);
 	double getValue (double x, double y);
 	
 private:
 	
-	symbol_table_t symbol_table;
-	expression_t expression;
-	parser_t parser;
+    symbolTableT symbolTable_;
+    expressionT expression_;
+    parserT parser_;
 
 	double x_;
 	double y_;
-    std::string s_expr;
+    std::string sExpr_;
 };
 

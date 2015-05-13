@@ -15,7 +15,8 @@ Q3BoundaryIn::~Q3BoundaryIn()
 
 QVector2D Q3BoundaryIn::velocity(Q3SceletonItem *item, QPointF point)
 {
-    return QVector2D(velocityXExp_.getValue(point.x(), point.y()),velocityYExp_.getValue(point.x(), point.y()));
+    return QVector2D(velocityXExp_.getValue(point.x(), point.y()),
+                     velocityYExp_.getValue(point.x(), point.y()));
 
     //return QVector2D(ui->vxEdit->text().toDouble(),
     //                 ui->vyEdit->text().toDouble());
@@ -23,22 +24,14 @@ QVector2D Q3BoundaryIn::velocity(Q3SceletonItem *item, QPointF point)
 
 void Q3BoundaryIn::save()
 {
-    int r = 1;
     std::string xExprStr = ui->vxEdit->text().toStdString();
     std::string yExprStr = ui->vyEdit->text().toStdString();
 
     if (!velocityXExp_.setString(xExprStr))
-    {
-        QMessageBox::warning(NULL, tr("Q3Solver"), tr("Не удалось обработать выражение для скорости по оси X."));
-        r = 0;
-    }
+        QMessageBox::warning(NULL, tr("Q3Solver"),
+                tr("Не удалось обработать выражение для скорости по оси X."));
 
     if (!velocityYExp_.setString(yExprStr))
-    {
-        QMessageBox::warning(NULL, tr("Q3Solver"), tr("Не удалось обработать выражение для скорости по оси Y."));
-        r = 0;
-    }
-
-    if (r) QMessageBox::information(NULL, tr("Q3Solver"), tr("Выражения для скоростей обработаны."));
-
+        QMessageBox::warning(NULL, tr("Q3Solver"),
+                tr("Не удалось обработать выражение для скорости по оси Y."));
 }

@@ -199,6 +199,8 @@ void Q3BoundaryEditor::on_saveBoundaryButton_clicked()
         delete boundary_->type();
         boundary_->setType(boundaryType_);
     }
+
+    boundary_->type()->save();
 }
 
 void Q3BoundaryEditor::on_removeBoundaryButton_clicked()

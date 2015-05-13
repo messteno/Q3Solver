@@ -30,6 +30,9 @@ set(CMAKE_AUTOMOC ON)
 
 # set(CMAKE_BUILD_TYPE Release)
 
+set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake)
+include(PCHSupport)
+
 # Configure Qt
 find_package(Qt5Widgets)
 

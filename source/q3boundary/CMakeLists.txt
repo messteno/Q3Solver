@@ -11,13 +11,13 @@ add_library(q3boundary STATIC
     ${q3boundary_SRC}
     ${q3boundary_UI})
 
-# include(PCHSupport)
-# if(PCHSupport_FOUND)
-#     ADD_PRECOMPILED_HEADER (q3boundary ${CMAKE_SOURCE_DIR}/source/q3boundary/exprtk.h)
-# endif(PCHSupport_FOUND)
-
 qt5_use_modules(q3boundary Widgets)
 target_link_libraries(q3boundary
     q3sceleton
     q3plot
     m)
+
+if(PCHSupport_FOUND)
+    ADD_PRECOMPILED_HEADER (q3boundary ${CMAKE_SOURCE_DIR}/source/q3boundary/exprtk.h ${q3boundary_SRC})
+endif(PCHSupport_FOUND)
+

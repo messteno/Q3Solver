@@ -129,8 +129,10 @@ void Q3MeshEditor::on_contourPlotTestButton_clicked()
     for (int i = 0; i < mesh_->nodes().count(); ++i)
     {
         Q3MeshNode *node = mesh_->nodes().at(i);
-        values[i] = qCos(2 * M_PI * node->x()) * qSin(2 * M_PI * node->y());
+        qreal x = node->x();
+        qreal y = node->y();
+        values[i] = x + y;
     }
-    contourPlot_.createContour(100);
+    contourPlot_.createFilledContour(100);
     plot_->update();
 }

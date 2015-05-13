@@ -19,10 +19,10 @@ Q3Solver::Q3Solver(QWidget *parent) :
     sceleton_ = new Q3Sceleton(this);
     mesh_ = new Q3Mesh(this);
 
-    Q3Point *a1 = new Q3Point(QPointF(1, 1));
-    Q3Point *a2 = new Q3Point(QPointF(1, 2));
-    Q3Point *a3 = new Q3Point(QPointF(2, 2));
-    Q3Point *a4 = new Q3Point(QPointF(2, 1));
+    Q3Point *a1 = new Q3Point(QPointF(-3, -3));
+    Q3Point *a2 = new Q3Point(QPointF(-3, 3));
+    Q3Point *a3 = new Q3Point(QPointF(3, 3));
+    Q3Point *a4 = new Q3Point(QPointF(3, -3));
     sceleton_->addItem(a1);
     sceleton_->addItem(a2);
     sceleton_->addItem(a3);
@@ -135,7 +135,7 @@ void Q3Solver::on_tabWidget_currentChanged(int index)
     }
     else if (index == 2)
     {
-        ui->plotWidget->addDrawable(sceleton_);
+//        ui->plotWidget->addDrawable(sceleton_);
         ui->plotWidget->addDrawable(mesh_);
         meshEditor_->enable();
         ui->meshEditorLayout->addWidget(meshEditor_);

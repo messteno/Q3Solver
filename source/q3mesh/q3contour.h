@@ -16,7 +16,14 @@ class Q3Contour : public QList<Q3ContourLine>, public Q3PlotDrawable
 {
 public:
     Q3Contour();
+    Q3Contour(bool filled);
     void draw(Q3Painter &painter) const;
+
+    void setColor(const QColor &color);
+
+private:
+    bool filled_;
+    QColor color_;
 };
 
 class Q3ContourGenerator
@@ -26,9 +33,12 @@ public:
     ~Q3ContourGenerator();
 
     Q3Contour createContour(qreal level);
+    Q3Contour createFilledContour(qreal lowerLevel, qreal upperLevel);
 
 private:
     void clearVisitedFlags(bool includeBoundaries);
+    void findBoundaryLinesFilled(Q3Contour &contour, qreal lowerLevel,
+                                 qreal upperLevel);
     void findBoundaryLines(Q3Contour &contour, qreal level);
     void findInteriorLines(Q3Contour &contour, qreal level,
                            bool onUpper, bool filled);
@@ -37,6 +47,8 @@ private:
                         bool endOnBoundary,
                         qreal level,
                         bool onUpper);
+    bool followBoundary(Q3ContourLine &contourLine, Q3MeshEdge* &edge,
+                        qreal lowerLevel, qreal upperLevel, bool onUpper);
     QPointF edgeInterpolation(const Q3MeshEdge *edge, qreal level);
     Q3MeshEdge* getExitEdge(Q3MeshTriangle *triangle, qreal level, bool onUpper);
 
@@ -53,6 +65,7 @@ class Q3ContourPlot : public Q3PlotDrawable
 public:
     Q3ContourPlot(Q3Mesh *mesh);
     void createContour(int levels);
+    void createFilledContour(int levels);
     void draw(Q3Painter &painter) const;
 
     QVector<qreal>& values();
@@ -66,5 +79,7 @@ private:
     QVector<Q3Contour> contours_;
     QVector<qreal> values_;
 };
+
+QColor getColour(qreal level);
 
 #endif // Q3CONTOUR_H

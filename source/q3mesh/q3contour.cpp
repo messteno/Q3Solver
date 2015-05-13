@@ -6,7 +6,7 @@ Q3ContourGenerator::Q3ContourGenerator(Q3Mesh *mesh,
                                        const QVector<qreal> &values) :
     mesh_(mesh),
     values_(values),
-    interiorVisited_(mesh->triangles().count()),
+    interiorVisited_(2 * mesh->triangles().count()),
     boundariesVisited_(0),
     boundariesUsed_(0)
 {
@@ -21,11 +21,24 @@ Q3ContourGenerator::~Q3ContourGenerator()
 
 Q3Contour Q3ContourGenerator::createContour(qreal level)
 {
-    Q3Contour contour;
-
     clearVisitedFlags(false);
+
+    Q3Contour contour(false);
     findBoundaryLines(contour, level);
     findInteriorLines(contour, level, false, false);
+
+    return contour;
+}
+
+Q3Contour Q3ContourGenerator::createFilledContour(qreal lowerLevel,
+                                                  qreal upperLevel)
+{
+    clearVisitedFlags(true);
+
+    Q3Contour contour(true);
+    findBoundaryLinesFilled(contour, lowerLevel, upperLevel);
+    findInteriorLines(contour, lowerLevel, false, true);
+    findInteriorLines(contour, upperLevel, true, true);
 
     return contour;
 }
@@ -51,6 +64,72 @@ void Q3ContourGenerator::clearVisitedFlags(bool includeBoundaries)
         qFill(*it, false);
 
     qFill(boundariesUsed_, false);
+}
+
+void Q3ContourGenerator::findBoundaryLinesFilled(Q3Contour &contour,
+                                                 qreal lowerLevel,
+                                                 qreal upperLevel)
+{
+    Q3Mesh::EdgeBoundaries &boundaries = mesh_->boundaries();
+    for (int i = 0; i < boundaries.size(); ++i)
+    {
+        Q3Mesh::EdgeBoundary &boundary = boundaries[i];
+        for (int j = 0; j < boundary.size(); ++j)
+        {
+            if (boundariesVisited_[i][j])
+                continue;
+
+            Q3MeshEdge *edge = boundary[j];
+            qreal zStart = values_.at(edge->a()->id());
+            qreal zEnd = values_.at(edge->b()->id());
+
+            // Does this boundary edge's z increase through upper level
+            // and/or decrease through lower level?
+            bool incrUpper = (zStart < upperLevel && zEnd >= upperLevel);
+            bool decrLower = (zStart >= lowerLevel && zEnd < lowerLevel);
+
+            if (decrLower || incrUpper)
+            {
+                contour.append(Q3ContourLine());
+                Q3ContourLine &contourLine = contour.last();
+                Q3MeshEdge *startEdge = boundary[j];
+                Q3MeshEdge *edge = startEdge;
+
+                bool onUpper = incrUpper;
+                do
+                {
+                    Q3MeshTriangle* triangle = edge->adjacentTriangles().at(0);
+                    followInterior(contourLine, triangle, edge, true,
+                                   onUpper ? upperLevel : lowerLevel, onUpper);
+                    onUpper = followBoundary(contourLine, edge, lowerLevel,
+                                             upperLevel, onUpper);
+                } while (edge != startEdge);
+
+                if (contourLine.count() > 1 &&
+                    contourLine.first() == contourLine.last())
+                {
+                    contourLine.removeLast();
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < boundaries.size(); ++i)
+    {
+        if (boundariesUsed_[i])
+            continue;
+
+        Q3Mesh::EdgeBoundary &boundary = boundaries[i];
+        Q3MeshEdge *edge = boundary[0];
+        qreal z = values_[edge->a()->id()];
+        if (z >= lowerLevel && z <= upperLevel)
+        {
+            contour.append(Q3ContourLine());
+            Q3ContourLine &contourLine = contour.last();
+            for (int j = 0; j < boundary.size(); ++j)
+                contourLine.append(*edge->a());
+        }
+    }
 }
 
 void Q3ContourGenerator::findBoundaryLines(Q3Contour &contour, qreal level)
@@ -111,13 +190,13 @@ void Q3ContourGenerator::findInteriorLines(Q3Contour &contour, qreal level,
         triangle = adjTri.at(0) == triangle ? adjTri.at(1) : adjTri.at(0);
         followInterior(contourLine, triangle, edge, false, level, onUpper);
 
-        if (!filled)
+//        if (!filled)
             contourLine.append(contourLine.first());
-        else if (contourLine.count() > 1 &&
-                 contourLine.first() == contourLine.last())
-        {
-            contourLine.removeLast();
-        }
+//        else if (contourLine.count() > 1 &&
+//                 contourLine.first() == contourLine.last())
+//        {
+//            contourLine.removeLast();
+//        }
     }
 }
 
@@ -154,6 +233,87 @@ void Q3ContourGenerator::followInterior(Q3ContourLine &contourLine,
         Q_ASSERT(adjTri.count() == 2);
         triangle = adjTri.at(0) == triangle ? adjTri.at(1) : adjTri.at(0);
     }
+}
+
+bool Q3ContourGenerator::followBoundary(Q3ContourLine &contourLine,
+                                        Q3MeshEdge* &edge, qreal lowerLevel,
+                                        qreal upperLevel, bool onUpper)
+{
+    Q3Mesh::EdgeBoundaries &boundaries = mesh_->boundaries();
+    int boundaryIndex, edgeIndex = -1;
+
+    // Может быть передавать в параметрах?
+    for (int i = 0; i < boundaries.size(); ++i)
+    {
+        Q3Mesh::EdgeBoundary &boundary = boundaries[i];
+        if (boundary.contains(edge))
+        {
+            boundaryIndex = i;
+            edgeIndex = boundary.indexOf(edge);
+            break;
+        }
+    }
+    Q_ASSERT(boundaryIndex != -1 && edgeIndex != -1);
+    qDebug() << boundaryIndex << edgeIndex;
+    Q3Mesh::EdgeBoundary &boundary = boundaries[boundaryIndex];
+
+    bool stop = false;
+    bool firstEdge = true;
+    qreal zStart , zEnd = 0;
+
+    while (!stop)
+    {
+        Q_ASSERT(!boundariesVisited_[boundaryIndex][edgeIndex]);
+        boundariesVisited_[boundaryIndex][edgeIndex] = true;
+
+        qDebug() << boundaryIndex << edgeIndex;
+
+        if (firstEdge)
+            zStart = values_[edge->a()->id()];
+        else
+            zStart = zEnd;
+
+        zEnd = values_[edge->b()->id()];
+        if (zEnd > zStart)
+        {
+            if (!(!onUpper && firstEdge)
+                && zEnd >= lowerLevel && zStart < lowerLevel)
+            {
+                stop = true;
+                onUpper = false;
+            }
+            else if (zEnd >= upperLevel && zStart < upperLevel)
+            {
+                stop = true;
+                onUpper = true;
+            }
+        }
+        else
+        {
+            if (!(onUpper && firstEdge)
+                && zStart >= upperLevel && zEnd < upperLevel)
+            {
+                stop = true;
+                onUpper = true;
+            }
+            else if (zStart >= lowerLevel && zEnd < lowerLevel)
+            {
+                stop = true;
+                onUpper = false;
+            }
+        }
+
+        firstEdge = false;
+
+        if (!stop)
+        {
+            edgeIndex = (edgeIndex + 1) % (int)boundary.size();
+            edge = boundary[edgeIndex];
+            contourLine.append(*edge->a());
+        }
+    }
+
+    return onUpper;
 }
 
 QPointF Q3ContourGenerator::edgeInterpolation(const Q3MeshEdge *edge,
@@ -211,7 +371,15 @@ Q3ContourLine::Q3ContourLine()
 }
 
 Q3Contour::Q3Contour() :
-    QList<Q3ContourLine>()
+    QList<Q3ContourLine>(),
+    filled_(false)
+{
+
+}
+
+Q3Contour::Q3Contour(bool filled) :
+    QList<Q3ContourLine>(),
+    filled_(filled)
 {
 
 }
@@ -221,6 +389,19 @@ void Q3Contour::draw(Q3Painter &painter) const
     qreal scaleX = painter.sx();
     qreal scaleY = painter.sy();
 
+    if (filled_)
+    {
+        painter.setPen(Qt::NoPen);
+//        painter.setPen(Qt::gray);
+        painter.setBrush(color_);
+    }
+    else
+    {
+        painter.setPen(Qt::gray);
+        painter.setBrush(Qt::NoBrush);
+    }
+
+    QPainterPath path;
     for (int i = 0; i < this->size(); ++i)
     {
         const Q3ContourLine &line = this->at(i);
@@ -228,17 +409,20 @@ void Q3Contour::draw(Q3Painter &painter) const
             continue;
 
         QPointF p = line.at(0);
-        QPainterPath path(QPointF(p.x() * scaleX, p.y() * scaleY));
+        path.moveTo(QPointF(p.x() * scaleX, p.y() * scaleY));
         for (int j = 1; j < line.size(); ++j)
         {
             p = line.at(j);
             path.lineTo(p.x() * scaleX, p.y() * scaleY);
         }
-        painter.setPen(Qt::gray);
-        painter.setBrush(Qt::transparent);
-        painter.drawPath(path);
     }
+    painter.drawPath(path);
 }
+void Q3Contour::setColor(const QColor &color)
+{
+    color_ = color;
+}
+
 
 
 Q3ContourPlot::Q3ContourPlot(Q3Mesh *mesh) :
@@ -261,6 +445,29 @@ void Q3ContourPlot::createContour(int levels)
     {
         qreal level = stepSize * i;
         Q3Contour contour = contourGenerator.createContour(level);
+        contours_.append(contour);
+    }
+}
+
+void Q3ContourPlot::createFilledContour(int levels)
+{
+    contours_.clear();
+    QVector<qreal> normalizedValues = normalize();
+    Q3ContourGenerator contourGenerator(mesh_, normalizedValues);
+
+    levels = levels < 3 ? 3 : levels;
+    qreal stepSize = 1. / (levels - 1);
+
+    for (int i = 0; i < levels - 1; ++i)
+    {
+        // TODO: Подумать над корректным удалением линий
+        qreal fixDelta = 5e-3;
+        qreal lowerLevel = stepSize * i - fixDelta;
+        qreal upperLevel = lowerLevel + stepSize + fixDelta;
+        Q3Contour contour = contourGenerator.createFilledContour(lowerLevel,
+                                                                 upperLevel);
+        qreal level = (lowerLevel + upperLevel) * 0.5;
+        contour.setColor(getColour(level));
         contours_.append(contour);
     }
 }
@@ -329,4 +536,31 @@ QVector<qreal> Q3ContourPlot::normalize()
     }
 
     return normalizedValues;
+}
+
+QColor getColour(qreal level)
+{
+    QColor color(255, 255, 255);
+
+    if (level < 0.25)
+    {
+        color.setRed(0);
+        color.setGreen(4 * level * 255);
+    }
+    else if (level < 0.5)
+    {
+        color.setRed(0);
+        color.setBlue(255 * (1 + 4 * (0.25 - level)));
+    }
+    else if (level < 0.75) {
+        color.setRed(4 * (level - 0.5) * 255);
+        color.setBlue(0);
+    }
+    else
+    {
+        color.setGreen(255 * (1 + 4 * (0.75 - level)));
+        color.setBlue(0);
+    }
+
+    return color;
 }

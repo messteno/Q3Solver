@@ -50,6 +50,8 @@ public:
     qreal processBoundaryPredictor(qreal Re);
     qreal processBoundaryFlow();
     qreal processBoundaryCorrector();
+    void processBoundaryOmega(qreal &dvXByY, qreal &dvYByX);
+    qreal processBoundaryStream();
     void processBoundaryVelocity();
 
 private:

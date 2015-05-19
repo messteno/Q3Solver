@@ -52,6 +52,15 @@ public:
 
     int id() const;
 
+    qreal stream() const;
+    void setStream(const qreal &stream);
+
+    qreal omega() const;
+    void setOmega(const qreal &omega);
+
+    qreal tempStream() const;
+    void setTempStream(const qreal &tempStream);
+
 private:
     Q3MeshNode *vA_;
     Q3MeshNode *vB_;
@@ -75,6 +84,10 @@ private:
     QVector2D correctorVelocity_;
     QVector2D predictorVelocity_;
     QVector2D tempVelocity_;
+
+    qreal stream_;
+    qreal omega_;
+    qreal tempStream_;
 
     bool bad_;
     int id_;

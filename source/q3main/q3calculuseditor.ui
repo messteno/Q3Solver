@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>238</width>
-    <height>235</height>
+    <width>368</width>
+    <height>426</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,36 +17,102 @@
    <item>
     <layout class="QFormLayout" name="calculusParametersLayout">
      <item row="0" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="meanVelocityLabel">
        <property name="text">
         <string>Характерная скорость</string>
        </property>
       </widget>
      </item>
      <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="meanVelocityEdit">
+       <property name="text">
+        <string>1</string>
+       </property>
+      </widget>
      </item>
      <item row="1" column="0">
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="characteristicLengthLabel">
        <property name="text">
         <string>Характерная длина</string>
        </property>
       </widget>
      </item>
      <item row="1" column="1">
-      <widget class="QLineEdit" name="lineEdit_2"/>
+      <widget class="QLineEdit" name="characteristicLengthEdit">
+       <property name="text">
+        <string>1</string>
+       </property>
+      </widget>
      </item>
      <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
+      <widget class="QLabel" name="kinematicViscosityLabel">
        <property name="text">
-        <string>Вязкость</string>
+        <string>Кинематическая вязкость</string>
        </property>
       </widget>
      </item>
      <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEdit_3"/>
+      <widget class="QLineEdit" name="kinematicViscosityEdit">
+       <property name="text">
+        <string>0.001</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="tauLabel">
+       <property name="text">
+        <string>tau</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLineEdit" name="tauEdit">
+       <property name="text">
+        <string>0.01</string>
+       </property>
+      </widget>
      </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QCheckBox" name="badTrianglesFixCheckBox">
+     <property name="text">
+      <string>Компенсация потока для тупоугольных треугольников</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="internalGraphicsGroup">
+     <property name="title">
+      <string>Графики (встроенные)</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QPushButton" name="internalStreamPlotButton">
+        <property name="text">
+         <string>Функция тока</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="internalPreassurePlotButton">
+        <property name="text">
+         <string>Давление</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="internalClearPlotButton">
+        <property name="text">
+         <string>Очистить</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="calcInfoLabel">
@@ -69,16 +135,23 @@
     </spacer>
    </item>
    <item>
-    <widget class="QPushButton" name="startCalculusButton">
+    <widget class="QPushButton" name="startCalcButton">
      <property name="text">
       <string>Запуск расчета</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QPushButton" name="stopalculusButton">
+    <widget class="QPushButton" name="stopCalcButton">
      <property name="text">
       <string>Остановка расчета</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="resetCalcButton">
+     <property name="text">
+      <string>Сброс расчета</string>
      </property>
     </widget>
    </item>

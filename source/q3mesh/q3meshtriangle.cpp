@@ -15,7 +15,10 @@ Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a,
     id_(id),
     correctorVelocity_(0, 0),
     predictorVelocity_(0, 0),
-    tempVelocity_(0, 0)
+    tempVelocity_(0, 0),
+    omega_(0),
+    tempStream_(0),
+    stream_(0)
 {
     vA_ = b->nodeAdjacentTo(c);
     vB_ = c->nodeAdjacentTo(a);
@@ -241,3 +244,33 @@ int Q3MeshTriangle::id() const
 {
     return id_;
 }
+
+qreal Q3MeshTriangle::stream() const
+{
+    return stream_;
+}
+
+void Q3MeshTriangle::setStream(const qreal &stream)
+{
+    stream_ = stream;
+}
+qreal Q3MeshTriangle::omega() const
+{
+    return omega_;
+}
+
+void Q3MeshTriangle::setOmega(const qreal &omega)
+{
+    omega_ = omega;
+}
+qreal Q3MeshTriangle::tempStream() const
+{
+    return tempStream_;
+}
+
+void Q3MeshTriangle::setTempStream(const qreal &tempStream)
+{
+    tempStream_ = tempStream;
+}
+
+

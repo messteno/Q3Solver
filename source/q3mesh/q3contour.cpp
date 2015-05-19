@@ -254,7 +254,7 @@ bool Q3ContourGenerator::followBoundary(Q3ContourLine &contourLine,
         }
     }
     Q_ASSERT(boundaryIndex != -1 && edgeIndex != -1);
-    qDebug() << boundaryIndex << edgeIndex;
+//    qDebug() << boundaryIndex << edgeIndex;
     Q3Mesh::EdgeBoundary &boundary = boundaries[boundaryIndex];
 
     bool stop = false;
@@ -266,7 +266,7 @@ bool Q3ContourGenerator::followBoundary(Q3ContourLine &contourLine,
         Q_ASSERT(!boundariesVisited_[boundaryIndex][edgeIndex]);
         boundariesVisited_[boundaryIndex][edgeIndex] = true;
 
-        qDebug() << boundaryIndex << edgeIndex;
+//        qDebug() << boundaryIndex << edgeIndex;
 
         if (firstEdge)
             zStart = values_[edge->a()->id()];
@@ -397,7 +397,7 @@ void Q3Contour::draw(Q3Painter &painter) const
     }
     else
     {
-        painter.setPen(Qt::gray);
+        painter.setPen(Qt::black);
         painter.setBrush(Qt::NoBrush);
     }
 
@@ -418,12 +418,11 @@ void Q3Contour::draw(Q3Painter &painter) const
     }
     painter.drawPath(path);
 }
+
 void Q3Contour::setColor(const QColor &color)
 {
     color_ = color;
 }
-
-
 
 Q3ContourPlot::Q3ContourPlot(Q3Mesh *mesh) :
     mesh_(mesh),
@@ -451,7 +450,7 @@ void Q3ContourPlot::createContour(int levels)
 
 void Q3ContourPlot::createFilledContour(int levels)
 {
-    contours_.clear();
+    filledContours_.clear();
     QVector<qreal> normalizedValues = normalize();
     Q3ContourGenerator contourGenerator(mesh_, normalizedValues);
 
@@ -468,12 +467,15 @@ void Q3ContourPlot::createFilledContour(int levels)
                                                                  upperLevel);
         qreal level = (lowerLevel + upperLevel) * 0.5;
         contour.setColor(getColour(level));
-        contours_.append(contour);
+        filledContours_.append(contour);
     }
 }
 
 void Q3ContourPlot::draw(Q3Painter &painter) const
 {
+    foreach (const Q3Contour& contour, filledContours_)
+        contour.draw(painter);
+
     foreach (const Q3Contour& contour, contours_)
         contour.draw(painter);
 }
@@ -536,6 +538,16 @@ QVector<qreal> Q3ContourPlot::normalize()
     }
 
     return normalizedValues;
+}
+void Q3ContourPlot::setValues(const QVector<qreal> &values)
+{
+    values_ = values;
+}
+
+bool Q3ContourPlot::clear()
+{
+    filledContours_.clear();
+    contours_.clear();
 }
 
 QColor getColour(qreal level)

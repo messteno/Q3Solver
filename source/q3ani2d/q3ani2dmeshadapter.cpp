@@ -40,8 +40,6 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton,
     q3ani2d_.setMaxElements(1500000);
     q3ani2d_.setQuality(0.9);
     q3ani2d_.setMaxIters(30000);
-
-    // Создаем карту точек - номеров
     int count = 0;
     foreach (Q3SceletonItem *item, items)
     {
@@ -186,7 +184,7 @@ bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh, QList<Q3Boundary *> *boundar
 
         mesh->addTriangle(ab, bc, ac);
     }
-    mesh->check();
+    mesh->update();
 
     return true;
 }
@@ -344,4 +342,3 @@ bool Q3Ani2DMeshAdapter::addBoundary(QList<Q3Boundary *> *boundaries,
     }
     return true;
 }
-

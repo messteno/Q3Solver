@@ -1,6 +1,7 @@
 find_package(Qt5Test REQUIRED)
 
 include_directories(
+    ${3RDPARTY_HEADERS_DIR}
     ${ANI_HEADERS_DIR}
     ${QCUSTOM_PLOT_HEADERS_DIR}
     ${CMAKE_SOURCE_DIR}/source/q3ani2d
@@ -10,7 +11,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/source/q3plot
     ${CMAKE_SOURCE_DIR}/source/q3calc
 )
-link_directories(${ANI_LIBS_DIR} ${QCUSTOM_PLOT_LIBS_DIR})
+link_directories(${3RDPARTY_LIBS_DIR} ${ANI_LIBS_DIR} ${QCUSTOM_PLOT_LIBS_DIR})
 
 
 set(q3ani2dtest_SRC

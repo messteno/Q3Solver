@@ -18,6 +18,6 @@ target_link_libraries(q3boundary
     m)
 
 if(PCHSupport_FOUND)
-    ADD_PRECOMPILED_HEADER (q3boundary ${CMAKE_SOURCE_DIR}/source/q3boundary/exprtk.h ${q3boundary_SRC})
+    ADD_PRECOMPILED_HEADER (q3boundary ${CMAKE_SOURCE_DIR}/source/q3boundary/exprtk.h)
 endif(PCHSupport_FOUND)
 

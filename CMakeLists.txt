@@ -18,7 +18,8 @@ cmake_minimum_required(VERSION 2.8.11)
 
 # Default configuration values. These must be before the project command or
 # If no build type is specified, default to "Release"
-set(CMAKE_BUILD_TYPE Debug)
+#set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 project(q3solver)
 set(PROJECT_LONGNAME "Q3Solver")
@@ -38,12 +39,16 @@ find_package(Qt5Widgets)
 
 include(ExternalProject)
 
-set(PATCH_DIR ${CMAKE_SOURCE_DIR}/patch)
 set(3RDPARTY_DIR ${CMAKE_SOURCE_DIR}/3rdparty)
+set(3RDPARTY_BUILD_DIR ${3RDPARTY_DIR}/build)
+set(3RDPARTY_HEADERS_DIR ${3RDPARTY_DIR}/include)
+set(3RDPARTY_LIBS_DIR ${3RDPARTY_DIR}/lib)
+
+set(PATCH_DIR ${CMAKE_SOURCE_DIR}/patch)
 
 set(ANI2D_VERSION 3.0)
 set(ANI2D_PROJECT ani2D-${ANI2D_VERSION})
-set(ANI_PREFIX ${3RDPARTY_DIR}/${ANI2D_PROJECT})
+set(ANI_PREFIX ${3RDPARTY_BUILD_DIR}/${ANI2D_PROJECT})
 set(ANI_SRC_DIR ${ANI_PREFIX}/ani2D)
 set(ANI_TMP_DIR ${ANI_PREFIX}/tmp)
 set(ANI_BINARY_DIR ${ANI_SRC_DIR}/build)
@@ -61,7 +66,7 @@ ExternalProject_Add(ani2D
 
 #set(QCUSTOM_PLOT_VERSION 1.3.1)
 #set(QCUSTOM_PLOT_PROJECT qcustomplot-${QCUSTOM_PLOT_VERSION})
-#set(QCUSTOM_PLOT_PREFIX ${3RDPARTY_DIR}/${QCUSTOM_PLOT_PROJECT})
+#set(QCUSTOM_PLOT_PREFIX ${3RDPARTY_BUILD_DIR}/${QCUSTOM_PLOT_PROJECT})
 #set(QCUSTOM_PLOT_SRC_DIR ${QCUSTOM_PLOT_PREFIX}/qcustomplot)
 #set(QCUSTOM_PLOT_LIB_SRC_DIR ${QCUSTOM_PLOT_SRC_DIR}/qcustomplot-sharedlib)
 #set(QCUSTOM_PLOT_LIB_BINARY_DIR ${QCUSTOM_PLOT_LIB_SRC_DIR}/sharedlib-compilation/)

@@ -30,10 +30,14 @@ public:
 
     void draw(Q3Painter &painter) const;
 
+    void calcStream();
+
     // Нужно вызывать после добавления всех элементов
-    void check();
+    void update();
+
     void clear();
     QString info();
+    qreal square();
 
     typedef QList<Q3MeshEdge *> EdgeBoundary;
     typedef QList<EdgeBoundary> EdgeBoundaries;
@@ -49,7 +53,10 @@ private:
     qreal square_;
     qreal edgeSquare_;
     qreal angles_;
-    int obtuseTriangles_;
+    int obtuseTrianglesCount_;
+
+    static const int maxStreamIterationsCount;
+    static const qreal maxStreamError;
 
     void drawEdges(Q3Painter &painter) const;
     void drawTriangles(Q3Painter &painter) const;

@@ -1,5 +1,6 @@
 # process input parameters
-include_directories(${CMAKE_SOURCE_DIR}/source/q3plot ${CMAKE_SOURCE_DIR}/source/q3sceleton ${CMAKE_SOURCE_DIR}/source/q3boundary)
+include_directories(${3RDPARTY_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3plot ${CMAKE_SOURCE_DIR}/source/q3sceleton ${CMAKE_SOURCE_DIR}/source/q3boundary)
+link_directories(${3RDPARTY_LIBS_DIR})
 
 aux_source_directory(. q3mesh_SRC)
 FILE(GLOB q3mesh_UI_list "*.ui")

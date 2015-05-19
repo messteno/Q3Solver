@@ -18,7 +18,7 @@ const int Q3Plot::MinTickCount = 8;
 
 Q3Plot::Q3Plot(QWidget *parent) :
     QWidget(parent),
-    sceneRect_(-2, -2, 10, 8),
+    sceneRect_(-3, -3, 8, 8),
     drawRect_(sceneRect_),
     scaleX_(1.),
     scaleY_(-1.),

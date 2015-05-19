@@ -9,6 +9,7 @@
 #include "q3boundary.h"
 #include "q3sceleton.h"
 #include "q3directormanager.h"
+#include "q3contour.h"
 
 namespace Ui {
 class Q3CalculusEditor;
@@ -22,17 +23,29 @@ public:
     explicit Q3CalculusEditor(Q3Plot *plot, Q3Mesh *mesh, QWidget *parent = 0);
     ~Q3CalculusEditor();
 
+    void disable();
+    void enable();
+
 private slots:
-    void on_startCalculusButton_clicked();
-    void on_stopalculusButton_clicked();
     void updateInfo();
+    void on_startCalcButton_clicked();
+    void on_stopCalcButton_clicked();
+    void on_resetCalcButton_clicked();
+
+    void on_internalClearPlotButton_clicked();
+    void on_internalStreamPlotButton_clicked();
+    void on_internalPreassurePlotButton_clicked();
 
 private:
     Ui::Q3CalculusEditor *ui;
 
     Q3Mesh *mesh_;
+    Q3Plot *plot_;
     Q3DirectorManager *directorManager_;
     Q3Calc *calc_;
+    Q3ContourPlot contourPlot_;
+
+    bool enabled_;
 };
 
 #endif // Q3CALCULUSEDITOR_H

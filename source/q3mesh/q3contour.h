@@ -69,6 +69,9 @@ public:
     void draw(Q3Painter &painter) const;
 
     QVector<qreal>& values();
+    void setValues(const QVector<qreal> &values);
+
+    bool clear();
 
 private:
     qreal minValue();
@@ -77,6 +80,7 @@ private:
 
     Q3Mesh *mesh_;
     QVector<Q3Contour> contours_;
+    QVector<Q3Contour> filledContours_;
     QVector<qreal> values_;
 };
 

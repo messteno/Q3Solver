@@ -17,7 +17,7 @@ Q3MeshEditor::Q3MeshEditor(Q3Plot *plot, Q3Mesh *mesh,
     meshAdapter_(new Q3Ani2DMeshAdapter),
     directorManager_(NULL),
     enabled_(false),
-    contourPlot_(mesh_),
+    contourPlot_(mesh),
     ui(new Ui::Q3MeshEditor)
 {
     ui->setupUi(this);
@@ -27,13 +27,6 @@ Q3MeshEditor::~Q3MeshEditor()
 {
     delete ui;
     delete meshAdapter_;
-}
-
-void Q3MeshEditor::disable()
-{
-    enabled_ = false;
-    delete directorManager_;
-    directorManager_ = NULL;
 }
 
 void Q3MeshEditor::enable()
@@ -46,6 +39,14 @@ void Q3MeshEditor::enable()
     directorManager_->addDirector(moveDirector);
     directorManager_->setPlot(plot_);
     plot_->addDrawable(&contourPlot_);
+}
+
+void Q3MeshEditor::disable()
+{
+    enabled_ = false;
+    delete directorManager_;
+    directorManager_ = NULL;
+    plot_->removeDrawable(&contourPlot_);
 }
 
 void Q3MeshEditor::on_createMeshButton_clicked()

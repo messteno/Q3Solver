@@ -19,10 +19,10 @@ Q3Solver::Q3Solver(QWidget *parent) :
     sceleton_ = new Q3Sceleton(this);
     mesh_ = new Q3Mesh(this);
 
-    Q3Point *a1 = new Q3Point(QPointF(-3, -3));
-    Q3Point *a2 = new Q3Point(QPointF(-3, 3));
-    Q3Point *a3 = new Q3Point(QPointF(3, 3));
-    Q3Point *a4 = new Q3Point(QPointF(3, -3));
+    Q3Point *a1 = new Q3Point(QPointF(0, 0));
+    Q3Point *a2 = new Q3Point(QPointF(0, 1));
+    Q3Point *a3 = new Q3Point(QPointF(1, 1));
+    Q3Point *a4 = new Q3Point(QPointF(1, 0));
     sceleton_->addItem(a1);
     sceleton_->addItem(a2);
     sceleton_->addItem(a3);
@@ -40,11 +40,11 @@ Q3Solver::Q3Solver(QWidget *parent) :
     Q3Boundary *b3 = new Q3Boundary();
     Q3Boundary *b4 = new Q3Boundary();
     b1->addItem(c1);
-    b1->setTypeByEnum(Q3BoundaryType::InBoundary);
+    b1->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
     b2->addItem(c2);
-    b2->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
+    b2->setTypeByEnum(Q3BoundaryType::FixedVelocity);
     b3->addItem(c3);
-    b3->setTypeByEnum(Q3BoundaryType::OutBoundary);
+    b3->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
     b4->addItem(c4);
     b4->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
     boundaries_.append(b1);
@@ -57,7 +57,7 @@ Q3Solver::Q3Solver(QWidget *parent) :
     Q3Boundary::setUniqueLabels(&boundaries_);
     Q3MeshAdapter *adapter = new Q3Ani2DMeshAdapter();
     adapter->setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
-    adapter->setElementsCount(10000);
+    adapter->setElementsCount(15000);
     adapter->generateMesh(sceleton_, &boundaries_);
     adapter->meshToQ3Mesh(mesh_, &boundaries_);
 //    adapter->saveMesh();
@@ -65,7 +65,10 @@ Q3Solver::Q3Solver(QWidget *parent) :
 
     meshEditor_ = new Q3MeshEditor(ui->plotWidget, mesh_, sceleton_,
                                    &boundaries_);
-    meshEditor_->disable();
+    calculusEditor_ = new Q3CalculusEditor(ui->plotWidget, mesh_);
+
+    ui->meshEditorLayout->addWidget(meshEditor_);
+    ui->calculusEditorLayout->addWidget(calculusEditor_);
 
     on_tabWidget_currentChanged(0);
 }
@@ -110,8 +113,7 @@ void Q3Solver::on_tabWidget_currentChanged(int index)
     }
     else if (tabWidgetIndex_ == 3)
     {
-        delete calculusEditor_;
-        calculusEditor_ = NULL;
+        calculusEditor_->disable();
     }
 
     if (index == 0)
@@ -138,18 +140,16 @@ void Q3Solver::on_tabWidget_currentChanged(int index)
 //        ui->plotWidget->addDrawable(sceleton_);
         ui->plotWidget->addDrawable(mesh_);
         meshEditor_->enable();
-        ui->meshEditorLayout->addWidget(meshEditor_);
+//        ui->meshEditorLayout->addWidget(meshEditor_);
 
         connect(meshEditor_, SIGNAL(goToTab(int)),
                 ui->tabWidget, SLOT(setCurrentIndex(int)));
     }
     else if (index == 3)
     {
-//        ui->plotWidget->addDrawable(mesh_);
-        ui->plotWidget->addDrawable(sceleton_);
+//        ui->plotWidget->addDrawable(sceleton_);
         ui->plotWidget->addDrawable(mesh_);
-        calculusEditor_ = new Q3CalculusEditor(ui->plotWidget, mesh_);
-        ui->calculusEditorLayout->addWidget(calculusEditor_);
+        calculusEditor_->enable();
     }
 
     tabWidgetIndex_ = index;

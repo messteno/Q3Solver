@@ -16,7 +16,12 @@ public:
     ~Q3Calc();
 
     void abort();
+    void reset();
     QString info();
+
+    void setBadTriangleFix(bool badTriangleFix);
+    void setTau(const qreal &tau);
+    void setRe(const qreal &Re);
 
 protected:
     void run() Q_DECL_OVERRIDE;
@@ -34,6 +39,7 @@ private:
 
     Q3Mesh *mesh_;
     bool abort_;
+    bool started_;
 
     const static int maxPredictorIterationsCount;
     const static qreal maxPredictorError;
@@ -46,10 +52,14 @@ private:
     QVector<qreal> XN_;
     QVector<qreal> TN_;
 
+    bool badTriangleFix_;
+
     qreal tau_;
     qreal Re_;
 
     qreal residual_;
+
+    qreal time_;
 };
 
 template<class T>

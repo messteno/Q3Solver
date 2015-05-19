@@ -5,7 +5,11 @@
 #include <QTime>
 #include <qmath.h>
 
+#include "q3contour.h"
 #include "q3mesh.h"
+
+const int Q3Mesh::maxStreamIterationsCount = 15000;
+const qreal Q3Mesh::maxStreamError = 1e-7;
 
 Q3Mesh::Q3Mesh(QWidget *parent) :
     Q3PlotDrawable(),
@@ -13,7 +17,7 @@ Q3Mesh::Q3Mesh(QWidget *parent) :
     square_(0),
     edgeSquare_(0),
     angles_(0),
-    obtuseTriangles_(0)
+    obtuseTrianglesCount_(0)
 {
 
 }
@@ -80,19 +84,46 @@ void Q3Mesh::draw(Q3Painter &painter) const
     drawEdges(painter);
 //    drawTriangles(painter);
 
-//    qreal scaleX = painter.sx();
-//    qreal scaleY = painter.sy();
+    qreal scaleX = painter.sx();
+    qreal scaleY = painter.sy();
 
-//    for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
+//    qreal minStream = 1e10;
+//    qreal maxStream = -1e10;
+
+//    QListIterator<Q3MeshTriangle *> tit(triangles_);
+//    while(tit.hasNext())
 //    {
-//        Q3MeshTriangle *triangle = triangles_.at(trIndex);
-//        QPointF begin = triangle->center();
-//        begin = QPointF(begin.x() * scaleX, begin.y() * scaleY);
-//        QPointF end = (QVector2D(triangle->center())
-//                       + 10. * triangle->correctorVelocity()).toPointF();
-//        end = QPointF(end.x() * scaleX, end.y() * scaleY);
-//        painter.drawLine(begin, end);
+//        const Q3MeshTriangle *triangle = tit.next();
+//        if (triangle->stream() < minStream)
+//            minStream = triangle->stream();
+//        if (triangle->stream() > maxStream)
+//            maxStream = triangle->stream();
 //    }
+
+//    qreal diffStream = maxStream - minStream;
+//    tit.toFront();
+//    painter.setPen(Qt::NoPen);
+//    while(tit.hasNext())
+//    {
+//        const Q3MeshTriangle *triangle = tit.next();
+//        painter.setBrush(getColour((triangle->stream() - minStream) / diffStream));
+//        QPolygonF polygon = triangle->toPolygonF(scaleX, scaleY);
+//        painter.drawPolygon(polygon);
+//    }
+
+    painter.setPen(QColor(122, 163, 39));
+    for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
+    {
+        Q3MeshTriangle *triangle = triangles_.at(trIndex);
+        QPointF begin = triangle->center();
+        begin = QPointF(begin.x() * scaleX, begin.y() * scaleY);
+        QPointF end = (QVector2D(triangle->center())
+                       + 0.1 * triangle->predictorVelocity()).toPointF();
+        end = QPointF(end.x() * scaleX, end.y() * scaleY);
+        painter.drawLine(begin, end);
+//        painter.setPen(QColor(163, 39, 39));
+//        painter.drawPoint(end);
+    }
 }
 
 void Q3Mesh::drawEdges(Q3Painter &painter) const
@@ -142,6 +173,92 @@ void Q3Mesh::drawTriangles(Q3Painter &painter) const
     }
 }
 
+void Q3Mesh::calcStream()
+{
+    for (int trInd = 0; trInd < triangles_.count(); ++trInd)
+    {
+        Q3MeshTriangle *triangle = triangles_.at(trInd);
+        qreal dvXByY = 0;
+        qreal dvYByX = 0;
+
+        for (int eInd = 0; eInd < triangle->edges().count(); ++eInd)
+        {
+            Q3MeshEdge *edge = triangle->edges().at(eInd);
+            Q3MeshTriangle *adjTriangle = triangle->adjacentTriangles().at(eInd);
+            if (adjTriangle)
+            {
+                qreal dL = triangle->distanceToTriangles().at(eInd);
+                qreal dl = triangle->distancesToEdges().at(eInd);
+                QVector2D vv = (triangle->correctorVelocity() * (dL - dl)
+                                + adjTriangle->correctorVelocity() * dl) / dL;
+                dvXByY += edge->length() * vv.x()
+                          * triangle->normalVectors().at(eInd).y();
+                dvYByX += edge->length() * vv.y()
+                          * triangle->normalVectors().at(eInd).x();
+            }
+            else
+            {
+                edge->processBoundaryOmega(dvXByY, dvYByX);
+            }
+        }
+        triangle->setOmega(dvXByY - dvYByX);
+        triangle->setTempStream(triangle->stream());
+    }
+
+    int iterationsCount = 0;
+    qreal streamDelta = 0;
+    while (iterationsCount < maxStreamIterationsCount)
+    {
+        streamDelta = 0;
+        for (int trInd = 0; trInd < triangles_.count(); ++trInd)
+        {
+            Q3MeshTriangle *triangle = triangles_.at(trInd);
+            qreal A = 0;
+            qreal B = 0;
+
+            for (int eInd = 0; eInd < triangle->edges().size(); ++eInd)
+            {
+                Q3MeshEdge *edge = triangle->edges().at(eInd);
+                Q3MeshTriangle *adjTriangle = triangle->adjacentTriangles().at(eInd);
+                QVector2D normal = triangle->normalVectors().at(eInd);
+
+                if (adjTriangle)
+                {
+                    qreal dL = triangle->distanceToTriangles().at(eInd);
+
+                    QVector2D tAt(adjTriangle->center() - triangle->center());
+                    tAt.normalize();
+
+                    qreal cosin = qAbs(QVector2D::dotProduct(tAt, normal));
+                    A += edge->length() / dL / cosin;
+                    B += edge->length() / dL * adjTriangle->stream() / cosin;
+                }
+                else
+                {
+                    qreal deltaB = edge->processBoundaryStream();
+                    B += deltaB;
+                }
+            }
+            triangle->setTempStream((triangle->omega() + B) / A);
+            qreal trStreamDelta = qAbs(triangle->stream()
+                                       - triangle->tempStream());
+            if (trStreamDelta > streamDelta)
+                streamDelta = trStreamDelta;
+        }
+
+        for (int trInd = 0; trInd < triangles_.count(); ++trInd)
+        {
+            Q3MeshTriangle *triangle = triangles_.at(trInd);
+            triangle->setStream(triangle->tempStream());
+        }
+
+        if (streamDelta < maxStreamError)
+            break;
+        iterationsCount++;
+    }
+    qDebug() << iterationsCount << streamDelta;
+}
+
 void Q3Mesh::clear()
 {
     qDeleteAll(nodes_.begin(), nodes_.end());
@@ -156,7 +273,7 @@ void Q3Mesh::clear()
     square_ = 0;
     angles_ = 0;
     edgeSquare_ = 0;
-    obtuseTriangles_ = 0;
+    obtuseTrianglesCount_ = 0;
 }
 
 QString Q3Mesh::info()
@@ -178,9 +295,14 @@ QString Q3Mesh::info()
     stream << tr("Проверка углов:    ")
            << QString::number(angles_) << "\n";
     stream << tr("Тупоугольных тр-в: ")
-           << QString::number((100. * obtuseTriangles_) / triangles_.count())
+           << QString::number((100. * obtuseTrianglesCount_) / triangles_.count())
            << "\n";
     return out;
+}
+
+qreal Q3Mesh::square()
+{
+    return square_;
 }
 
 Q3Mesh::EdgeBoundaries &Q3Mesh::boundaries()
@@ -188,15 +310,15 @@ Q3Mesh::EdgeBoundaries &Q3Mesh::boundaries()
     return boundaries_;
 }
 
-void Q3Mesh::check()
+void Q3Mesh::update()
 {
     square_ = 0;
-    obtuseTriangles_ = 0;
+    obtuseTrianglesCount_ = 0;
     foreach (Q3MeshTriangle *triangle, triangles_)
     {
         square_ += triangle->square();
         if (triangle->isBad())
-            obtuseTriangles_++;
+            obtuseTrianglesCount_++;
     }
 
     angles_ = 0;

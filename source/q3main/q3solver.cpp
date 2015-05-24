@@ -20,7 +20,7 @@ Q3Solver::Q3Solver(QWidget *parent) :
     sceleton_ = new Q3Sceleton(this);
     mesh_ = new Q3Mesh(this);
 
-    Q3CavityTestBuilder testBuilder;
+    Q3FlowPastCylinderTestBuilder testBuilder;
     testBuilder.buildTest(*sceleton_, *mesh_, boundaries_);
 
     meshEditor_ = new Q3MeshEditor(ui->plotWidget, mesh_, sceleton_,

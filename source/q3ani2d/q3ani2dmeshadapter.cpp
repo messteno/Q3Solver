@@ -167,16 +167,16 @@ bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh, QList<Q3Boundary *> *boundar
 
         if (!mesh->boundaries().isEmpty() && !labelBoundaryDelimeters_.isEmpty())
         {
-            QList<Q3MeshEdge *>& boundary = mesh->boundaries().back();
-            boundary.append(ab);
+            QList<Q3MeshEdge *>& edgeBoundary = mesh->boundaries().back();
+            edgeBoundary.append(ab);
         }
     }
 
     for (int i = 0; i < ani.nt; ++i)
     {
-        Q3MeshNode *a = mesh->nodes()[ani.tri[3 * i + 0] - 1];
-        Q3MeshNode *b = mesh->nodes()[ani.tri[3 * i + 1] - 1];
-        Q3MeshNode *c = mesh->nodes()[ani.tri[3 * i + 2] - 1];
+        Q3MeshNode *a = mesh->nodes().at(ani.tri[3 * i + 0] - 1);
+        Q3MeshNode *b = mesh->nodes().at(ani.tri[3 * i + 1] - 1);
+        Q3MeshNode *c = mesh->nodes().at(ani.tri[3 * i + 2] - 1);
 
         Q3MeshEdge *ab = mesh->addEdge(a, b, 0);
         Q3MeshEdge *bc = mesh->addEdge(b, c, 0);

@@ -1,4 +1,7 @@
 # process input parameters
+
+set(CMAKE_BUILD_TYPE Release)
+
 include_directories(${CMAKE_SOURCE_DIR}/source/q3plot ${CMAKE_SOURCE_DIR}/source/q3sceleton ${CMAKE_SOURCE_DIR}/source/q3boundary ${CMAKE_SOURCE_DIR}/source/q3mesh)
 
 aux_source_directory(. q3calc_SRC)

@@ -18,6 +18,7 @@ public:
 private:
     nnpi *interpolator_;
     delaunay *delaunay_;
+    qreal scale_;
 };
 
 #endif // Q3NATURALNEIBOURINTERPOLATION_H

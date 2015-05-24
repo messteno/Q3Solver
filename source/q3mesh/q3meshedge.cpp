@@ -24,6 +24,12 @@ Q3MeshEdge::Q3MeshEdge(Q3MeshNode *a, Q3MeshNode *b,
 
     center_ = (*a_ + *b_) / 2.;
     length_ = QVector2D(*a_ - *b_).length();
+
+    if (boundary_)
+    {
+        a_->setBoundary(true);
+        b_->setBoundary(true);
+    }
 }
 
 Q3MeshNode *Q3MeshEdge::a() const
@@ -222,7 +228,7 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re)
             qreal vni = QVector2D::dotProduct(
                             triangle->correctorVelocity(),
                             triangle->normalVectors().at(edgeIndex));
-            qreal tnu = dl * fabs (vni) * Re;
+            qreal tnu = dl * qAbs(vni) * Re;
             qreal deltaA = length_ / Re / dl * (1. + tnu - dl * vni * Re);
 
             triangle->setTempVelocity(triangle->tempVelocity()
@@ -355,6 +361,12 @@ void Q3MeshEdge::processBoundaryVelocity()
     if (!boundary_)
         return;
 
-    velocity_ = boundary_->velocity(center_);
+    velocity_ = boundary_->velocity(*a_, *b_);
 //    adjacentTriangles_.at(0)->setCorrectorVelocity(velocity_);
+}
+
+
+QDataStream &operator<<(QDataStream &stream, const Q3MeshEdge &edge)
+{
+    stream << edge.a() << " " << edge.b();
 }

@@ -7,11 +7,11 @@ typedef exprtk::expression<double>     expressionT;
 typedef exprtk::parser<double>             parserT;
 
 
-class q3XYExpression
+class Q3XYExpression
 {
 public:
-	q3XYExpression ();
-	~q3XYExpression ();
+	Q3XYExpression ();
+	~Q3XYExpression ();
     bool setString (std::string str);
 	double getValue (double x, double y);
 	

@@ -13,20 +13,24 @@ Q3BoundaryFixedVelocity::~Q3BoundaryFixedVelocity()
     delete ui;
 }
 
-QVector2D Q3BoundaryFixedVelocity::velocity(Q3SceletonItem *item, QPointF point)
+QVector2D Q3BoundaryFixedVelocity::velocity(Q3SceletonItem *item,
+                                            QPointF a, QPointF b)
 {
     switch (item->type())
     {
+        case Q3SceletonItem::Circle:
         case Q3SceletonItem::PointConnection:
         {
-            Q3PointConnection *conn = dynamic_cast<Q3PointConnection *>(item);
-            Q_ASSERT(conn);
-            QVector2D tangentVector = QVector2D(conn->b()->point()
-                                                - conn->a()->point());
+            QVector2D tangentVector = QVector2D(b - a).normalized();
             return ui->vEdit->text().toDouble() * tangentVector;
         }
         default:
             break;
     }
     return QVector2D(0, 0);
+}
+
+void Q3BoundaryFixedVelocity::setVelocityText(const QString &vText)
+{
+    ui->vEdit->setText(vText);
 }

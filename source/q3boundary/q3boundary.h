@@ -27,7 +27,7 @@ public:
     int label() const;
     void setLabel(int label);
 
-    QVector2D velocity(QPointF point);
+    QVector2D velocity(QPointF a, QPointF b);
 
 private:
     Q3BoundaryType *type_;

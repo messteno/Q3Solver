@@ -1,4 +1,5 @@
 #include "q3calculuseditor.h"
+#include "q3externalplot.h"
 #include "q3movedirector.h"
 #include "q3naturalneigbourinterpolation.h"
 #include "ui_q3calculuseditor.h"
@@ -37,11 +38,12 @@ void Q3CalculusEditor::enable()
     if (enabled_)
         return;
 
+    mesh_->setDrawPolicy(Q3Mesh::DrawBorders | Q3Mesh::DrawVelocity);
+
     directorManager_ = new Q3DirectorManager(this);
     Q3Director *moveDirector = new Q3MoveDirector(directorManager_);
     directorManager_->addDirector(moveDirector);
     directorManager_->setPlot(plot_);
-    plot_->addDrawable(&contourPlot_);
 }
 
 void Q3CalculusEditor::disable()
@@ -98,7 +100,7 @@ void Q3CalculusEditor::on_resetCalcButton_clicked()
 
 void Q3CalculusEditor::on_internalClearPlotButton_clicked()
 {
-    contourPlot_.clear();
+    plot_->removeDrawable(&contourPlot_);
     plot_->update();
 }
 
@@ -110,26 +112,78 @@ void Q3CalculusEditor::on_internalStreamPlotButton_clicked()
         triValues.append(mesh_->triangles().at(i)->stream());
     Q3NaturalNeigbourInterpolation interpolation(*mesh_, triValues);
     QVector<qreal> nodeValues = interpolation.interpolateToNodes();
+
+    mesh_->setNodeValues(nodeValues);
+
+    contourPlot_.clear();
     contourPlot_.setValues(nodeValues);
     contourPlot_.createFilledContour(250);
     contourPlot_.createContour(30);
-    plot_->update();
 
-//    QFile co("/home/mesteno/st.txt");
-//    if (co.open(QFile::WriteOnly | QFile::Truncate))
-//    {
-//        QTextStream out(&co);
-//        for (int trIndex = 0; trIndex < mesh_->triangles().count(); ++trIndex)
-//        {
-//            Q3MeshTriangle *triangle = mesh_->triangles().at(trIndex);
-//            out << trIndex << " "
-//                << QString::number(triangle->center().x(), 'd', 6) << " "
-//                << QString::number(triangle->center().y(), 'd', 6) << " "
-//                << QString::number(triangle->omega(), 'd', 6) << " "
-//                << "\n";
-//        }
-//        co.close();
-//    }
+    plot_->addDrawable(&contourPlot_);
+    plot_->update();
+}
+
+void Q3CalculusEditor::on_externalStreamPlotButton_clicked()
+{
+    QVector<qreal> triValues;
+    mesh_->calcStream();
+    for (int i = 0; i < mesh_->triangles().count(); ++i)
+        triValues.append(mesh_->triangles().at(i)->stream());
+    Q3NaturalNeigbourInterpolation interpolation(*mesh_, triValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
+
+    mesh_->setNodeValues(nodeValues);
+
+    contourPlot_.clear();
+    contourPlot_.setValues(nodeValues);
+    contourPlot_.createFilledContour(250);
+    contourPlot_.createContour(30);
+
+    Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->plotWidget()->setSceneRect(mesh_->boundingRect());
+    plot->plotWidget()->addDrawable(&contourPlot_);
+    plot->show();
+}
+
+void Q3CalculusEditor::on_internalVorticityPlotButton_clicked()
+{
+    QVector<qreal> triValues;
+    mesh_->calcVorticity();
+    for (int i = 0; i < mesh_->triangles().count(); ++i)
+        triValues.append(mesh_->triangles().at(i)->omega());
+    Q3NaturalNeigbourInterpolation interpolation(*mesh_, triValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
+
+    mesh_->setNodeValues(nodeValues);
+
+    contourPlot_.clear();
+    contourPlot_.setValues(nodeValues);
+    contourPlot_.createFilledContour(250);
+
+    plot_->addDrawable(&contourPlot_);
+    plot_->update();
+}
+
+void Q3CalculusEditor::on_externalVorticityPlotButton_clicked()
+{
+    QVector<qreal> triValues;
+    mesh_->calcVorticity();
+    for (int i = 0; i < mesh_->triangles().count(); ++i)
+        triValues.append(mesh_->triangles().at(i)->omega());
+    Q3NaturalNeigbourInterpolation interpolation(*mesh_, triValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
+
+    mesh_->setNodeValues(nodeValues);
+
+    contourPlot_.clear();
+    contourPlot_.setValues(nodeValues);
+    contourPlot_.createFilledContour(250);
+
+    Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->plotWidget()->setSceneRect(mesh_->boundingRect());
+    plot->plotWidget()->addDrawable(&contourPlot_);
+    plot->show();
 }
 
 void Q3CalculusEditor::on_internalPreassurePlotButton_clicked()

@@ -77,4 +77,6 @@ private:
     int id_;
 };
 
+QDataStream& operator<< (QDataStream &stream, const Q3MeshEdge &edge);
+
 #endif // Q3MESHEDGE_H

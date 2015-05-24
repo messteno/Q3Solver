@@ -18,7 +18,7 @@ Q3BoundaryType::~Q3BoundaryType()
 {
 }
 
-QVector2D Q3BoundaryType::velocity(Q3SceletonItem *item, QPointF point)
+QVector2D Q3BoundaryType::velocity(Q3SceletonItem *item, QPointF a, QPointF b)
 {
    return QVector2D(0, 0);
 }
@@ -38,7 +38,7 @@ QList<Q3BoundaryType::Type> Q3BoundaryType::supportedBoundaryTypes(
             types << InBoundary << OutBoundary << NoSlipBoundary << FixedVelocity;
             break;
         case Q3SceletonItem::Circle:
-            types << NoSlipBoundary;
+            types << NoSlipBoundary << FixedVelocity;
     }
     return types;
 }

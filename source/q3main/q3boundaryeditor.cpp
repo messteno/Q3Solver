@@ -210,6 +210,7 @@ void Q3BoundaryEditor::on_removeBoundaryButton_clicked()
     ui->boundaryTypeComboBox->setCurrentIndex(0);
     boundaries_->removeAll(boundary_);
     delete boundary_;
+    boundary_ = NULL;
 }
 
 void Q3BoundaryEditor::on_defaultBoundaryButton_clicked()

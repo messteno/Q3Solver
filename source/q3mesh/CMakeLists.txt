@@ -1,4 +1,6 @@
 # process input parameters
+set(CMAKE_BUILD_TYPE Release)
+
 include_directories(${3RDPARTY_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3plot ${CMAKE_SOURCE_DIR}/source/q3sceleton ${CMAKE_SOURCE_DIR}/source/q3boundary)
 link_directories(${3RDPARTY_LIBS_DIR})
 

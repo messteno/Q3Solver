@@ -47,10 +47,10 @@ void Q3Boundary::setLabel(int label)
     label_ = label;
 }
 
-QVector2D Q3Boundary::velocity(QPointF point)
+QVector2D Q3Boundary::velocity(QPointF a, QPointF b)
 {
     // TODO: Возможно нужно проверить на принадлежность точки границе
-    return type_->velocity(item_, point);
+    return type_->velocity(item_, a, b);
 }
 
 void Q3Boundary::setType(Q3BoundaryType *type)

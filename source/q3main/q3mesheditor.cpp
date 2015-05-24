@@ -34,6 +34,8 @@ void Q3MeshEditor::enable()
     if (enabled_)
         return;
 
+    mesh_->setDrawPolicy(Q3Mesh::DrawEdges);
+
     directorManager_ = new Q3DirectorManager(this);
     Q3Director *moveDirector = new Q3MoveDirector(directorManager_);
     directorManager_->addDirector(moveDirector);

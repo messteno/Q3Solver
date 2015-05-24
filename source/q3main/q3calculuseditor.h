@@ -32,9 +32,15 @@ private slots:
     void on_stopCalcButton_clicked();
     void on_resetCalcButton_clicked();
 
-    void on_internalClearPlotButton_clicked();
     void on_internalStreamPlotButton_clicked();
+    void on_externalStreamPlotButton_clicked();
+
     void on_internalPreassurePlotButton_clicked();
+
+    void on_internalVorticityPlotButton_clicked();
+    void on_externalVorticityPlotButton_clicked();
+
+    void on_internalClearPlotButton_clicked();
 
 private:
     Ui::Q3CalculusEditor *ui;

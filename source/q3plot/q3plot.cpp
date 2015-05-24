@@ -13,6 +13,8 @@ const QColor Q3Plot::DefaultBackgroundColor = QColor(0x00, 0x16, 0x1c);
 const QColor Q3Plot::DefaultForegroundColor = QColor(0x1d, 0xd3, 0xf3, 0xa0);
 const QColor Q3Plot::DefaultAxesColor = QColor(0xff, 0xff, 0xff);
 const QColor Q3Plot::DefaultPenColor = QColor(0xff, 0xff, 0xff);
+const QColor Q3Plot::DefaultTextColor = QColor(0x00, 0x00, 0x00);
+const QColor Q3Plot::DefaultBorderColor = QColor(0xff, 0xff, 0xff);
 
 const int Q3Plot::MinTickCount = 8;
 
@@ -30,14 +32,16 @@ Q3Plot::Q3Plot(QWidget *parent) :
     foregroundColor_(DefaultForegroundColor),
     axesColor_(DefaultAxesColor),
     penColor_(DefaultPenColor),
+    borderColor_(DefaultBorderColor),
+    textColor_(DefaultTextColor),
     bottomMargin_(25),
     leftMargin_(20),
     wheelDelta_(0),
     snapToGrid_(true)
 {
     setMouseTracking(true);
-    setMinimumWidth(300);
-    setMinimumHeight(300);
+    setMinimumWidth(100);
+    setMinimumHeight(100);
 }
 
 Q3Plot::~Q3Plot()
@@ -51,10 +55,13 @@ void Q3Plot::resizeEvent(QResizeEvent *event)
 
 void Q3Plot::paintEvent(QPaintEvent *event)
 {
-    drawBackground();
-    drawAxes();
-    drawDrawables();
-    drawBorders();
+    Q3Painter painter;
+    painter.begin(this);
+    drawBackground(painter);
+    drawAxes(painter);
+    drawDrawables(painter);
+    drawBorders(painter);
+    painter.end();
 }
 
 void Q3Plot::wheelEvent(QWheelEvent *event)
@@ -164,6 +171,21 @@ void Q3Plot::setSnapToGrid(bool snapTogrid)
     snapToGrid_ = snapTogrid;
 }
 
+void Q3Plot::setSceneRect(const QRectF &sceneRect)
+{
+    sceneRect_ = sceneRect;
+    sceneRect_.setLeft(sceneRect_.left() - sceneRect_.width() / width() * 20);
+    sceneRect_.setRight(sceneRect_.right() + sceneRect_.width() / width() * 2);
+    sceneRect_.setTop(sceneRect_.top() - sceneRect_.height() / height() * 10);
+    sceneRect_.setBottom(sceneRect_.bottom() + sceneRect_.height() /height() * 2);
+    updateScene();
+}
+
+QRectF Q3Plot::sceneRect() const
+{
+    return sceneRect_;
+}
+
 void Q3Plot::updateScene()
 {
     qreal dw = sceneRect_.width();
@@ -172,17 +194,18 @@ void Q3Plot::updateScene()
         dh = dw / width() * height();
     else
         dw = dh / height() * width();
+
     drawRect_.setTopLeft(sceneRect_.center() - QPointF(0.5 * dw, 0.5 * dh));
     drawRect_.setBottomRight(sceneRect_.center() + QPointF(0.5 * dw, 0.5 * dh));
 
     scaleX_ = width() / dw;
     scaleY_ = - height() / dh;
 
-    dx_ = sceneToMapX (0);
-    dy_ = sceneToMapY (0);
+    dx_ = sceneToMapX(0);
+    dy_ = sceneToMapY(0);
 
-    tickDx_ = pow (10, (int) (log(drawRect_.width()) / log(10.)));
-    tickDy_ = pow (10, (int) (log(drawRect_.height()) / log(10.)));
+    tickDx_ = pow(10, (int) (log(drawRect_.width()) / log(10.)));
+    tickDy_ = pow(10, (int) (log(drawRect_.height()) / log(10.)));
 
     countTickX_ = ceil(drawRect_.width() / tickDx_);
     countTickY_ = ceil(drawRect_.height() / tickDy_);
@@ -199,7 +222,7 @@ void Q3Plot::updateScene()
         countTickY_ = ceil(drawRect_.height() / tickDy_);
     }
 
-    if ((tickDx_ / tickDy_ < 5) && (tickDy_ / tickDx_ < 5))
+    if ((tickDx_ / tickDy_ < 2) && (tickDy_ / tickDx_ < 2))
         tickDx_ = tickDy_ = qMin(tickDx_, tickDy_);
 
     countTickX_ = ceil(drawRect_.width() / tickDx_);
@@ -246,18 +269,13 @@ qreal Q3Plot::mapToSceneY (qreal y) const
     return drawRect_.y() + drawRect_.height() * (height() - y) / height();
 }
 
-void Q3Plot::drawBackground()
+void Q3Plot::drawBackground(Q3Painter &painter)
 {
-    Q3Painter painter;
-    painter.begin(this);
     painter.fillRect(QRectF(0, 0, width(), height()), backgroundColor_);
-    painter.end();
 }
 
-void Q3Plot::drawAxes()
+void Q3Plot::drawAxes(Q3Painter &painter)
 {
-    Q3Painter painter;
-    painter.begin(this);
     painter.setRenderHint(Q3Painter::Antialiasing);
     painter.setPen(QPen(axesColor_));
     painter.drawLine(0, sceneToMapY(0), width(), sceneToMapY(0));
@@ -289,15 +307,10 @@ void Q3Plot::drawAxes()
         }
         ytick += tickDy_;
     }
-
-    painter.end();
 }
 
-void Q3Plot::drawBorders()
+void Q3Plot::drawBorders(Q3Painter &painter)
 {
-    Q3Painter painter;
-    painter.begin(this);
-
     double ytick = ceil(drawRect_.y() / tickDy_) * tickDy_;
     int maxYtw = 0;
     for (int i = 0; i < countTickY_; ++i)
@@ -319,7 +332,7 @@ void Q3Plot::drawBorders()
 
     painter.fillRect(QRectF(0, height() - bottomMargin_,
                             width(), bottomMargin_),
-                     QColor(0xff, 0xff, 0xff));
+                     borderColor_);
 
     double xtick = ceil(drawRect_.x() / tickDx_) * tickDx_;
     for (int i = 0; i < countTickX_; ++i)
@@ -332,19 +345,19 @@ void Q3Plot::drawBorders()
         QFontMetrics metrics = QFontMetrics(font());
         int tw = metrics.width(tickStream.str().c_str());
 
-        painter.setPen(QPen(QColor(0x00, 0x00, 0x00)));
+        painter.setPen(textColor_);
         if (sceneToMapX(xtick) - 0.5 * tw > leftMargin_)
             painter.drawText(QPointF(sceneToMapX(xtick) - 0.5 * tw,
                                      height() - 9),
                              tickStream.str().c_str());
 
-        painter.setPen(QPen(axesColor_));
+        painter.setPen(axesColor_);
         painter.drawLine(sceneToMapX(xtick), height() - bottomMargin_ - 10,
                          sceneToMapX(xtick), height() - bottomMargin_);
         xtick += tickDx_;
     }
     painter.fillRect(QRectF(0, 0, leftMargin_, height() - bottomMargin_),
-                     QColor(0xff, 0xff, 0xff));
+                     borderColor_);
 
     ytick = ceil (drawRect_.y() / tickDy_) * tickDy_;
     for (int i = 0; i < countTickY_; ++i)
@@ -357,7 +370,7 @@ void Q3Plot::drawBorders()
         QFontMetrics metrics = QFontMetrics(font());
         int tw = metrics.width(tickStream.str().c_str());
 
-        painter.setPen(QPen(QColor(0x00, 0x00, 0x00)));
+        painter.setPen(textColor_);
         if (sceneToMapY(ytick) < height() - bottomMargin_)
         {
             painter.drawText(QPointF(leftMargin_ - tw - 5,
@@ -369,14 +382,10 @@ void Q3Plot::drawBorders()
         }
         ytick += tickDy_;
     }
-
-    painter.end();
 }
 
-void Q3Plot::drawDrawables()
+void Q3Plot::drawDrawables(Q3Painter &painter)
 {
-    Q3Painter painter;
-    painter.begin(this);
     painter.save();
 
     QPen pen = QPen(Qt::white);
@@ -389,7 +398,6 @@ void Q3Plot::drawDrawables()
     foreach (Q3PlotDrawable *item, drawables_)
         item->draw(painter);
     painter.restore();
-    painter.end();
 }
 
 void Q3Plot::setBackgroundColor(const QColor &color)
@@ -412,6 +420,16 @@ void Q3Plot::setAxesColor(const QColor &color)
     axesColor_ = color;
 }
 
+void Q3Plot::setBorderColor(const QColor &borderColor)
+{
+    borderColor_ = borderColor;
+}
+
+void Q3Plot::setTextColor(const QColor &textColor)
+{
+    textColor_ = textColor;
+}
+
 void Q3Plot::setBottomMargin(int margin)
 {
     bottomMargin_ = margin;
@@ -424,7 +442,8 @@ void Q3Plot::setLeftMargin(int margin)
 
 void Q3Plot::addDrawable(Q3PlotDrawable *item)
 {
-    drawables_.append(item);
+    if (!drawables_.contains(item))
+        drawables_.append(item);
 }
 
 void Q3Plot::removeDrawable(Q3PlotDrawable *item)

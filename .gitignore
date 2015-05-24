@@ -8,3 +8,4 @@ bin
 3rdparty/build
 CMakeLists.txt.user
 tmp
+data

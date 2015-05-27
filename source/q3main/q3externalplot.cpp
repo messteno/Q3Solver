@@ -18,6 +18,8 @@ Q3ExternalPlot::Q3ExternalPlot(QWidget *parent) :
     Q3Director *moveDirector = new Q3MoveDirector(directorManager_);
     directorManager_->addDirector(moveDirector);
     directorManager_->setPlot(ui->plotWidget);
+
+    show();
 }
 
 Q3ExternalPlot::~Q3ExternalPlot()

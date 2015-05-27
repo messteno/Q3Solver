@@ -35,10 +35,14 @@ private slots:
     void on_internalStreamPlotButton_clicked();
     void on_externalStreamPlotButton_clicked();
 
-    void on_internalPreassurePlotButton_clicked();
-
     void on_internalVorticityPlotButton_clicked();
     void on_externalVorticityPlotButton_clicked();
+
+    void on_internalPreassurePlotButton_clicked();
+    void on_externalPreassurePlotButton_clicked();
+
+    void on_internalMagnitudePlotButton_clicked();
+    void on_externalMagnitudePlotButton_clicked();
 
     void on_internalClearPlotButton_clicked();
 

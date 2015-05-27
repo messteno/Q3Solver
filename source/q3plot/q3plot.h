@@ -51,6 +51,7 @@ private:
     QPointF mapToScene(qreal x, qreal y) const;
     qreal mapToSceneX (qreal x) const;
     qreal mapToSceneY (qreal y) const;
+    int borderWidth();
 
 public:
     static const QColor DefaultBackgroundColor;

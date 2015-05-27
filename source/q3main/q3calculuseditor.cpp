@@ -1,7 +1,7 @@
 #include "q3calculuseditor.h"
 #include "q3externalplot.h"
 #include "q3movedirector.h"
-#include "q3naturalneigbourinterpolation.h"
+#include "q3meshinterpolation.h"
 #include "ui_q3calculuseditor.h"
 
 Q3CalculusEditor::Q3CalculusEditor(Q3Plot *plot, Q3Mesh *mesh, QWidget *parent) :
@@ -106,14 +106,18 @@ void Q3CalculusEditor::on_internalClearPlotButton_clicked()
 
 void Q3CalculusEditor::on_internalStreamPlotButton_clicked()
 {
-    QVector<qreal> triValues;
     mesh_->calcStream();
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-        triValues.append(mesh_->triangles().at(i)->stream());
-    Q3NaturalNeigbourInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
-    mesh_->setNodeValues(nodeValues);
+    QVector<QVector3D> triValues;
+    for (int i = 0; i < mesh_->triangles().count(); ++i)
+    {
+        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
+        triValues.append(QVector3D(triangle->center().x(),
+                                   triangle->center().y(),
+                                   triangle->stream()));
+    }
+    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
     contourPlot_.clear();
     contourPlot_.setValues(nodeValues);
@@ -126,14 +130,18 @@ void Q3CalculusEditor::on_internalStreamPlotButton_clicked()
 
 void Q3CalculusEditor::on_externalStreamPlotButton_clicked()
 {
-    QVector<qreal> triValues;
     mesh_->calcStream();
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-        triValues.append(mesh_->triangles().at(i)->stream());
-    Q3NaturalNeigbourInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
-    mesh_->setNodeValues(nodeValues);
+    QVector<QVector3D> triValues;
+    for (int i = 0; i < mesh_->triangles().count(); ++i)
+    {
+        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
+        triValues.append(QVector3D(triangle->center().x(),
+                                   triangle->center().y(),
+                                   triangle->stream()));
+    }
+    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
     contourPlot_.clear();
     contourPlot_.setValues(nodeValues);
@@ -143,19 +151,22 @@ void Q3CalculusEditor::on_externalStreamPlotButton_clicked()
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     plot->plotWidget()->setSceneRect(mesh_->boundingRect());
     plot->plotWidget()->addDrawable(&contourPlot_);
-    plot->show();
 }
 
 void Q3CalculusEditor::on_internalVorticityPlotButton_clicked()
 {
-    QVector<qreal> triValues;
     mesh_->calcVorticity();
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-        triValues.append(mesh_->triangles().at(i)->omega());
-    Q3NaturalNeigbourInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
-    mesh_->setNodeValues(nodeValues);
+    QVector<QVector3D> triValues;
+    for (int i = 0; i < mesh_->triangles().count(); ++i)
+    {
+        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
+        triValues.append(QVector3D(triangle->center().x(),
+                                   triangle->center().y(),
+                                   triangle->omega()));
+    }
+    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
     contourPlot_.clear();
     contourPlot_.setValues(nodeValues);
@@ -167,14 +178,18 @@ void Q3CalculusEditor::on_internalVorticityPlotButton_clicked()
 
 void Q3CalculusEditor::on_externalVorticityPlotButton_clicked()
 {
-    QVector<qreal> triValues;
     mesh_->calcVorticity();
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-        triValues.append(mesh_->triangles().at(i)->omega());
-    Q3NaturalNeigbourInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
-    mesh_->setNodeValues(nodeValues);
+    QVector<QVector3D> triValues;
+    for (int i = 0; i < mesh_->triangles().count(); ++i)
+    {
+        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
+        triValues.append(QVector3D(triangle->center().x(),
+                                   triangle->center().y(),
+                                   triangle->omega()));
+    }
+    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
     contourPlot_.clear();
     contourPlot_.setValues(nodeValues);
@@ -183,10 +198,90 @@ void Q3CalculusEditor::on_externalVorticityPlotButton_clicked()
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     plot->plotWidget()->setSceneRect(mesh_->boundingRect());
     plot->plotWidget()->addDrawable(&contourPlot_);
-    plot->show();
 }
 
 void Q3CalculusEditor::on_internalPreassurePlotButton_clicked()
 {
+    QVector<QVector3D> edgeValues;
+    for (int i = 0; i < mesh_->edges().count(); ++i)
+    {
+        Q3MeshEdge *edge = mesh_->edges().at(i);
+        edgeValues.append(QVector3D(edge->center().x(),
+                                    edge->center().y(),
+                                    edge->preassure()));
+    }
+    Q3MeshEdgeNodeInterpolation interpolation(*mesh_, edgeValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
+    contourPlot_.clear();
+    contourPlot_.setValues(nodeValues);
+    contourPlot_.createFilledContour(250);
+
+    plot_->addDrawable(&contourPlot_);
+    plot_->update();
+}
+
+void Q3CalculusEditor::on_externalPreassurePlotButton_clicked()
+{
+    QVector<QVector3D> edgeValues;
+    for (int i = 0; i < mesh_->edges().count(); ++i)
+    {
+        Q3MeshEdge *edge = mesh_->edges().at(i);
+        edgeValues.append(QVector3D(edge->center().x(),
+                                    edge->center().y(),
+                                    edge->preassure()));
+    }
+    Q3MeshEdgeNodeInterpolation interpolation(*mesh_, edgeValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
+
+    contourPlot_.clear();
+    contourPlot_.setValues(nodeValues);
+    contourPlot_.createFilledContour(250);
+
+    Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->plotWidget()->setSceneRect(mesh_->boundingRect());
+    plot->plotWidget()->addDrawable(&contourPlot_);
+}
+
+void Q3CalculusEditor::on_internalMagnitudePlotButton_clicked()
+{
+    QVector<QVector3D> triValues;
+    for (int i = 0; i < mesh_->triangles().count(); ++i)
+    {
+        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
+        triValues.append(QVector3D(triangle->center().x(),
+                                   triangle->center().y(),
+                                   triangle->correctorVelocity().length()));
+    }
+    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
+
+    contourPlot_.clear();
+    contourPlot_.setValues(nodeValues);
+    contourPlot_.createFilledContour(250);
+
+    plot_->addDrawable(&contourPlot_);
+    plot_->update();
+}
+
+void Q3CalculusEditor::on_externalMagnitudePlotButton_clicked()
+{
+    QVector<QVector3D> triValues;
+    for (int i = 0; i < mesh_->triangles().count(); ++i)
+    {
+        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
+        triValues.append(QVector3D(triangle->center().x(),
+                                   triangle->center().y(),
+                                   triangle->correctorVelocity().length()));
+    }
+    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
+    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
+
+    contourPlot_.clear();
+    contourPlot_.setValues(nodeValues);
+    contourPlot_.createFilledContour(250);
+
+    Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->plotWidget()->setSceneRect(mesh_->boundingRect());
+    plot->plotWidget()->addDrawable(&contourPlot_);
 }

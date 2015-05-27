@@ -53,8 +53,6 @@ public:
 
     void setDrawPolicy(const uint &drawPolicy);
 
-    void setNodeValues(const QVector<qreal> &nodeValues);
-
     QRectF boundingRect() const;
 
 private:
@@ -71,8 +69,6 @@ private:
 
     uint drawPolicy_;
     QRectF boundingRect_;
-
-    QVector<qreal> nodeValues_;
 
     static const int maxStreamIterationsCount;
     static const qreal maxStreamError;

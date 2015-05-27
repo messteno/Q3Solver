@@ -174,10 +174,16 @@ void Q3Plot::setSnapToGrid(bool snapTogrid)
 void Q3Plot::setSceneRect(const QRectF &sceneRect)
 {
     sceneRect_ = sceneRect;
-    sceneRect_.setLeft(sceneRect_.left() - sceneRect_.width() / width() * 20);
-    sceneRect_.setRight(sceneRect_.right() + sceneRect_.width() / width() * 2);
-    sceneRect_.setTop(sceneRect_.top() - sceneRect_.height() / height() * 10);
-    sceneRect_.setBottom(sceneRect_.bottom() + sceneRect_.height() /height() * 2);
+    updateScene();
+    int bw = borderWidth();
+    sceneRect_.setLeft(sceneRect_.left()
+                       - (bw + 30.) * sceneRect_.width() / width());
+    sceneRect_.setRight(sceneRect_.right()
+                        + 20. * sceneRect_.width() / width());
+    sceneRect_.setTop(sceneRect_.top()
+                      - (bottomMargin_ + 20.) * sceneRect_.height() / height());
+    sceneRect_.setBottom(sceneRect_.bottom()
+                         + 20. * sceneRect_.height() / height());
     updateScene();
 }
 
@@ -276,7 +282,7 @@ void Q3Plot::drawBackground(Q3Painter &painter)
 
 void Q3Plot::drawAxes(Q3Painter &painter)
 {
-    painter.setRenderHint(Q3Painter::Antialiasing);
+    painter.setRenderHint(Q3Painter::Antialiasing, false);
     painter.setPen(QPen(axesColor_));
     painter.drawLine(0, sceneToMapY(0), width(), sceneToMapY(0));
     painter.drawLine(sceneToMapX(0), 0, sceneToMapX(0), height());
@@ -309,7 +315,7 @@ void Q3Plot::drawAxes(Q3Painter &painter)
     }
 }
 
-void Q3Plot::drawBorders(Q3Painter &painter)
+int Q3Plot::borderWidth()
 {
     double ytick = ceil(drawRect_.y() / tickDy_) * tickDy_;
     int maxYtw = 0;
@@ -327,13 +333,19 @@ void Q3Plot::drawBorders(Q3Painter &painter)
         ytick += tickDy_;
     }
     maxYtw += 10;
+    return maxYtw;
+}
 
+void Q3Plot::drawBorders(Q3Painter &painter)
+{
+    int maxYtw = borderWidth();
     setLeftMargin(maxYtw);
+
+    painter.setRenderHint(Q3Painter::Antialiasing, false);
 
     painter.fillRect(QRectF(0, height() - bottomMargin_,
                             width(), bottomMargin_),
                      borderColor_);
-
     double xtick = ceil(drawRect_.x() / tickDx_) * tickDx_;
     for (int i = 0; i < countTickX_; ++i)
     {
@@ -356,10 +368,13 @@ void Q3Plot::drawBorders(Q3Painter &painter)
                          sceneToMapX(xtick), height() - bottomMargin_);
         xtick += tickDx_;
     }
+    painter.setPen(QPen(Qt::black, 1));
+    painter.drawLine(leftMargin_, height() - bottomMargin_,
+                     width(), height() - bottomMargin_);
+
     painter.fillRect(QRectF(0, 0, leftMargin_, height() - bottomMargin_),
                      borderColor_);
-
-    ytick = ceil (drawRect_.y() / tickDy_) * tickDy_;
+    qreal ytick = ceil (drawRect_.y() / tickDy_) * tickDy_;
     for (int i = 0; i < countTickY_; ++i)
     {
         if (fabs (ytick) < 1e-9)
@@ -382,6 +397,9 @@ void Q3Plot::drawBorders(Q3Painter &painter)
         }
         ytick += tickDy_;
     }
+    painter.setPen(QPen(Qt::black, 1));
+    painter.drawLine(leftMargin_, 0,
+                     leftMargin_, height() - bottomMargin_);
 }
 
 void Q3Plot::drawDrawables(Q3Painter &painter)

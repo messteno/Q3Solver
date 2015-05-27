@@ -26,4 +26,32 @@ public:
                    QList<Q3Boundary *> &boundaries);
 };
 
+class Q3PoiseuilleFlowTestBuilder : public Q3TestBuilder
+{
+public:
+    void buildTest(Q3Sceleton &sceleton, Q3Mesh &mesh,
+                   QList<Q3Boundary *> &boundaries);
+};
+
+class Q3FlowPastCircularCylinderTestBuilder : public Q3TestBuilder
+{
+public:
+    void buildTest(Q3Sceleton &sceleton, Q3Mesh &mesh,
+                   QList<Q3Boundary *> &boundaries);
+};
+
+class Q3BackwardFacingStepTestBuilder : public Q3TestBuilder
+{
+public:
+    void buildTest(Q3Sceleton &sceleton, Q3Mesh &mesh,
+                   QList<Q3Boundary *> &boundaries);
+};
+
+class Q3FlowPastSquareTestBuilder : public Q3TestBuilder
+{
+public:
+    void buildTest(Q3Sceleton &sceleton, Q3Mesh &mesh,
+                   QList<Q3Boundary *> &boundaries);
+};
+
 #endif // Q3TESTBUILDER_H

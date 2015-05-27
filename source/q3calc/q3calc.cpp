@@ -4,7 +4,7 @@
 #include "q3calc.h"
 #include "conjugategradient.h"
 
-const int Q3Calc::maxPredictorIterationsCount = 5000;
+const int Q3Calc::maxPredictorIterationsCount = 1000;
 const qreal Q3Calc::maxPredictorError = 1e-6;
 
 // Возможно переделать геттеры в треугольниках на ссылки
@@ -154,10 +154,10 @@ void Q3Calc::predictor()
         triangle->setPredictorVelocity(triangle->correctorVelocity());
 
     int iterationsCount = 0;
+    qreal maxVelocityDelta;
     while(iterationsCount++ < maxPredictorIterationsCount)
     {
-        qreal maxVelocityDelta = 0;
-
+        maxVelocityDelta = 0;
         for (int trIndex = 0; trIndex < mesh_->triangles().size(); ++trIndex)
         {
             Q3MeshTriangle *triangle = mesh_->triangles().at(trIndex);
@@ -246,8 +246,7 @@ void Q3Calc::predictor()
         if (absV)
             maxVelocity = absV;
     }
-//    qDebug() << iterationsCount;
-//    qDebug() << maxVelocity;
+    qDebug() << maxVelocityDelta;
 }
 
 void Q3Calc::corrector()

@@ -76,11 +76,17 @@
    </item>
    <item>
     <widget class="QCheckBox" name="badTrianglesFixCheckBox">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="text">
       <string>Компенсация потока для тупоугольных треугольников</string>
      </property>
      <property name="checked">
       <bool>true</bool>
+     </property>
+     <property name="tristate">
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -90,6 +96,24 @@
       <string>Графики</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
+      <item row="4" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Vx</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushButton_2">
+          <property name="text">
+           <string>Vy</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="internalStreamPlotButton">
         <property name="text">
@@ -104,7 +128,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
+      <item row="5" column="0">
        <widget class="QPushButton" name="internalClearPlotButton">
         <property name="text">
          <string>Очистить</string>
@@ -119,7 +143,14 @@
        </widget>
       </item>
       <item row="2" column="1">
-       <widget class="QToolButton" name="toolButton_2">
+       <widget class="QToolButton" name="externalPreassurePlotButton">
+        <property name="text">
+         <string>...</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QToolButton" name="externalVorticityPlotButton">
         <property name="text">
          <string>...</string>
         </property>
@@ -132,8 +163,15 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QToolButton" name="externalVorticityPlotButton">
+      <item row="3" column="0">
+       <widget class="QPushButton" name="internalMagnitudePlotButton">
+        <property name="text">
+         <string>Модуль скорости</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1">
+       <widget class="QToolButton" name="externalMagnitudePlotButton">
         <property name="text">
          <string>...</string>
         </property>

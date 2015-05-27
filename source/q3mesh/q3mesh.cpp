@@ -334,11 +334,6 @@ void Q3Mesh::setDrawPolicy(const uint &drawPolicy)
     drawPolicy_ = drawPolicy;
 }
 
-void Q3Mesh::setNodeValues(const QVector<qreal> &nodeValues)
-{
-    nodeValues_ = nodeValues;
-}
-
 QRectF Q3Mesh::boundingRect() const
 {
     return boundingRect_;
@@ -370,6 +365,7 @@ void Q3Mesh::update()
         edgeSquare_ += edge->adjacentSquare();
     }
     angles_ /= 2. * triangles_.count();
+    Q_ASSERT(qAbs(angles_ - 180) < 1e-4);
 
     boundingRect_ = QRectF(*nodes_[0], *nodes_[0]);
     foreach (Q3MeshNode *node, nodes_)
@@ -384,5 +380,4 @@ void Q3Mesh::update()
         else if (node->y() < boundingRect_.top())
             boundingRect_.setTop(node->y());
     }
-    Q_ASSERT(qAbs(angles_ - 180) < 1e-4);
 }

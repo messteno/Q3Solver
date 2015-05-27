@@ -65,6 +65,7 @@ class Q3ContourPlot : public Q3PlotDrawable
 public:
     Q3ContourPlot(Q3Mesh *mesh);
     void createContour(int levels);
+    void createContour(QList<qreal> &levelsList);
     void createFilledContour(int levels);
     void draw(Q3Painter &painter) const;
 

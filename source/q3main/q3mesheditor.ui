@@ -29,7 +29,7 @@
          <string>Автоподбор</string>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -42,7 +42,7 @@
          <string>Количество элементов</string>
         </property>
         <property name="checked">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -91,7 +91,7 @@
            <number>100000</number>
           </property>
           <property name="value">
-           <number>20000</number>
+           <number>15000</number>
           </property>
          </widget>
         </item>

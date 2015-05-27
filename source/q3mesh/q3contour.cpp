@@ -448,6 +448,23 @@ void Q3ContourPlot::createContour(int levels)
     }
 }
 
+void Q3ContourPlot::createContour(QList<qreal> &levelsList)
+{
+    contours_.clear();
+    QVector<qreal> normalizedValues = normalize();
+    Q3ContourGenerator contourGenerator(mesh_, normalizedValues);
+
+    if (levelsList.count() < 3)
+        return;
+
+    for (int i = 0; i < levelsList.count(); ++i)
+    {
+        qreal level = levelsList.at(i);
+        Q3Contour contour = contourGenerator.createContour(level);
+        contours_.append(contour);
+    }
+}
+
 void Q3ContourPlot::createFilledContour(int levels)
 {
     filledContours_.clear();

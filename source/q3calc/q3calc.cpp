@@ -36,6 +36,8 @@ void Q3Calc::run()
     while(!abort_)
     {
         predictor();
+        if (abort_)
+            break;
         corrector();
         time_ += tau_;
         emit updateInfo();
@@ -155,7 +157,7 @@ void Q3Calc::predictor()
 
     int iterationsCount = 0;
     qreal maxVelocityDelta;
-    while(iterationsCount++ < maxPredictorIterationsCount)
+    while(!abort_ && iterationsCount++ < maxPredictorIterationsCount)
     {
         maxVelocityDelta = 0;
         for (int trIndex = 0; trIndex < mesh_->triangles().size(); ++trIndex)

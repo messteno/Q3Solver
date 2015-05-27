@@ -3,13 +3,16 @@
 
 #include <QList>
 #include <QMap>
+#include <QObject>
 
 #include "q3mesh.h"
 #include "q3sceleton.h"
 #include "q3boundary.h"
 
-class Q3MeshAdapter
+class Q3MeshAdapter : public QObject
 {
+    Q_OBJECT
+
 public:
     enum SizePolicy
     {
@@ -29,6 +32,9 @@ public:
     virtual void setSizePolicy(const SizePolicy &sizePolicy);
     virtual void setElementsCount(int elementsCount);
     virtual void setElementSize(qreal elementSize);
+
+signals:
+    void meshCreated();
 
 protected:
     qreal elementSize_;

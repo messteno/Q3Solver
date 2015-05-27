@@ -2,6 +2,7 @@
 #include "q3externalplot.h"
 #include "q3movedirector.h"
 #include "q3meshinterpolation.h"
+#include "q3contoursettingswidget.h"
 #include "ui_q3calculuseditor.h"
 
 Q3CalculusEditor::Q3CalculusEditor(Q3Plot *plot, Q3Mesh *mesh, QWidget *parent) :
@@ -143,14 +144,13 @@ void Q3CalculusEditor::on_externalStreamPlotButton_clicked()
     Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
     QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
-    contourPlot_.clear();
-    contourPlot_.setValues(nodeValues);
-    contourPlot_.createFilledContour(250);
-    contourPlot_.createContour(30);
+    Q3ContourPlot *contourPlot = new Q3ContourPlot(mesh_);
+    contourPlot->setValues(nodeValues);
 
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*contourPlot, this));
+    plot->addDrawable(contourPlot);
     plot->plotWidget()->setSceneRect(mesh_->boundingRect());
-    plot->plotWidget()->addDrawable(&contourPlot_);
 }
 
 void Q3CalculusEditor::on_internalVorticityPlotButton_clicked()
@@ -191,13 +191,13 @@ void Q3CalculusEditor::on_externalVorticityPlotButton_clicked()
     Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
     QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
-    contourPlot_.clear();
-    contourPlot_.setValues(nodeValues);
-    contourPlot_.createFilledContour(250);
+    Q3ContourPlot *contourPlot = new Q3ContourPlot(mesh_);
+    contourPlot->setValues(nodeValues);
 
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*contourPlot, this));
+    plot->addDrawable(contourPlot);
     plot->plotWidget()->setSceneRect(mesh_->boundingRect());
-    plot->plotWidget()->addDrawable(&contourPlot_);
 }
 
 void Q3CalculusEditor::on_internalPreassurePlotButton_clicked()
@@ -234,13 +234,13 @@ void Q3CalculusEditor::on_externalPreassurePlotButton_clicked()
     Q3MeshEdgeNodeInterpolation interpolation(*mesh_, edgeValues);
     QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
-    contourPlot_.clear();
-    contourPlot_.setValues(nodeValues);
-    contourPlot_.createFilledContour(250);
+    Q3ContourPlot *contourPlot = new Q3ContourPlot(mesh_);
+    contourPlot->setValues(nodeValues);
 
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*contourPlot, this));
+    plot->addDrawable(contourPlot);
     plot->plotWidget()->setSceneRect(mesh_->boundingRect());
-    plot->plotWidget()->addDrawable(&contourPlot_);
 }
 
 void Q3CalculusEditor::on_internalMagnitudePlotButton_clicked()
@@ -277,11 +277,11 @@ void Q3CalculusEditor::on_externalMagnitudePlotButton_clicked()
     Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
     QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
-    contourPlot_.clear();
-    contourPlot_.setValues(nodeValues);
-    contourPlot_.createFilledContour(250);
+    Q3ContourPlot *contourPlot = new Q3ContourPlot(mesh_);
+    contourPlot->setValues(nodeValues);
 
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*contourPlot, this));
+    plot->addDrawable(contourPlot);
     plot->plotWidget()->setSceneRect(mesh_->boundingRect());
-    plot->plotWidget()->addDrawable(&contourPlot_);
 }

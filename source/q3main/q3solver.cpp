@@ -20,12 +20,13 @@ Q3Solver::Q3Solver(QWidget *parent) :
     sceleton_ = new Q3Sceleton(this);
     mesh_ = new Q3Mesh(this);
 
-    Q3FlowPastCylinderTestBuilder testBuilder;
-    testBuilder.buildTest(*sceleton_, *mesh_, boundaries_);
-
     meshEditor_ = new Q3MeshEditor(ui->plotWidget, mesh_, sceleton_,
                                    &boundaries_);
     calculusEditor_ = new Q3CalculusEditor(ui->plotWidget, mesh_);
+
+    Q3CavityTestBuilder testBuilder;
+    testBuilder.buildTest(*sceleton_, *mesh_,
+                          boundaries_, meshEditor_->meshAdapter());
 
     ui->meshEditorLayout->addWidget(meshEditor_);
     ui->calculusEditorLayout->addWidget(calculusEditor_);

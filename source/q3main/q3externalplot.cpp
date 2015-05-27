@@ -25,11 +25,26 @@ Q3ExternalPlot::Q3ExternalPlot(QWidget *parent) :
 Q3ExternalPlot::~Q3ExternalPlot()
 {
     delete ui;
+    foreach (Q3PlotDrawable *drawable, drawables_)
+        delete drawable;
+    drawables_.clear();
 }
 
 Q3Plot *Q3ExternalPlot::plotWidget()
 {
     return ui->plotWidget;
+}
+
+void Q3ExternalPlot::addDrawable(Q3PlotDrawable *drawable)
+{
+    drawables_.append(drawable);
+    ui->plotWidget->addDrawable(drawable);
+}
+
+void Q3ExternalPlot::addSettingsWidget(Q3PlotSettingsWidget *widget)
+{
+    ui->settingsLayout->addWidget(widget);
+    widget->setPlot(ui->plotWidget);
 }
 
 void Q3ExternalPlot::on_closeButton_clicked()

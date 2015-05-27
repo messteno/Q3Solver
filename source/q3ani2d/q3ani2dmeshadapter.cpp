@@ -186,6 +186,8 @@ bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh, QList<Q3Boundary *> *boundar
     }
     mesh->update();
 
+    emit meshCreated();
+
     return true;
 }
 

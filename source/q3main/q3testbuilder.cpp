@@ -5,7 +5,8 @@
 
 void Q3CavityTestBuilder::buildTest(Q3Sceleton &sceleton,
                                     Q3Mesh &mesh,
-                                    QList<Q3Boundary *> &boundaries)
+                                    QList<Q3Boundary *> &boundaries,
+                                    Q3MeshAdapter &adapter)
 {
     Q3Point *a1 = new Q3Point(QPointF(0, 0));
     Q3Point *a2 = new Q3Point(QPointF(0, 1));
@@ -47,7 +48,6 @@ void Q3CavityTestBuilder::buildTest(Q3Sceleton &sceleton,
     sceleton.prepare();
 
     Q3Boundary::setUniqueLabels(&boundaries);
-    Q3Ani2DMeshAdapter adapter;
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
     adapter.generateMesh(&sceleton, &boundaries);
@@ -56,7 +56,8 @@ void Q3CavityTestBuilder::buildTest(Q3Sceleton &sceleton,
 
 void Q3FlowPastCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
                                               Q3Mesh &mesh,
-                                              QList<Q3Boundary *> &boundaries)
+                                              QList<Q3Boundary *> &boundaries,
+                                              Q3MeshAdapter &adapter)
 {
     Q3Point *a1 = new Q3Point(QPointF(0, 0));
     Q3Point *a2 = new Q3Point(QPointF(0, 4.1));
@@ -103,7 +104,6 @@ void Q3FlowPastCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
     sceleton.prepare();
 
     Q3Boundary::setUniqueLabels(&boundaries);
-    Q3Ani2DMeshAdapter adapter;
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
     adapter.generateMesh(&sceleton, &boundaries);
@@ -112,7 +112,8 @@ void Q3FlowPastCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
 
 void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
                                             Q3Mesh &mesh,
-                                            QList<Q3Boundary *> &boundaries)
+                                            QList<Q3Boundary *> &boundaries,
+                                            Q3MeshAdapter &adapter)
 {
     Q3Point *a1 = new Q3Point(QPointF(0, 0));
     Q3Point *a2 = new Q3Point(QPointF(0, 1));
@@ -153,7 +154,6 @@ void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
     sceleton.prepare();
 
     Q3Boundary::setUniqueLabels(&boundaries);
-    Q3Ani2DMeshAdapter adapter;
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
     adapter.generateMesh(&sceleton, &boundaries);
@@ -162,7 +162,8 @@ void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
 
 void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
                                                       Q3Mesh &mesh,
-                                                      QList<Q3Boundary *> &boundaries)
+                                                      QList<Q3Boundary *> &boundaries,
+                                                      Q3MeshAdapter &adapter)
 {
     Q3Point *a1 = new Q3Point(QPointF(0, 0));
     Q3Point *a2 = new Q3Point(QPointF(0, 4.1));
@@ -212,7 +213,6 @@ void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
     sceleton.prepare();
 
     Q3Boundary::setUniqueLabels(&boundaries);
-    Q3Ani2DMeshAdapter adapter;
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
     adapter.generateMesh(&sceleton, &boundaries);
@@ -221,7 +221,8 @@ void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
 
 void Q3BackwardFacingStepTestBuilder::buildTest(Q3Sceleton &sceleton,
                                                 Q3Mesh &mesh,
-                                                QList<Q3Boundary *> &boundaries)
+                                                QList<Q3Boundary *> &boundaries,
+                                                Q3MeshAdapter &adapter)
 {
 
     Q3Point *a1 = new Q3Point(QPointF(0, 0.5));
@@ -271,7 +272,6 @@ void Q3BackwardFacingStepTestBuilder::buildTest(Q3Sceleton &sceleton,
     sceleton.prepare();
 
     Q3Boundary::setUniqueLabels(&boundaries);
-    Q3Ani2DMeshAdapter adapter;
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
     adapter.generateMesh(&sceleton, &boundaries);
@@ -280,7 +280,8 @@ void Q3BackwardFacingStepTestBuilder::buildTest(Q3Sceleton &sceleton,
 
 void Q3FlowPastSquareTestBuilder::buildTest(Q3Sceleton &sceleton,
                                             Q3Mesh &mesh,
-                                            QList<Q3Boundary *> &boundaries)
+                                            QList<Q3Boundary *> &boundaries,
+                                            Q3MeshAdapter &adapter)
 {
     Q3Point *a1 = new Q3Point(QPointF(0, 0));
     Q3Point *a2 = new Q3Point(QPointF(0, 18));
@@ -354,7 +355,6 @@ void Q3FlowPastSquareTestBuilder::buildTest(Q3Sceleton &sceleton,
     sceleton.prepare();
 
     Q3Boundary::setUniqueLabels(&boundaries);
-    Q3Ani2DMeshAdapter adapter;
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
     adapter.generateMesh(&sceleton, &boundaries);

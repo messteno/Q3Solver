@@ -1,9 +1,9 @@
 #ifndef Q3MESHTRINODEINTERPOLATION_H
 #define Q3MESHTRINODEINTERPOLATION_H
 
-#include "q3naturalneigbourinterpolation.h"
+#include "naturalneigbourinterpolation.h"
 
-class Q3MeshTriNodeInterpolation : public Q3NaturalNeigbourInterpolation
+class Q3MeshTriNodeInterpolation : public NaturalNeigbourInterpolation
 {
 public:
     Q3MeshTriNodeInterpolation(Q3Mesh &mesh, QVector<QVector3D> &triValues);
@@ -13,7 +13,7 @@ private:
     Q3Mesh &mesh_;
 };
 
-class Q3MeshEdgeNodeInterpolation : public Q3NaturalNeigbourInterpolation
+class Q3MeshEdgeNodeInterpolation : public NaturalNeigbourInterpolation
 {
 public:
     Q3MeshEdgeNodeInterpolation(Q3Mesh &mesh, QVector<QVector3D> &edgeValues);

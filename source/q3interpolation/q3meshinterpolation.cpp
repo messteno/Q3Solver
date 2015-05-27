@@ -3,7 +3,7 @@
 Q3MeshTriNodeInterpolation::Q3MeshTriNodeInterpolation(
         Q3Mesh &mesh,
         QVector<QVector3D> &triValues) :
-    Q3NaturalNeigbourInterpolation(triValues),
+    NaturalNeigbourInterpolation(triValues),
     mesh_(mesh)
 {
 
@@ -47,7 +47,7 @@ QVector<qreal> Q3MeshTriNodeInterpolation::interpolateToNodes()
 Q3MeshEdgeNodeInterpolation::Q3MeshEdgeNodeInterpolation(
         Q3Mesh &mesh,
         QVector<QVector3D> &edgeValues) :
-    Q3NaturalNeigbourInterpolation(edgeValues),
+    NaturalNeigbourInterpolation(edgeValues),
     mesh_(mesh)
 {
 

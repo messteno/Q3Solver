@@ -3,11 +3,11 @@
 #include <QVector2D>
 #include <QVector3D>
 #include <float.h>
-#include "q3naturalneigbourinterpolation.h"
+#include "naturalneigbourinterpolation.h"
 
-Q3NaturalNeigbourInterpolation::Q3NaturalNeigbourInterpolation(
+NaturalNeigbourInterpolation::NaturalNeigbourInterpolation(
         QVector<QVector3D> &values) :
-    Q3Interpolation(values),
+    Interpolation(values),
     delaunay_(NULL),
     interpolator_(NULL)
 {
@@ -27,13 +27,13 @@ Q3NaturalNeigbourInterpolation::Q3NaturalNeigbourInterpolation(
     nnpi_setwmin(interpolator_, -DBL_MAX);
 }
 
-Q3NaturalNeigbourInterpolation::~Q3NaturalNeigbourInterpolation()
+NaturalNeigbourInterpolation::~NaturalNeigbourInterpolation()
 {
     nnpi_destroy(interpolator_);
     delaunay_destroy(delaunay_);
 }
 
-qreal Q3NaturalNeigbourInterpolation::interpolateToPoint(const QPointF &pt)
+qreal NaturalNeigbourInterpolation::interpolateToPoint(const QPointF &pt)
 {
     point pout;
     pout.x = pt.x();

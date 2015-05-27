@@ -1,16 +1,16 @@
-#ifndef Q3INTERPOLATION_H
-#define Q3INTERPOLATION_H
+#ifndef INTERPOLATION_H
+#define INTERPOLATION_H
 
 #include <QVector>
 #include <QVector3D>
 
 #include "q3mesh.h"
 
-class Q3Interpolation
+class Interpolation
 {
 public:
-    Q3Interpolation(QVector<QVector3D> &values);
-    virtual ~Q3Interpolation();
+    Interpolation(QVector<QVector3D> &values);
+    virtual ~Interpolation();
     virtual qreal interpolateToPoint(const QPointF &pt) = 0;
 
 protected:

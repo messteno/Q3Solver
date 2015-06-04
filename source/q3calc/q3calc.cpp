@@ -1,20 +1,27 @@
 #include <QDebug>
+#include <QTime>
+
 #include <qmath.h>
 
 #include "q3calc.h"
 #include "conjugategradient.h"
 
-const int Q3Calc::maxPredictorIterationsCount = 10000;
-const qreal Q3Calc::maxPredictorError = 1e-9;
+const int Q3Calc::maxPredictorIterationsCount = 1000;
+const qreal Q3Calc::maxPredictorError = 1e-6;
 
 // Возможно переделать геттеры в треугольниках на ссылки
 
-Q3Calc::Q3Calc(Q3Mesh *mesh, qreal tau, qreal Re, QObject *parent) :
+Q3Calc::Q3Calc(Q3Mesh &mesh, qreal tau, qreal Re, QObject *parent) :
     QThread(parent),
     mesh_(mesh),
     tau_(tau),
     Re_(Re),
-    residual_(0)
+    residual_(0),
+    time_(0),
+    started_(false),
+    abort_(false),
+    badTriangleFix_(false),
+    monotoneTerm_(true)
 {
 }
 
@@ -26,20 +33,59 @@ Q3Calc::~Q3Calc()
 
 void Q3Calc::run()
 {
+    started_ = true;
     abort_ = false;
     prepare();
     while(!abort_)
     {
+//        QTime timer;
+//        timer.start();
         predictor();
+//        qDebug() << "Predictor time:" << timer.elapsed();
+//        timer.start();
         corrector();
+//        qDebug() << "Corrector time: " << timer.elapsed();
+        time_ += tau_;
         emit updateInfo();
+
+//        QFile pr("/home/mesteno/pr.txt");
+//        if (pr.open(QFile::WriteOnly | QFile::Truncate))
+//        {
+//            QTextStream out(&pr);
+//            for (int trIndex = 0; trIndex < mesh_.triangles().count(); ++trIndex)
+//            {
+//                Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
+//                out << trIndex << " "
+//                    << QString::number(triangle->predictorVelocity().x(), 'd', 6) << " "
+//                    << QString::number(triangle->predictorVelocity().y(), 'd', 6) << " "
+//                    << "\n";
+//            }
+//            pr.close();
+//        }
+
+//        QFile co("/home/mesteno/co.txt");
+//        if (co.open(QFile::WriteOnly | QFile::Truncate))
+//        {
+//            QTextStream out(&co);
+//            for (int trIndex = 0; trIndex < mesh_.triangles().count(); ++trIndex)
+//            {
+//                Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
+//                out << trIndex << " "
+//                    << QString::number(triangle->correctorVelocity().x(), 'd', 6) << " "
+//                    << QString::number(triangle->correctorVelocity().y(), 'd', 6) << " "
+//                    << "\n";
+//            }
+//            co.close();
+//        }
+
+//        break;
     }
 }
 
 void Q3Calc::prepare()
 {
     // TODO:
-    int edgesCount = mesh_->edges().count();
+    int edgesCount = mesh_.edges().count();
 
     AN_.clear();
     JA_.clear();
@@ -59,7 +105,7 @@ void Q3Calc::prepare()
     int boundaryCount = 0;
     for (int edgeIndex = 0; edgeIndex < edgesCount; ++edgeIndex)
     {
-        Q3MeshEdge *edge = mesh_->edges().at(edgeIndex);
+        Q3MeshEdge *edge = mesh_.edges().at(edgeIndex);
 
         edge->processBoundaryVelocity();
 
@@ -112,21 +158,26 @@ void Q3Calc::prepare()
 void Q3Calc::predictor()
 {
     // TODO:
-    foreach (Q3MeshTriangle *triangle, mesh_->triangles())
+    foreach (Q3MeshTriangle *triangle, mesh_.triangles())
         triangle->setPredictorVelocity(triangle->correctorVelocity());
 
     int iterationsCount = 0;
-    while(iterationsCount++ < maxPredictorIterationsCount)
+    qreal maxVelocityDelta;
+    while(!abort_ && iterationsCount++ < maxPredictorIterationsCount)
     {
-        qreal maxVelocityDelta = 0;
-
-        for (int trIndex = 0; trIndex < mesh_->triangles().size(); ++trIndex)
+        maxVelocityDelta = 0;
+        for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
         {
-            Q3MeshTriangle *triangle = mesh_->triangles().at(trIndex);
+            Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
             QVector2D C = triangle->square() / tau_
                           * triangle->correctorVelocity();
             triangle->setTempVelocity(QVector2D(0, 0));
-            qreal A = 0;
+            qreal A = triangle->square() / tau_;
+
+//            if (!triangle->adjacentTriangles().at(0)
+//                || !triangle->adjacentTriangles().at(1)
+//                || !triangle->adjacentTriangles().at(2))
+//                continue;
 
             for (int edgeIndex = 0; edgeIndex < triangle->edges().size();
                  ++edgeIndex)
@@ -144,37 +195,38 @@ void Q3Calc::predictor()
                     qreal dL = triangle->distanceToTriangles().at(edgeIndex);
                     qreal dl = triangle->distancesToEdges().at(edgeIndex);
 
-                    qreal vni = dl * QVector2D::dotProduct(
-                                    adjacentTriangle->correctorVelocity(),
-                                    normal);
-                    vni += (dL - dl) * QVector2D::dotProduct(
-                               triangle->correctorVelocity(),
-                               normal);
-                    vni /= dL;
+                    qreal vni = (dl * QVector2D::dotProduct(
+                                     adjacentTriangle->correctorVelocity(),
+                                     normal)
+                                 + (dL - dl) * QVector2D::dotProduct(
+                                     triangle->correctorVelocity(), normal)) / dL;
 
-                    qreal tnu = 0.5 * dL * qAbs(vni) * Re_;
-                    QVector2D tAt = QVector2D(adjacentTriangle->center()
-                                              - triangle->center());
-                    qreal cosin = QVector2D::dotProduct(tAt, normal)
-                                  / tAt.length();
-                    tnu /= cosin;
+                    qreal tnu = 0;
+                    if (monotoneTerm_)
+                    {
+                        tnu = 0.5 * dL * qAbs(vni) * Re_;
+                        QVector2D tAt = QVector2D(adjacentTriangle->center()
+                                                  - triangle->center());
+                        tAt.normalize();
+                        qreal cosin = QVector2D::dotProduct(tAt, normal);
+                        tnu /= cosin;
+                    }
 
-                    qreal B = edge->length() / Re_ / dL
-                              * (1 + tnu - 0.5 * dL * vni * Re_);
+                    qreal B = edge->length() * ((1. + tnu) / Re_ / dL - 0.5 * vni);
 
-                    triangle->setTempVelocity(triangle->tempVelocity() + B
-                                              * triangle->correctorVelocity());
+                    triangle->setTempVelocity(
+                                triangle->tempVelocity()
+                                + B * adjacentTriangle->predictorVelocity());
                     A += B;
                 }
                 else
                 {
-                    qreal deltaA = edge->processBoundaryPredictor(Re_);
+                    qreal deltaA = edge->processBoundaryPredictor(Re_, monotoneTerm_);
                     A += deltaA;
                 }
             }
 
-            A += triangle->square() / tau_;
-            triangle->setTempVelocity(triangle->tempVelocity() + C / A);
+            triangle->setTempVelocity((triangle->tempVelocity() + C) / A);
 
             qreal velocityDelta = (triangle->tempVelocity()
                                    - triangle->predictorVelocity()).length();
@@ -182,36 +234,44 @@ void Q3Calc::predictor()
                 maxVelocityDelta = velocityDelta;
         }
 
-        for (int trIndex = 0; trIndex < mesh_->triangles().size(); ++trIndex)
+        for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
         {
-            Q3MeshTriangle *triangle = mesh_->triangles().at(trIndex);
+            Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
+//            if (!triangle->adjacentTriangles().at(0)
+//                || !triangle->adjacentTriangles().at(1)
+//                || !triangle->adjacentTriangles().at(2))
+//                continue;
             triangle->setPredictorVelocity(triangle->tempVelocity());
         }
 
         if (maxVelocityDelta < maxPredictorError)
             break;
     }
+
+    qreal maxVelocity = 0;
+    for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
+    {
+        Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
+        qreal absV = qAbs(triangle->predictorVelocity().length() > maxVelocity);
+        if (absV)
+            maxVelocity = absV;
+    }
+    qDebug() << maxVelocityDelta;
 }
 
 void Q3Calc::corrector()
 {
     qreal flow = 0;
-    for (int edgeIndex = 0; edgeIndex < mesh_->edges().size(); ++edgeIndex)
+    for (int edgeIndex = 0; edgeIndex < mesh_.edges().size(); ++edgeIndex)
     {
-        Q3MeshEdge *edge = mesh_->edges().at(edgeIndex);
+        Q3MeshEdge *edge = mesh_.edges().at(edgeIndex);
         flow += edge->processBoundaryFlow();
     }
+    qDebug() << "Flow: " << flow;
 
-    qreal allSquare = 0;
-    for (int trIndex = 0; trIndex < mesh_->triangles().size(); ++trIndex)
+    for (int edgeIndex = 0; edgeIndex < mesh_.edges().size(); ++edgeIndex)
     {
-        Q3MeshTriangle *triangle = mesh_->triangles().at(trIndex);
-        allSquare += triangle->square();
-    }
-
-    for (int edgeIndex = 0; edgeIndex < mesh_->edges().size(); ++edgeIndex)
-    {
-        Q3MeshEdge *edge = mesh_->edges().at(edgeIndex);
+        Q3MeshEdge *edge = mesh_.edges().at(edgeIndex);
         Q3MeshTriangle *tr0 = edge->adjacentTriangles().at(0);
         int trEdgeIndex = tr0->edges().indexOf(edge);
         QVector2D normal = tr0->normalVectors().at(trEdgeIndex);
@@ -224,9 +284,12 @@ void Q3Calc::corrector()
                                                    normal)
                              - QVector2D::dotProduct(tr0->predictorVelocity(),
                                                      normal);
-            QVector2D tAt = QVector2D(tr0->center() - tr1->center());
-            qreal cosin = qAbs(QVector2D::dotProduct(tAt, normal) / tAt.length());
-            BN_[edgeIndex] /= cosin;
+            if (badTriangleFix_)
+            {
+                QVector2D tAt = QVector2D(tr0->center() - tr1->center());
+                qreal cosin = qAbs(QVector2D::dotProduct(tAt, normal) / tAt.length());
+                BN_[edgeIndex] /= cosin;
+            }
         }
         else
         {
@@ -234,32 +297,31 @@ void Q3Calc::corrector()
         }
 
         BN_[edgeIndex] *= - edge->length();
-        BN_[edgeIndex] += edge->adjacentSquare() * flow / allSquare;
+        BN_[edgeIndex] += edge->adjacentSquare() * flow / mesh_.square();
     }
 
-    XN_.fill(0, mesh_->edges().count());
+    XN_.fill(0, mesh_.edges().count());
     ConjugateGradient::calculate(AN_.data(), JA_.data(), IA_.data(), XN_.data(),
                                  BN_.data(), MN_.data(), TN_.data(),
-                                 mesh_->edges().count());
+                                 mesh_.edges().count());
 
-    for (int edgeIndex = 0; edgeIndex < mesh_->edges().count(); ++edgeIndex)
+    for (int edgeIndex = 0; edgeIndex < mesh_.edges().count(); ++edgeIndex)
     {
-        Q3MeshEdge *edge = mesh_->edges().at(edgeIndex);
+        Q3MeshEdge *edge = mesh_.edges().at(edgeIndex);
         edge->setPreassure(edge->preassure() + XN_[edgeIndex]);
     }
 
     qreal residual = 0;
-    for (int trIndex = 0; trIndex < mesh_->triangles().count(); ++trIndex)
+    for (int trIndex = 0; trIndex < mesh_.triangles().count(); ++trIndex)
     {
-        Q3MeshTriangle *triangle = mesh_->triangles().at(trIndex);
+        Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
 
         QVector2D sum(0, 0);
-        for (int edgeIndex = 0; edgeIndex < triangle->edges().count();
-             ++edgeIndex)
+        for (int edgeInd = 0; edgeInd < triangle->edges().count(); ++edgeInd)
         {
-            Q3MeshEdge *edge = triangle->edges().at(edgeIndex);
+            Q3MeshEdge *edge = triangle->edges().at(edgeInd);
             sum += edge->length() * XN_[edge->id()]
-                    * triangle->normalVectors().at(edgeIndex);
+                    * triangle->normalVectors().at(edgeInd);
         }
         QVector2D prevVelocity = triangle->correctorVelocity();
         triangle->setCorrectorVelocity(triangle->predictorVelocity()
@@ -269,7 +331,7 @@ void Q3Calc::corrector()
             residual = deltaV;
     }
     residual_ = residual / tau_;
-    qDebug() << residual_;
+//    qDebug() << residual_;
 }
 
 void Q3Calc::incompleteCholesky(qreal *AN, int *JA, int *IA, int n)
@@ -308,16 +370,52 @@ void Q3Calc::incompleteCholesky(qreal *AN, int *JA, int *IA, int n)
 
     AN[d] = sqrt(AN[d]);
 }
+void Q3Calc::setMonotoneTerm(bool monotoneTerm)
+{
+    monotoneTerm_ = monotoneTerm;
+}
+
+
+void Q3Calc::setRe(const qreal &Re)
+{
+    Re_ = Re;
+}
+
+void Q3Calc::setTau(const qreal &tau)
+{
+    tau_ = tau;
+}
+
+void Q3Calc::setBadTriangleFix(bool badTriangleFix)
+{
+    badTriangleFix_ = badTriangleFix;
+}
 
 void Q3Calc::abort()
 {
     abort_ = true;
 }
 
+void Q3Calc::reset()
+{
+    time_ = 0;
+    abort_ = true;
+    wait();
+    started_ = false;
+    residual_ = 0;
+    emit updateInfo();
+}
+
 QString Q3Calc::info()
 {
     QString out;
     QTextStream stream(&out);
-    stream << tr("Невязка: ") << QString::number(residual_) << "\n";
+    if (started_)
+    {
+        stream << tr("Невязка: ") << QString::number(residual_) << "\n"
+               << tr("Время: ") << QString::number(time_) << "\n";
+    }
+    else
+        stream << tr("Инфоормация о расчете\n");
     return out;
 }

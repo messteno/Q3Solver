@@ -8,7 +8,7 @@
 #include "q3mesh.h"
 #include "q3contour.h"
 #include "q3boundary.h"
-#include "q3meshadapter.h"
+#include "q3ani2dmeshadapter.h"
 #include "q3directormanager.h"
 
 namespace Ui {
@@ -20,12 +20,14 @@ class Q3MeshEditor : public QWidget
     Q_OBJECT
 
 public:
-    explicit Q3MeshEditor(Q3Plot *plot, Q3Mesh *mesh, Q3Sceleton *sceleton,
-                          QList<Q3Boundary *> *boundaries, QWidget *parent = 0);
+    explicit Q3MeshEditor(Q3Plot *plot, Q3Mesh &mesh, Q3Sceleton &sceleton,
+                          QList<Q3Boundary *> &boundaries, QWidget *parent = 0);
     ~Q3MeshEditor();
 
     void disable();
     void enable();
+
+    Q3MeshAdapter& meshAdapter();
 
 private slots:
     void on_createMeshButton_clicked();
@@ -41,7 +43,7 @@ private slots:
     void on_removeMeshButton_clicked();
     void on_saveMeshButton_clicked();
 
-    void on_contourPlotTestButton_clicked();
+    void updateInfo();
 
 signals:
     void goToTab(int tab);
@@ -50,10 +52,10 @@ private:
     Ui::Q3MeshEditor *ui;
 
     Q3Plot *plot_;
-    Q3Mesh *mesh_;
-    QList<Q3Boundary *> *boundaries_;
-    Q3Sceleton *sceleton_;
-    Q3MeshAdapter *meshAdapter_;
+    Q3Mesh &mesh_;
+    QList<Q3Boundary *> &boundaries_;
+    Q3Sceleton &sceleton_;
+    Q3Ani2DMeshAdapter meshAdapter_;
     Q3DirectorManager *directorManager_;
     Q3ContourPlot contourPlot_;
 

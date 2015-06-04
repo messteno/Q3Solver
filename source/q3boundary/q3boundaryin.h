@@ -17,13 +17,14 @@ public:
     explicit Q3BoundaryIn(QWidget *parent = 0);
     ~Q3BoundaryIn();
 
-    QVector2D velocity(Q3SceletonItem *item, QPointF point);
+    QVector2D velocity(Q3SceletonItem *item, QPointF a, QPointF b);
+    void setVelocityText(const QString &vXText, const QString &vYText);
     virtual void save();
 
 private:
     Ui::Q3BoundaryIn *ui;
-    q3XYExpression velocityXExp_;
-    q3XYExpression velocityYExp_;
+    Q3XYExpression velocityXExp_;
+    Q3XYExpression velocityYExp_;
 };
 
 #endif // Q3BOUNDARYIN_H

@@ -29,6 +29,8 @@ private:
     QColor foregroundColor_;
     QColor penColor_;
     QColor axesColor_;
+    QColor borderColor_;
+    QColor textColor_;
 
     int bottomMargin_;
     int leftMargin_;
@@ -49,18 +51,17 @@ private:
     QPointF mapToScene(qreal x, qreal y) const;
     qreal mapToSceneX (qreal x) const;
     qreal mapToSceneY (qreal y) const;
-
-    void drawBackground();
-    void drawAxes();
-    void drawBorders();
-    void drawDrawables();
+    int borderWidth();
 
 public:
     static const QColor DefaultBackgroundColor;
     static const QColor DefaultForegroundColor;
     static const QColor DefaultAxesColor;
     static const QColor DefaultPenColor;
+    static const QColor DefaultBorderColor;
+    static const QColor DefaultTextColor;
     static const int MinTickCount;
+    static const int MaxTickCount;
 
     explicit Q3Plot(QWidget *parent = 0);
     ~Q3Plot();
@@ -76,12 +77,19 @@ public:
     qreal sx() const;
     qreal sy() const;
 
+    void drawBackground(Q3Painter &painter);
+    void drawAxes(Q3Painter &painter);
+    void drawBorders(Q3Painter &painter);
+    void drawDrawables(Q3Painter &painter);
+
     void moveScene(const QPointF diff);
 
     void setBackgroundColor(const QColor &color);
     void setForegroundColor(const QColor &color);
     void setPenColor(const QColor &color);
     void setAxesColor(const QColor &color);
+    void setBorderColor(const QColor &borderColor);
+    void setTextColor(const QColor &textColor);
     void setBottomMargin(int margin);
     void setLeftMargin(int margin);
 
@@ -93,6 +101,9 @@ public:
 
     bool snapToGrid() const;
     void setSnapToGrid(bool snapToGrid);
+
+    void setSceneRect(const QRectF &sceneRect);
+    QRectF sceneRect() const;
 
 signals:
     void mouseClicked(QMouseEvent *event, const QPointF scenePos);

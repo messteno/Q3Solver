@@ -19,9 +19,13 @@ public:
 
     int id() const;
 
+    bool boundary() const;
+    void setBoundary(bool boundary);
+
 private:
     QList<Q3MeshEdge *> edges_;
     int id_;
+    bool boundary_;
 };
 
 

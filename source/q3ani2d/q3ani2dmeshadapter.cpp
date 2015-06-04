@@ -23,10 +23,10 @@ Q3Ani2DMeshAdapter::Q3Ani2DMeshAdapter() :
 {
 }
 
-bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton,
-                                      QList<Q3Boundary *> *boundaries)
+bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton &sceleton,
+                                      QList<Q3Boundary *> &boundaries)
 {
-    if (!sceleton->isPrepared())
+    if (!sceleton.isPrepared())
         return false;
 
     created_ = false;
@@ -35,10 +35,10 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton,
     // TODO: описать алгоритм
     labelBoundaryDelimeters_.clear();
 
-    QList<Q3SceletonItem *> &items = sceleton->items();
-    QList<Q3SceletonItem *> &outerBoundary = sceleton->outerBoundary();
-    QList<QList<Q3SceletonItem *> > &innerBoundaries = sceleton->innerBoundaries();
-    QList<Q3SceletonItem *> &innerItems = sceleton->innerElements();
+    QList<Q3SceletonItem *> &items = sceleton.items();
+    QList<Q3SceletonItem *> &outerBoundary = sceleton.outerBoundary();
+    QList<QList<Q3SceletonItem *> > &innerBoundaries = sceleton.innerBoundaries();
+    QList<Q3SceletonItem *> &innerItems = sceleton.innerElements();
 
     q3ani2d_.reset();
     q3ani2d_.setMaxElements(1500000);
@@ -172,16 +172,16 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton,
     return created_;
 }
 
-bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh, QList<Q3Boundary *> *boundaries)
+bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh &mesh, QList<Q3Boundary *> &boundaries)
 {
     if (!created_)
         return false;
 
-    mesh->clear();
+    mesh.clear();
     ani2D& ani = q3ani2d_.getAni2D();
 
     for (int i = 0; i < ani.nv; ++i)
-        mesh->addNode(ani.vrt[2 * i], ani.vrt[2 * i + 1]);
+        mesh.addNode(ani.vrt[2 * i], ani.vrt[2 * i + 1]);
 
     int delimeterLabel = -1;
     if (!labelBoundaryDelimeters_.empty())
@@ -189,12 +189,12 @@ bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh, QList<Q3Boundary *> *boundar
 
     for (int i = 0; i < ani.nb; ++i)
     {
-        Q3MeshNode *a = mesh->nodes()[ani.bnd[2 * i + 0] - 1];
-        Q3MeshNode *b = mesh->nodes()[ani.bnd[2 * i + 1] - 1];
+        Q3MeshNode *a = mesh.nodes()[ani.bnd[2 * i + 0] - 1];
+        Q3MeshNode *b = mesh.nodes()[ani.bnd[2 * i + 1] - 1];
         int label = ani.labelB[i];
 
         Q3Boundary *boundary = Q3Boundary::findByLabel(boundaries, label);
-        Q3MeshEdge *ab = mesh->addEdge(a, b, boundary);
+        Q3MeshEdge *ab = mesh.addEdge(a, b, boundary);
 
         if (delimeterLabel == label)
         {
@@ -204,30 +204,32 @@ bool Q3Ani2DMeshAdapter::meshToQ3Mesh(Q3Mesh *mesh, QList<Q3Boundary *> *boundar
             if (!labelBoundaryDelimeters_.empty())
             {
                 delimeterLabel = labelBoundaryDelimeters_.first();
-                mesh->boundaries().append(QList<Q3MeshEdge *>());
+                mesh.boundaries().append(QList<Q3MeshEdge *>());
             }
         }
 
-        if (!mesh->boundaries().isEmpty() && !labelBoundaryDelimeters_.isEmpty())
+        if (!mesh.boundaries().isEmpty() && !labelBoundaryDelimeters_.isEmpty())
         {
-            QList<Q3MeshEdge *>& boundary = mesh->boundaries().back();
-            boundary.append(ab);
+            QList<Q3MeshEdge *>& edgeBoundary = mesh.boundaries().back();
+            edgeBoundary.append(ab);
         }
     }
 
     for (int i = 0; i < ani.nt; ++i)
     {
-        Q3MeshNode *a = mesh->nodes()[ani.tri[3 * i + 0] - 1];
-        Q3MeshNode *b = mesh->nodes()[ani.tri[3 * i + 1] - 1];
-        Q3MeshNode *c = mesh->nodes()[ani.tri[3 * i + 2] - 1];
+        Q3MeshNode *a = mesh.nodes().at(ani.tri[3 * i + 0] - 1);
+        Q3MeshNode *b = mesh.nodes().at(ani.tri[3 * i + 1] - 1);
+        Q3MeshNode *c = mesh.nodes().at(ani.tri[3 * i + 2] - 1);
 
-        Q3MeshEdge *ab = mesh->addEdge(a, b, 0);
-        Q3MeshEdge *bc = mesh->addEdge(b, c, 0);
-        Q3MeshEdge *ac = mesh->addEdge(a, c, 0);
+        Q3MeshEdge *ab = mesh.addEdge(a, b, 0);
+        Q3MeshEdge *bc = mesh.addEdge(b, c, 0);
+        Q3MeshEdge *ac = mesh.addEdge(a, c, 0);
 
-        mesh->addTriangle(ab, bc, ac);
+        mesh.addTriangle(ab, bc, ac);
     }
-    mesh->check();
+    mesh.update();
+
+    emit meshCreated();
 
     return true;
 }
@@ -266,8 +268,8 @@ void Q3Ani2DMeshAdapter::circleBoundary(int *param, double *t,
     }
 }
 
-bool Q3Ani2DMeshAdapter::addBoundary(QList<Q3Boundary *> *boundaries,
-                                     QList<Q3SceletonItem *> boundary,
+bool Q3Ani2DMeshAdapter::addBoundary(QList<Q3Boundary *> &boundaries,
+                                     QList<Q3SceletonItem *> &boundary,
                                      qreal &square, bool outer)
 {
     if (boundary.empty())
@@ -280,7 +282,6 @@ bool Q3Ani2DMeshAdapter::addBoundary(QList<Q3Boundary *> *boundaries,
     {
         case Q3SceletonItem::Point:
         {
-            boundary.append(firstItem);
             Q3ItemBoundaryClockwiseVisitor clockwiseVisitor;
             foreach (Q3SceletonItem *item, boundary)
                 item->accept(clockwiseVisitor);

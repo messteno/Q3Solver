@@ -5,6 +5,7 @@ _Store
 Makefile
 build
 bin
-3rdparty
+3rdparty/build
 CMakeLists.txt.user
 tmp
+data

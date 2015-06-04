@@ -158,6 +158,7 @@ void Q3ItemConnectedVisitor::reset()
     finished_ = false;
 }
 
+
 QList<Q3SceletonItem *> Q3ItemConnectedVisitor::connectedItems()
 {
     return connectedItems_;
@@ -209,7 +210,10 @@ bool Q3ItemConnectedVisitor::visit(Q3PointConnection *conn)
         connectedItems_.append(conn);
 
         if (conn->b() == firstItem)
+        {
+            connectedItems_.append(conn->b());
             finish();
+        }
         else
             connectedItems_.append(conn->b());
 

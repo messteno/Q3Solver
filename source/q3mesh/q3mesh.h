@@ -9,11 +9,19 @@
 #include "q3meshedge.h"
 #include "q3meshtriangle.h"
 
-class Q3Mesh : public QWidget, public Q3PlotDrawable
+class Q3Mesh : public Q3PlotDrawable
 {
-    Q_OBJECT
 public:
-    Q3Mesh(QWidget *parent);
+
+    enum DrawPolicy
+    {
+        DrawBorders = 1,
+        DrawEdges = 2,
+        DrawTriangles = 4,
+        DrawVelocity = 8,
+    };
+
+    Q3Mesh();
     ~Q3Mesh();
 
     QList<Q3MeshNode *>& nodes();
@@ -27,17 +35,24 @@ public:
                         Q3Boundary *boundary = NULL);
 
     Q3MeshTriangle* addTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c);
-
     void draw(Q3Painter &painter) const;
+    void calcStream();
+    void calcVorticity();
 
     // Нужно вызывать после добавления всех элементов
-    void check();
+    void update();
+
     void clear();
     QString info();
+    qreal square();
 
     typedef QList<Q3MeshEdge *> EdgeBoundary;
     typedef QList<EdgeBoundary> EdgeBoundaries;
     EdgeBoundaries& boundaries();
+
+    void setDrawPolicy(const uint &drawPolicy);
+
+    QRectF boundingRect() const;
 
 private:
     QList<Q3MeshNode *> nodes_;			// all points
@@ -49,7 +64,13 @@ private:
     qreal square_;
     qreal edgeSquare_;
     qreal angles_;
-    int obtuseTriangles_;
+    int obtuseTrianglesCount_;
+
+    uint drawPolicy_;
+    QRectF boundingRect_;
+
+    static const int maxStreamIterationsCount;
+    static const qreal maxStreamError;
 
     void drawEdges(Q3Painter &painter) const;
     void drawTriangles(Q3Painter &painter) const;

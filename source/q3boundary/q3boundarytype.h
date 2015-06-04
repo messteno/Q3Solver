@@ -22,7 +22,7 @@ public:
     Q3BoundaryType(Type toEnum, QWidget *parent = NULL);
     virtual ~Q3BoundaryType();
 
-    virtual QVector2D velocity(Q3SceletonItem *item, QPointF point);
+    virtual QVector2D velocity(Q3SceletonItem *item, QPointF a, QPointF b);
     virtual void save();
 
     Type toEnum();

@@ -18,16 +18,16 @@ public:
 
     Q3BoundaryType *type() const;
     
-    static Q3Boundary* findByElement(QList<Q3Boundary *> *boundaries,
+    static Q3Boundary* findByElement(QList<Q3Boundary *> &boundaries,
                                      Q3SceletonItem *item);
-    static Q3Boundary* findByLabel(QList<Q3Boundary *> *boundaries,
+    static Q3Boundary* findByLabel(QList<Q3Boundary *> &boundaries,
                                    int label);
-    static void setUniqueLabels(QList<Q3Boundary *> *boundaries);
+    static void setUniqueLabels(QList<Q3Boundary *> &boundaries);
 
     int label() const;
     void setLabel(int label);
 
-    QVector2D velocity(QPointF point);
+    QVector2D velocity(QPointF a, QPointF b);
 
 private:
     Q3BoundaryType *type_;

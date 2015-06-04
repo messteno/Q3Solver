@@ -19,16 +19,16 @@ public:
 
     Q3Ani2DMeshAdapter();
     static void circleBoundary(int *param, double *t, double *x, double *y);
-    bool generateMesh(Q3Sceleton *sceleton, QList<Q3Boundary *> *boundaries);
-    bool meshToQ3Mesh(Q3Mesh *mesh, QList<Q3Boundary *> *boundaries);
+    bool generateMesh(Q3Sceleton &sceleton, QList<Q3Boundary *> &boundaries);
+    bool meshToQ3Mesh(Q3Mesh &mesh, QList<Q3Boundary *> &boundaries);
     bool saveMesh();
 private:
     Q3Ani2D q3ani2d_;
     QMap<Q3Point*, int> pointMap_;
     QList<int> labelBoundaryDelimeters_;
 
-    bool addBoundary(QList<Q3Boundary *> *boundaries,
-                     QList<Q3SceletonItem *> boundary, qreal &square,
+    bool addBoundary(QList<Q3Boundary *> &boundaries,
+                     QList<Q3SceletonItem *> &boundary, qreal &square,
                      bool outer);
 
     static double distToBoundary(double *point);

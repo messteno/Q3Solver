@@ -47,9 +47,11 @@ public:
 
     int id() const;
 
-    qreal processBoundaryPredictor(qreal Re);
+    qreal processBoundaryPredictor(qreal Re, bool monotoneTerm);
     qreal processBoundaryFlow();
     qreal processBoundaryCorrector();
+    void processBoundaryOmega(qreal &dvXByY, qreal &dvYByX);
+    qreal processBoundaryStream();
     void processBoundaryVelocity();
 
 private:
@@ -74,5 +76,7 @@ private:
 
     int id_;
 };
+
+QDataStream& operator<< (QDataStream &stream, const Q3MeshEdge &edge);
 
 #endif // Q3MESHEDGE_H

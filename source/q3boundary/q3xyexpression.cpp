@@ -1,6 +1,6 @@
 #include "q3xyexpression.h"
 
-q3XYExpression::q3XYExpression ()
+Q3XYExpression::Q3XYExpression ()
 {
     symbolTable_.add_variable("x", x_);
     symbolTable_.add_variable("y", y_);
@@ -12,12 +12,12 @@ q3XYExpression::q3XYExpression ()
     parser_.compile(sExpr_, expression_);
 }
 
-q3XYExpression::~q3XYExpression ()
+Q3XYExpression::~Q3XYExpression ()
 {
 
 }
 
-bool q3XYExpression::setString (std::string str)
+bool Q3XYExpression::setString (std::string str)
 {
     sExpr_	= str;
 
@@ -32,7 +32,7 @@ bool q3XYExpression::setString (std::string str)
 }
 
 
-double q3XYExpression::getValue (double x, double y)
+double Q3XYExpression::getValue (double x, double y)
 {
     x_ = x;
     y_ = y;

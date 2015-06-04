@@ -19,8 +19,8 @@ class Q3BoundaryEditor : public Q3Director
     Q_OBJECT
 
 public:
-    explicit Q3BoundaryEditor(Q3Plot *plot, Q3Sceleton *sceleton,
-                              QList<Q3Boundary *> *boundaries,
+    explicit Q3BoundaryEditor(Q3Plot *plot, Q3Sceleton &sceleton,
+                              QList<Q3Boundary *> &boundaries,
                               QWidget *parent = 0);
     ~Q3BoundaryEditor();
 
@@ -29,11 +29,8 @@ public:
 
 private slots:
     void on_boundaryTypeComboBox_currentIndexChanged(int index);
-
     void on_saveBoundaryButton_clicked();
-
     void on_removeBoundaryButton_clicked();
-
     void on_defaultBoundaryButton_clicked();
 
 signals:
@@ -45,7 +42,7 @@ private:
     Q3SceletonItem *boundaryItem_;
     Q3BoundaryType *boundaryType_;
     Q3Boundary *boundary_;
-    QList<Q3Boundary *> *boundaries_;
+    QList<Q3Boundary *> &boundaries_;
 };
 
 #endif // Q3BOUNDARYEDITOR_H

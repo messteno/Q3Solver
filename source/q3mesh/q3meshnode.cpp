@@ -3,6 +3,7 @@
 
 Q3MeshNode::Q3MeshNode(const QPointF &point, int id) :
     QPointF(point),
+    boundary_(false),
     id_(id)
 {
 }
@@ -33,3 +34,13 @@ int Q3MeshNode::id() const
 {
     return id_;
 }
+bool Q3MeshNode::boundary() const
+{
+    return boundary_;
+}
+
+void Q3MeshNode::setBoundary(bool boundary)
+{
+    boundary_ = boundary;
+}
+

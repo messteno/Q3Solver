@@ -24,6 +24,12 @@ Q3MeshEdge::Q3MeshEdge(Q3MeshNode *a, Q3MeshNode *b,
 
     center_ = (*a_ + *b_) / 2.;
     length_ = QVector2D(*a_ - *b_).length();
+
+    if (boundary_)
+    {
+        a_->setBoundary(true);
+        b_->setBoundary(true);
+    }
 }
 
 Q3MeshNode *Q3MeshEdge::a() const
@@ -190,7 +196,7 @@ int Q3MeshEdge::id() const
     return id_;
 }
 
-qreal Q3MeshEdge::processBoundaryPredictor(qreal Re)
+qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm)
 {
     if (!boundary_)
         return 0;
@@ -210,20 +216,26 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re)
         case Q3BoundaryType::FixedVelocity: // Проверить
         {
             QVector2D normal = triangle->normalVectors().at(edgeIndex);
-            qreal vni = - QVector2D::dotProduct(velocity_, normal);
-            qreal tnu = dl * fabs (vni) * Re;
-            QVector2D deltaV = length_ / Re * (1. + tnu) * velocity_ / dl;
+            qreal vni = QVector2D::dotProduct(velocity_, normal);
+            qreal tnu = 0;
+
+            if (monotoneTerm)
+                tnu = dl * qAbs(vni) * Re;
+
+            QVector2D deltaV = length_ / Re / dl * (1. + tnu) * velocity_;
             triangle->setTempVelocity(triangle->tempVelocity() + deltaV);
-            return length_ / Re * (1. + tnu) / dl + length_ * vni;
+            return length_ / Re * (1. + tnu) / dl - length_ * vni;
         }
         case Q3BoundaryType::OutBoundary:
         {
             qreal vni = QVector2D::dotProduct(
                             triangle->correctorVelocity(),
                             triangle->normalVectors().at(edgeIndex));
-            qreal tnu = dl * fabs (vni) * Re;
-            qreal deltaA = length_ / Re / dl * (1. + tnu - dl * vni * Re);
+            qreal tnu = 0;
+            if (monotoneTerm)
+                tnu = dl * qAbs(vni) * Re;
 
+            qreal deltaA = length_ * ((1. + tnu) / Re / dl - vni);
             triangle->setTempVelocity(triangle->tempVelocity()
                                       + deltaA * triangle->predictorVelocity());
             return deltaA;
@@ -249,8 +261,13 @@ qreal Q3MeshEdge::processBoundaryFlow()
         case Q3BoundaryType::InBoundary:
             return length_ * QVector2D::dotProduct(velocity_, normal);
         case Q3BoundaryType::OutBoundary:
-            return length_ * QVector2D::dotProduct(triangle->predictorVelocity(),
-                                                   normal);
+        {
+            qreal flow = length_ * QVector2D::dotProduct(triangle->predictorVelocity(),
+                                                         normal);
+            if (flow < 0)
+                flow = 0;
+            return flow;
+        }
         default:
             break;
     }
@@ -286,10 +303,80 @@ qreal Q3MeshEdge::processBoundaryCorrector()
     return 0;
 }
 
+void Q3MeshEdge::processBoundaryOmega(qreal &dvXByY, qreal &dvYByX)
+{
+    if (!boundary_)
+        return;
+
+    Q3MeshTriangle *triangle = adjacentTriangles_.at(0);
+    int edgeIndex = triangle->edges().indexOf(this);
+    QVector2D normal = triangle->normalVectors().at(edgeIndex);
+
+    switch (boundary()->type()->toEnum())
+    {
+        case Q3BoundaryType::InBoundary:
+        case Q3BoundaryType::FixedVelocity:
+        {
+            dvXByY += length_ * velocity_.x() * normal.y();
+            dvYByX += length_ * velocity_.y() * normal.x();
+            return;
+        }
+        case Q3BoundaryType::OutBoundary:
+        {
+            dvXByY += length_ * triangle->correctorVelocity().x() * normal.y();
+            dvYByX += length_ * triangle->correctorVelocity().y() * normal.x();
+            return;
+        }
+        case Q3BoundaryType::NoSlipBoundary:
+            return;
+        default:
+            break;
+    }
+}
+
+qreal Q3MeshEdge::processBoundaryStream()
+{
+    if (!boundary_)
+        return 0;
+
+    Q3MeshTriangle *triangle = adjacentTriangles_.at(0);
+    int edgeIndex = triangle->edges().indexOf(this);
+    QVector2D normal = triangle->normalVectors().at(edgeIndex);
+
+    switch (boundary()->type()->toEnum())
+    {
+        case Q3BoundaryType::InBoundary:
+        case Q3BoundaryType::FixedVelocity:
+        {
+            return (normal.x() * velocity_.y() - normal.y() * velocity_.x())
+                    * length_;
+        }
+        case Q3BoundaryType::OutBoundary:
+        {
+            return (normal.x() * triangle->correctorVelocity().y()
+                    - normal.y() * triangle->correctorVelocity().x())
+                    * length_;
+        }
+        case Q3BoundaryType::NoSlipBoundary:
+            return 0;
+        default:
+            break;
+    }
+
+    return 0;
+}
+
 void Q3MeshEdge::processBoundaryVelocity()
 {
     if (!boundary_)
         return;
 
-    velocity_ = boundary_->velocity(center_);
+    velocity_ = boundary_->velocity(*a_, *b_);
+//    adjacentTriangles_.at(0)->setCorrectorVelocity(velocity_);
+}
+
+
+QDataStream &operator<<(QDataStream &stream, const Q3MeshEdge &edge)
+{
+    stream << edge.a() << " " << edge.b();
 }

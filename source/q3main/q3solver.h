@@ -28,16 +28,16 @@ public:
 
     void paintEvent(QPaintEvent *event);
 
-    Q3Mesh *mesh() const;
-    Q3Sceleton *sceleton() const;
+    Q3Mesh& mesh();
+    Q3Sceleton& sceleton();
 
 private slots:
     void on_tabWidget_currentChanged(int index);
 
 private:
     Ui::Q3Solver *ui;
-    Q3Mesh *mesh_;
-    Q3Sceleton *sceleton_;
+    Q3Mesh mesh_;
+    Q3Sceleton sceleton_;
     QList<Q3Boundary *> boundaries_;
 
     Q3SceletonEditor *sceletonEditor_;

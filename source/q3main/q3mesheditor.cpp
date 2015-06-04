@@ -111,13 +111,13 @@ void Q3MeshEditor::on_elementSizeSpinBox_valueChanged(double arg1)
 
 void Q3MeshEditor::on_elementsSizeIntervalSlider_valueChanged(int value)
 {
-    meshAdapter_->setElementSizeDecrease(value / 10.);
+    meshAdapter_.setElementSizeDecrease(value / 10.);
     ui->elementsSizeIntervalSpinBox->setValue(value / 10.);
 }
 
 void Q3MeshEditor::on_elementsSizeIntervalSpinBox_valueChanged(double arg1)
 {
-    meshAdapter_->setElementSizeDecrease(arg1);
+    meshAdapter_.setElementSizeDecrease(arg1);
     ui->elementsSizeIntervalSlider->setValue(arg1 * 10.);
 }
 

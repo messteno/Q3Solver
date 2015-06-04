@@ -81,10 +81,6 @@ Q3MeshTriangle* Q3Mesh::addTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c)
 
 void Q3Mesh::draw(Q3Painter &painter) const
 {
-<<<<<<< HEAD
-//    drawEdges(painter);
-    drawTriangles(painter);
-=======
     if (drawPolicy_ & DrawEdges || drawPolicy_ & DrawBorders)
         drawEdges(painter);
 
@@ -110,7 +106,6 @@ void Q3Mesh::draw(Q3Painter &painter) const
 //                             triangle->center().y() * scaleY,
 //                             QString::number(triangle->stream(), 'd', 6));
         }
->>>>>>> master
 
         for (int eInd = 0; eInd < edges_.count(); ++eInd)
         {

@@ -29,10 +29,12 @@ public:
     virtual void setSizePolicy(const SizePolicy &sizePolicy);
     virtual void setElementsCount(int elementsCount);
     virtual void setElementSize(qreal elementSize);
+    virtual void setElementSizeDecrease(qreal elementSizeDecrease);
 
 protected:
     qreal elementSize_;
     int elementsCount_;
+    qreal elementSizeDecrease_;
     SizePolicy sizePolicy_;
     bool created_;
 };

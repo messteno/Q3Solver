@@ -77,8 +77,8 @@ Q3MeshTriangle* Q3Mesh::addTriangle(Q3MeshEdge *a, Q3MeshEdge *b, Q3MeshEdge *c)
 
 void Q3Mesh::draw(Q3Painter &painter) const
 {
-    drawEdges(painter);
-//    drawTriangles(painter);
+//    drawEdges(painter);
+    drawTriangles(painter);
 
 //    qreal scaleX = painter.sx();
 //    qreal scaleY = painter.sy();

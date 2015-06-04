@@ -12,6 +12,10 @@
 #include "q3ani2dmeshadapter.h"
 #include "q3point.h"
 
+static QList<Q3SceletonItem *> boundaryItems_;
+static qreal elementSize = 0.0;
+static qreal elementSizeDecrease = 0.0;
+static qreal maxDistToBoundaryEstimation = 0.0;
 static QVector<Q3Ani2DMeshAdapter::CurveBoundary> curves_;
 
 Q3Ani2DMeshAdapter::Q3Ani2DMeshAdapter() :
@@ -40,6 +44,8 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton,
     q3ani2d_.setMaxElements(1500000);
     q3ani2d_.setQuality(0.9);
     q3ani2d_.setMaxIters(30000);
+
+    boundaryItems_ = items;
 
     // Создаем карту точек - номеров
     int count = 0;
@@ -110,7 +116,42 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton,
         lastDelimeter = true;
     }
 
-    qreal elementSize = 0;
+    elementSizeDecrease = elementSizeDecrease_;
+
+    bool first = true;
+
+    foreach (Q3SceletonItem *itemPC, items)
+    {
+        if (itemPC->type() == Q3SceletonItem::PointConnection ||
+                itemPC->type() == Q3SceletonItem::Circle)
+        {
+            qreal curMaxDist = 0.0;
+            foreach (Q3SceletonItem *itemP, items)
+            {
+                if (itemP->type() == Q3SceletonItem::Point)
+                {
+                    Q3Point *point = dynamic_cast<Q3Point *>(itemP);
+                    if (point)
+                    {
+                        qreal t = 0.5*itemPC->distanceFromBoundaryTo(point->point());
+                        if (t > curMaxDist) curMaxDist = t;
+                    }
+                }
+            }
+
+            if (first)
+            {
+                maxDistToBoundaryEstimation = curMaxDist;
+                first = false;
+            }
+            else
+            {
+                if (maxDistToBoundaryEstimation > curMaxDist)
+                    maxDistToBoundaryEstimation = curMaxDist;
+            }
+        }
+    }
+
     switch(sizePolicy_)
     {
         case ElementSizeByCount:
@@ -125,7 +166,7 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton *sceleton,
             break;
     }
 
-    created_ = q3ani2d_.genMeshAnalytic(NULL,
+    created_ = q3ani2d_.genMeshAnalytic(Q3Ani2DMeshAdapter::sizeFunction,
                                         Q3Ani2DMeshAdapter::circleBoundary,
                                         elementSize);
     return created_;
@@ -343,5 +384,47 @@ bool Q3Ani2DMeshAdapter::addBoundary(QList<Q3Boundary *> *boundaries,
             return false;
     }
     return true;
+}
+
+double Q3Ani2DMeshAdapter::sizeFunction(double *point)
+{
+    double hmax = elementSize;
+    double hmin = elementSize * (1.0 - elementSizeDecrease * 0.01);
+    double p;
+    double minDist = distToBoundary(point);
+
+    p = minDist / maxDistToBoundaryEstimation;
+    return (1.0-p)*hmin + p * hmax;
+}
+
+double Q3Ani2DMeshAdapter::distToBoundary(double *point)
+{
+    QPointF p;
+    double dist, minDist;
+    bool first = true;
+
+    p.setX(point[0]);
+    p.setY(point[1]);
+
+    foreach (Q3SceletonItem *item, boundaryItems_)
+    {
+        if (item->type() == Q3SceletonItem::PointConnection ||
+                item->type() == Q3SceletonItem::Circle)
+        {
+            dist = item->distanceFromBoundaryTo(p);
+
+            if (first)
+            {
+                minDist = dist;
+                first = false;
+            }
+            else
+            {
+                if (dist < minDist) minDist = dist;
+            }
+        }
+    }
+
+    return minDist;
 }
 

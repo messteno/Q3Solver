@@ -19,10 +19,10 @@ Q3Solver::Q3Solver(QWidget *parent) :
     sceleton_ = new Q3Sceleton(this);
     mesh_ = new Q3Mesh(this);
 
-    Q3Point *a1 = new Q3Point(QPointF(-3, -3));
-    Q3Point *a2 = new Q3Point(QPointF(-3, 3));
-    Q3Point *a3 = new Q3Point(QPointF(3, 3));
-    Q3Point *a4 = new Q3Point(QPointF(3, -3));
+    Q3Point *a1 = new Q3Point(QPointF(0, 0));
+    Q3Point *a2 = new Q3Point(QPointF(0, 1));
+    Q3Point *a3 = new Q3Point(QPointF(1, 1));
+    Q3Point *a4 = new Q3Point(QPointF(1, 0));
     sceleton_->addItem(a1);
     sceleton_->addItem(a2);
     sceleton_->addItem(a3);

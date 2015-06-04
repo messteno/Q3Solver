@@ -23,9 +23,13 @@ public:
     void addDrawable(Q3PlotDrawable *drawable);
     void addSettingsWidget(Q3PlotSettingsWidget *widget);
 
+signals:
+    void updatePlot();
+
 private slots:
     void on_closeButton_clicked();
     void on_savePlotButton_clicked();
+    void on_updateButton_clicked();
 
 private:
     Ui::Q3ExternalPlot *ui;

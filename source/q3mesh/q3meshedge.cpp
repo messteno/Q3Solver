@@ -196,7 +196,7 @@ int Q3MeshEdge::id() const
     return id_;
 }
 
-qreal Q3MeshEdge::processBoundaryPredictor(qreal Re)
+qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm)
 {
     if (!boundary_)
         return 0;
@@ -216,21 +216,26 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re)
         case Q3BoundaryType::FixedVelocity: // Проверить
         {
             QVector2D normal = triangle->normalVectors().at(edgeIndex);
-            qreal vni = - QVector2D::dotProduct(velocity_, normal);
-            qreal tnu = dl * qAbs(vni) * Re;
+            qreal vni = QVector2D::dotProduct(velocity_, normal);
+            qreal tnu = 0;
 
-            QVector2D deltaV = length_ / Re * (1. + tnu) * velocity_ / dl;
+            if (monotoneTerm)
+                tnu = dl * qAbs(vni) * Re;
+
+            QVector2D deltaV = length_ / Re / dl * (1. + tnu) * velocity_;
             triangle->setTempVelocity(triangle->tempVelocity() + deltaV);
-            return length_ / Re * (1. + tnu) / dl + length_ * vni;
+            return length_ / Re * (1. + tnu) / dl - length_ * vni;
         }
         case Q3BoundaryType::OutBoundary:
         {
             qreal vni = QVector2D::dotProduct(
                             triangle->correctorVelocity(),
                             triangle->normalVectors().at(edgeIndex));
-            qreal tnu = dl * qAbs(vni) * Re;
-            qreal deltaA = length_ / Re / dl * (1. + tnu - dl * vni * Re);
+            qreal tnu = 0;
+            if (monotoneTerm)
+                tnu = dl * qAbs(vni) * Re;
 
+            qreal deltaA = length_ * ((1. + tnu) / Re / dl - vni);
             triangle->setTempVelocity(triangle->tempVelocity()
                                       + deltaA * triangle->predictorVelocity());
             return deltaA;

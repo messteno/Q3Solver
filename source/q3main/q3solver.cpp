@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include "q3solver.h"
 #include "q3movedirector.h"
 #include "q3sceletoneditor.h"
@@ -13,19 +15,16 @@ Q3Solver::Q3Solver(QWidget *parent) :
     meshEditor_(NULL),
     boundaryEditor_(NULL),
     calculusEditor_(NULL),
+    sceleton_(this),
     tabWidgetIndex_(-1)
 {
     ui->setupUi(this);
-
-    sceleton_ = new Q3Sceleton(this);
-    mesh_ = new Q3Mesh(this);
-
     meshEditor_ = new Q3MeshEditor(ui->plotWidget, mesh_, sceleton_,
-                                   &boundaries_);
-    calculusEditor_ = new Q3CalculusEditor(ui->plotWidget, mesh_);
+                                   boundaries_, this);
+    calculusEditor_ = new Q3CalculusEditor(ui->plotWidget, mesh_, this);
 
     Q3CavityTestBuilder testBuilder;
-    testBuilder.buildTest(*sceleton_, *mesh_,
+    testBuilder.buildTest(sceleton_, mesh_,
                           boundaries_, meshEditor_->meshAdapter());
 
     ui->meshEditorLayout->addWidget(meshEditor_);
@@ -36,6 +35,9 @@ Q3Solver::Q3Solver(QWidget *parent) :
 
 Q3Solver::~Q3Solver()
 {
+    // TODO: рвзобраться почему сам не удаляется
+    delete meshEditor_;
+    delete calculusEditor_;
     delete ui;
 }
 
@@ -43,12 +45,12 @@ void Q3Solver::paintEvent(QPaintEvent *event)
 {
 }
 
-Q3Mesh* Q3Solver::mesh() const
+Q3Mesh& Q3Solver::mesh()
 {
     return mesh_;
 }
 
-Q3Sceleton *Q3Solver::sceleton() const
+Q3Sceleton &Q3Solver::sceleton()
 {
     return sceleton_;
 }
@@ -79,7 +81,7 @@ void Q3Solver::on_tabWidget_currentChanged(int index)
 
     if (index == 0)
     {
-        ui->plotWidget->addDrawable(sceleton_);
+        ui->plotWidget->addDrawable(&sceleton_);
         sceletonEditor_ = new Q3SceletonEditor(ui->plotWidget, sceleton_);
         ui->sceletonEditorLayout->addWidget(sceletonEditor_);
 
@@ -88,9 +90,9 @@ void Q3Solver::on_tabWidget_currentChanged(int index)
     }
     else if (index == 1)
     {
-        ui->plotWidget->addDrawable(sceleton_);
+        ui->plotWidget->addDrawable(&sceleton_);
         boundaryEditor_ = new Q3BoundaryEditor(ui->plotWidget,
-                                               sceleton_, &boundaries_);
+                                               sceleton_, boundaries_);
         ui->boundaryEditorLayout->addWidget(boundaryEditor_);
 
         connect(boundaryEditor_, SIGNAL(goToTab(int)),
@@ -99,7 +101,7 @@ void Q3Solver::on_tabWidget_currentChanged(int index)
     else if (index == 2)
     {
 //        ui->plotWidget->addDrawable(sceleton_);
-        ui->plotWidget->addDrawable(mesh_);
+        ui->plotWidget->addDrawable(&mesh_);
         meshEditor_->enable();
 //        ui->meshEditorLayout->addWidget(meshEditor_);
 
@@ -109,7 +111,7 @@ void Q3Solver::on_tabWidget_currentChanged(int index)
     else if (index == 3)
     {
 //        ui->plotWidget->addDrawable(sceleton_);
-        ui->plotWidget->addDrawable(mesh_);
+        ui->plotWidget->addDrawable(&mesh_);
         calculusEditor_->enable();
     }
 

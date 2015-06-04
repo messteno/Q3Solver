@@ -2,16 +2,16 @@
 
 #include "q3contour.h"
 
-Q3ContourGenerator::Q3ContourGenerator(Q3Mesh *mesh,
+Q3ContourGenerator::Q3ContourGenerator(Q3Mesh &mesh,
                                        const QVector<qreal> &values) :
     mesh_(mesh),
     values_(values),
-    interiorVisited_(2 * mesh->triangles().count()),
+    interiorVisited_(2 * mesh.triangles().count()),
     boundariesVisited_(0),
     boundariesUsed_(0)
 {
     // TODO: исправить на какую-то проверку
-    Q_ASSERT(mesh_->nodes().size() == values_.size());
+    Q_ASSERT(mesh_.nodes().size() == values_.size());
 }
 
 Q3ContourGenerator::~Q3ContourGenerator()
@@ -52,11 +52,11 @@ void Q3ContourGenerator::clearVisitedFlags(bool includeBoundaries)
 
     if (boundariesVisited_.isEmpty())
     {
-        boundariesVisited_.reserve(mesh_->boundaries().size());
-        foreach (const Q3Mesh::EdgeBoundary &boundary, mesh_->boundaries())
+        boundariesVisited_.reserve(mesh_.boundaries().size());
+        foreach (const Q3Mesh::EdgeBoundary &boundary, mesh_.boundaries())
             boundariesVisited_.append(QVector<bool>(boundary.size()));
 
-        boundariesUsed_ = QVector<bool>(mesh_->boundaries().size());
+        boundariesUsed_ = QVector<bool>(mesh_.boundaries().size());
     }
 
     for (QVector<QVector<bool> >::iterator it = boundariesVisited_.begin();
@@ -70,7 +70,7 @@ void Q3ContourGenerator::findBoundaryLinesFilled(Q3Contour &contour,
                                                  qreal lowerLevel,
                                                  qreal upperLevel)
 {
-    Q3Mesh::EdgeBoundaries &boundaries = mesh_->boundaries();
+    Q3Mesh::EdgeBoundaries &boundaries = mesh_.boundaries();
     for (int i = 0; i < boundaries.size(); ++i)
     {
         Q3Mesh::EdgeBoundary &boundary = boundaries[i];
@@ -134,7 +134,7 @@ void Q3ContourGenerator::findBoundaryLinesFilled(Q3Contour &contour,
 
 void Q3ContourGenerator::findBoundaryLines(Q3Contour &contour, qreal level)
 {
-    Q3Mesh::EdgeBoundaries &boundaries = mesh_->boundaries();
+    Q3Mesh::EdgeBoundaries &boundaries = mesh_.boundaries();
     for (Q3Mesh::EdgeBoundaries::iterator it = boundaries.begin();
          it != boundaries.end(); ++it)
     {
@@ -166,7 +166,7 @@ void Q3ContourGenerator::findBoundaryLines(Q3Contour &contour, qreal level)
 void Q3ContourGenerator::findInteriorLines(Q3Contour &contour, qreal level,
                                            bool onUpper, bool filled)
 {
-    int trCount = mesh_->triangles().count();
+    int trCount = mesh_.triangles().count();
     for (int trIndex = 0; trIndex < trCount; ++trIndex)
     {
         int visitedIndex = (onUpper ? trIndex + trCount : trIndex);
@@ -175,7 +175,7 @@ void Q3ContourGenerator::findInteriorLines(Q3Contour &contour, qreal level,
             continue;
 
         interiorVisited_[visitedIndex] = true;
-        Q3MeshTriangle *triangle = mesh_->triangles().at(trIndex);
+        Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
         Q3MeshEdge *edge = getExitEdge(triangle, level, onUpper);
         if (!edge)
             continue;
@@ -214,7 +214,7 @@ void Q3ContourGenerator::followInterior(Q3ContourLine &contourLine,
     {
         int visitedIndex = triangle->id();
         if (onUpper)
-            visitedIndex += mesh_->triangles().count();
+            visitedIndex += mesh_.triangles().count();
 
         if (!endOnBoundary && interiorVisited_[visitedIndex])
             break;
@@ -239,7 +239,7 @@ bool Q3ContourGenerator::followBoundary(Q3ContourLine &contourLine,
                                         Q3MeshEdge* &edge, qreal lowerLevel,
                                         qreal upperLevel, bool onUpper)
 {
-    Q3Mesh::EdgeBoundaries &boundaries = mesh_->boundaries();
+    Q3Mesh::EdgeBoundaries &boundaries = mesh_.boundaries();
     int boundaryIndex, edgeIndex = -1;
 
     // Может быть передавать в параметрах?
@@ -386,6 +386,7 @@ Q3Contour::Q3Contour(bool filled) :
 
 void Q3Contour::draw(Q3Painter &painter) const
 {
+    painter.save();
     qreal scaleX = painter.sx();
     qreal scaleY = painter.sy();
 
@@ -417,6 +418,7 @@ void Q3Contour::draw(Q3Painter &painter) const
         }
     }
     painter.drawPath(path);
+    painter.restore();
 }
 
 void Q3Contour::setColor(const QColor &color)
@@ -424,62 +426,47 @@ void Q3Contour::setColor(const QColor &color)
     color_ = color;
 }
 
-Q3ContourPlot::Q3ContourPlot(Q3Mesh *mesh) :
+Q3ContourPlot::Q3ContourPlot(Q3Mesh &mesh) :
     mesh_(mesh),
-    values_(mesh->nodes().count())
+    values_(mesh.nodes().count())
 {
+    setContourLevels(30);
+    setFilledContourLevels(250);
     qFill(values_.begin(), values_.end(), 0);
 }
 
-void Q3ContourPlot::createContour(int levels)
+void Q3ContourPlot::createContour()
 {
     contours_.clear();
     QVector<qreal> normalizedValues = normalize();
     Q3ContourGenerator contourGenerator(mesh_, normalizedValues);
 
-    levels = levels < 3 ? 3 : levels;
-    qreal stepSize = 1. / (levels - 1);
-
-    for (int i = 0; i < levels; ++i)
-    {
-        qreal level = stepSize * i;
-        Q3Contour contour = contourGenerator.createContour(level);
-        contours_.append(contour);
-    }
-}
-
-void Q3ContourPlot::createContour(QList<qreal> &levelsList)
-{
-    contours_.clear();
-    QVector<qreal> normalizedValues = normalize();
-    Q3ContourGenerator contourGenerator(mesh_, normalizedValues);
-
-    if (levelsList.count() < 3)
+    if (contourLevelsList_.count() < 3)
         return;
 
-    for (int i = 0; i < levelsList.count(); ++i)
+    for (int i = 0; i < contourLevelsList_.count(); ++i)
     {
-        qreal level = levelsList.at(i);
+        qreal level = contourLevelsList_.at(i);
         Q3Contour contour = contourGenerator.createContour(level);
         contours_.append(contour);
     }
 }
 
-void Q3ContourPlot::createFilledContour(int levels)
+void Q3ContourPlot::createFilledContour()
 {
     filledContours_.clear();
     QVector<qreal> normalizedValues = normalize();
     Q3ContourGenerator contourGenerator(mesh_, normalizedValues);
 
-    levels = levels < 3 ? 3 : levels;
-    qreal stepSize = 1. / (levels - 1);
+    if (filledContourLevelsList_.count() < 3)
+        return;
 
-    for (int i = 0; i < levels - 1; ++i)
+    for (int i = 0; i < filledContourLevelsList_.count() - 1; ++i)
     {
         // TODO: Подумать над корректным удалением линий
         qreal fixDelta = 5e-3;
-        qreal lowerLevel = stepSize * i - fixDelta;
-        qreal upperLevel = lowerLevel + stepSize + fixDelta;
+        qreal lowerLevel = filledContourLevelsList_.at(i) - fixDelta;
+        qreal upperLevel = filledContourLevelsList_.at(i + 1) + fixDelta;
         Q3Contour contour = contourGenerator.createFilledContour(lowerLevel,
                                                                  upperLevel);
         qreal level = (lowerLevel + upperLevel) * 0.5;
@@ -556,6 +543,46 @@ QVector<qreal> Q3ContourPlot::normalize()
 
     return normalizedValues;
 }
+
+void Q3ContourPlot::setContourLevels(int levels)
+{
+    contourLevelsList_.clear();
+    if (levels == 0)
+        return;
+
+    qreal step = 1. / levels;
+    for (int i = 0; i <= levels; ++i)
+    {
+        qreal level = i * step;
+        contourLevelsList_ << level;
+    }
+}
+
+void Q3ContourPlot::setContourLevelsList(const QList<qreal> &contoursLevelsList)
+{
+    contourLevelsList_ = contoursLevelsList;
+}
+
+void Q3ContourPlot::setFilledContourLevelsList(
+        const QList<qreal> &filledContoursLevelsList)
+{
+    filledContourLevelsList_ = filledContoursLevelsList;
+}
+
+void Q3ContourPlot::setFilledContourLevels(int levels)
+{
+    filledContourLevelsList_.clear();
+    if (levels == 0)
+        return;
+
+    qreal step = 1. / levels;
+    for (int i = 0; i <= levels; ++i)
+    {
+        qreal level = i * step;
+        filledContourLevelsList_ << level;
+    }
+}
+
 void Q3ContourPlot::setValues(const QVector<qreal> &values)
 {
     values_ = values;
@@ -565,6 +592,16 @@ bool Q3ContourPlot::clear()
 {
     filledContours_.clear();
     contours_.clear();
+}
+
+Q3Mesh &Q3ContourPlot::mesh() const
+{
+    return mesh_;
+}
+
+void Q3ContourPlot::setMesh(Q3Mesh &mesh)
+{
+    mesh_ = mesh;
 }
 
 QColor getColour(qreal level)

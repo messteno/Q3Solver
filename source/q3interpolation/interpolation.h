@@ -17,4 +17,4 @@ protected:
     QVector<QVector3D> &values_;
 };
 
-#endif // Q3INTERPOLATION_H
+#endif // INTERPOLATION_H

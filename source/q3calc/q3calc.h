@@ -12,13 +12,14 @@ class Q3Calc : public QThread
     Q_OBJECT
 
 public:
-    Q3Calc(Q3Mesh *mesh, qreal tau, qreal Re, QObject *parent = 0);
+    Q3Calc(Q3Mesh &mesh, qreal tau, qreal Re, QObject *parent = 0);
     ~Q3Calc();
 
     void abort();
     void reset();
     QString info();
 
+    void setMonotoneTerm(bool monotoneTerm);
     void setBadTriangleFix(bool badTriangleFix);
     void setTau(const qreal &tau);
     void setRe(const qreal &Re);
@@ -37,7 +38,7 @@ private:
     // TODO: переместить в отдельный класс
     static void incompleteCholesky(qreal *AN, int *JA, int *IA, int n);
 
-    Q3Mesh *mesh_;
+    Q3Mesh &mesh_;
     bool abort_;
     bool started_;
 
@@ -53,6 +54,7 @@ private:
     QVector<qreal> TN_;
 
     bool badTriangleFix_;
+    bool monotoneTerm_;
 
     qreal tau_;
     qreal Re_;

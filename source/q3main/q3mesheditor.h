@@ -20,8 +20,8 @@ class Q3MeshEditor : public QWidget
     Q_OBJECT
 
 public:
-    explicit Q3MeshEditor(Q3Plot *plot, Q3Mesh *mesh, Q3Sceleton *sceleton,
-                          QList<Q3Boundary *> *boundaries, QWidget *parent = 0);
+    explicit Q3MeshEditor(Q3Plot *plot, Q3Mesh &mesh, Q3Sceleton &sceleton,
+                          QList<Q3Boundary *> &boundaries, QWidget *parent = 0);
     ~Q3MeshEditor();
 
     void disable();
@@ -50,9 +50,9 @@ private:
     Ui::Q3MeshEditor *ui;
 
     Q3Plot *plot_;
-    Q3Mesh *mesh_;
-    QList<Q3Boundary *> *boundaries_;
-    Q3Sceleton *sceleton_;
+    Q3Mesh &mesh_;
+    QList<Q3Boundary *> &boundaries_;
+    Q3Sceleton &sceleton_;
     Q3Ani2DMeshAdapter meshAdapter_;
     Q3DirectorManager *directorManager_;
     Q3ContourPlot contourPlot_;

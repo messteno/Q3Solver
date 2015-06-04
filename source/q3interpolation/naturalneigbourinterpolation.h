@@ -20,4 +20,4 @@ private:
     delaunay *delaunay_;
 };
 
-#endif // Q3NATURALNEIBOURINTERPOLATION_H
+#endif // NATURALNEIBOURINTERPOLATION_H

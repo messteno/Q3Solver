@@ -20,7 +20,7 @@ class Q3CalculusEditor : public QWidget
     Q_OBJECT
 
 public:
-    explicit Q3CalculusEditor(Q3Plot *plot, Q3Mesh *mesh, QWidget *parent = 0);
+    explicit Q3CalculusEditor(Q3Plot *plot, Q3Mesh &mesh, QWidget *parent = 0);
     ~Q3CalculusEditor();
 
     void disable();
@@ -46,10 +46,13 @@ private slots:
 
     void on_internalClearPlotButton_clicked();
 
+    void on_externalVXButton_clicked();
+    void on_externalVYButton_clicked();
+
 private:
     Ui::Q3CalculusEditor *ui;
 
-    Q3Mesh *mesh_;
+    Q3Mesh &mesh_;
     Q3Plot *plot_;
     Q3DirectorManager *directorManager_;
     Q3Calc *calc_;

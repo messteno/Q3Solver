@@ -1,11 +1,16 @@
+#include <QDebug>
+
 #include "q3calculuseditor.h"
 #include "q3externalplot.h"
 #include "q3movedirector.h"
+#include "q3graphs.h"
 #include "q3meshinterpolation.h"
 #include "q3contoursettingswidget.h"
+#include "q3vxbyysettingswidget.h"
+#include "q3vybyxsettingswidget.h"
 #include "ui_q3calculuseditor.h"
 
-Q3CalculusEditor::Q3CalculusEditor(Q3Plot *plot, Q3Mesh *mesh, QWidget *parent) :
+Q3CalculusEditor::Q3CalculusEditor(Q3Plot *plot, Q3Mesh &mesh, QWidget *parent) :
     QWidget(parent),
     mesh_(mesh),
     plot_(plot),
@@ -15,22 +20,27 @@ Q3CalculusEditor::Q3CalculusEditor(Q3Plot *plot, Q3Mesh *mesh, QWidget *parent) 
 {
     ui->setupUi(this);
 
+    contourPlot_.setContourLevels(0);
+
     qreal meanVelocity = ui->meanVelocityEdit->text().toDouble();
     qreal characteristicLength = ui->characteristicLengthEdit->text().toDouble();
     qreal kinematicViscosity = ui->kinematicViscosityEdit->text().toDouble();
     qreal tau = ui->tauEdit->text().toDouble();
     qreal Re = meanVelocity * characteristicLength / kinematicViscosity;
+
     calc_ = new Q3Calc(mesh_, tau, Re, this);
+
     bool badTriangleFix = ui->badTrianglesFixCheckBox->isChecked();
     calc_->setBadTriangleFix(badTriangleFix);
-
-    // TODO:
+    bool monotoneTerm = ui->monotoneTermCheckBox->isChecked();
+    calc_->setMonotoneTerm(monotoneTerm);
 
     connect(calc_, SIGNAL(updateInfo()), this, SLOT(updateInfo()));
 }
 
 Q3CalculusEditor::~Q3CalculusEditor()
 {
+    delete calc_;
     delete ui;
 }
 
@@ -39,7 +49,7 @@ void Q3CalculusEditor::enable()
     if (enabled_)
         return;
 
-    mesh_->setDrawPolicy(Q3Mesh::DrawBorders | Q3Mesh::DrawVelocity);
+    mesh_.setDrawPolicy(Q3Mesh::DrawBorders | Q3Mesh::DrawVelocity);
 
     directorManager_ = new Q3DirectorManager(this);
     Q3Director *moveDirector = new Q3MoveDirector(directorManager_);
@@ -67,10 +77,13 @@ void Q3CalculusEditor::on_startCalcButton_clicked()
     qreal kinematicViscosity = ui->kinematicViscosityEdit->text().toDouble();
     qreal tau = ui->tauEdit->text().toDouble();
     qreal Re = meanVelocity * characteristicLength / kinematicViscosity;
-    bool badTriangleFix = ui->badTrianglesFixCheckBox->isChecked();
     calc_->setTau(tau);
     calc_->setRe(Re);
+
+    bool badTriangleFix = ui->badTrianglesFixCheckBox->isChecked();
     calc_->setBadTriangleFix(badTriangleFix);
+    bool monotoneTerm = ui->monotoneTermCheckBox->isChecked();
+    calc_->setMonotoneTerm(monotoneTerm);
 
     calc_->start();
 }
@@ -84,16 +97,16 @@ void Q3CalculusEditor::on_resetCalcButton_clicked()
 {
     calc_->reset();
 
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
+    for (int i = 0; i < mesh_.triangles().count(); ++i)
     {
-        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
+        Q3MeshTriangle *triangle = mesh_.triangles().at(i);
         triangle->setCorrectorVelocity(QVector2D(0, 0));
         triangle->setPredictorVelocity(QVector2D(0, 0));
     }
 
-    for (int i = 0; i < mesh_->edges().count(); ++i)
+    for (int i = 0; i < mesh_.edges().count(); ++i)
     {
-        Q3MeshEdge *edge = mesh_->edges().at(i);
+        Q3MeshEdge *edge = mesh_.edges().at(i);
         edge->setVelocity(QVector2D(0, 0));
         edge->setPreassure(0);
     }
@@ -107,181 +120,96 @@ void Q3CalculusEditor::on_internalClearPlotButton_clicked()
 
 void Q3CalculusEditor::on_internalStreamPlotButton_clicked()
 {
-    mesh_->calcStream();
-
-    QVector<QVector3D> triValues;
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-    {
-        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
-        triValues.append(QVector3D(triangle->center().x(),
-                                   triangle->center().y(),
-                                   triangle->stream()));
-    }
-    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
-
-    contourPlot_.clear();
-    contourPlot_.setValues(nodeValues);
-    contourPlot_.createFilledContour(250);
-    contourPlot_.createContour(30);
-
+    Q3StreamPlot::update(contourPlot_);
     plot_->addDrawable(&contourPlot_);
     plot_->update();
 }
 
 void Q3CalculusEditor::on_externalStreamPlotButton_clicked()
 {
-    mesh_->calcStream();
-
-    QVector<QVector3D> triValues;
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-    {
-        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
-        triValues.append(QVector3D(triangle->center().x(),
-                                   triangle->center().y(),
-                                   triangle->stream()));
-    }
-    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
-
-    Q3ContourPlot *contourPlot = new Q3ContourPlot(mesh_);
-    contourPlot->setValues(nodeValues);
-
+    Q3StreamPlot *streamPlot = new Q3StreamPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
-    plot->addSettingsWidget(new Q3ContourSettingsWidget(*contourPlot, this));
-    plot->addDrawable(contourPlot);
-    plot->plotWidget()->setSceneRect(mesh_->boundingRect());
+    connect(plot, SIGNAL(updatePlot()), streamPlot, SLOT(update()));
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*streamPlot, plot));
+    plot->addDrawable(streamPlot);
+    plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
 
 void Q3CalculusEditor::on_internalVorticityPlotButton_clicked()
 {
-    mesh_->calcVorticity();
-
-    QVector<QVector3D> triValues;
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-    {
-        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
-        triValues.append(QVector3D(triangle->center().x(),
-                                   triangle->center().y(),
-                                   triangle->omega()));
-    }
-    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
-
-    contourPlot_.clear();
-    contourPlot_.setValues(nodeValues);
-    contourPlot_.createFilledContour(250);
-
+    Q3VorticityPlot::update(contourPlot_);
     plot_->addDrawable(&contourPlot_);
     plot_->update();
 }
 
 void Q3CalculusEditor::on_externalVorticityPlotButton_clicked()
 {
-    mesh_->calcVorticity();
-
-    QVector<QVector3D> triValues;
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-    {
-        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
-        triValues.append(QVector3D(triangle->center().x(),
-                                   triangle->center().y(),
-                                   triangle->omega()));
-    }
-    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
-
-    Q3ContourPlot *contourPlot = new Q3ContourPlot(mesh_);
-    contourPlot->setValues(nodeValues);
-
+    Q3VorticityPlot *vorticityPlot = new Q3VorticityPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
-    plot->addSettingsWidget(new Q3ContourSettingsWidget(*contourPlot, this));
-    plot->addDrawable(contourPlot);
-    plot->plotWidget()->setSceneRect(mesh_->boundingRect());
+    connect(plot, SIGNAL(updatePlot()), vorticityPlot, SLOT(update()));
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*vorticityPlot, plot));
+    plot->addDrawable(vorticityPlot);
+    plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
 
 void Q3CalculusEditor::on_internalPreassurePlotButton_clicked()
 {
-    QVector<QVector3D> edgeValues;
-    for (int i = 0; i < mesh_->edges().count(); ++i)
-    {
-        Q3MeshEdge *edge = mesh_->edges().at(i);
-        edgeValues.append(QVector3D(edge->center().x(),
-                                    edge->center().y(),
-                                    edge->preassure()));
-    }
-    Q3MeshEdgeNodeInterpolation interpolation(*mesh_, edgeValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
-
-    contourPlot_.clear();
-    contourPlot_.setValues(nodeValues);
-    contourPlot_.createFilledContour(250);
-
+    Q3PreassurePlot::update(contourPlot_);
     plot_->addDrawable(&contourPlot_);
     plot_->update();
 }
 
 void Q3CalculusEditor::on_externalPreassurePlotButton_clicked()
 {
-    QVector<QVector3D> edgeValues;
-    for (int i = 0; i < mesh_->edges().count(); ++i)
-    {
-        Q3MeshEdge *edge = mesh_->edges().at(i);
-        edgeValues.append(QVector3D(edge->center().x(),
-                                    edge->center().y(),
-                                    edge->preassure()));
-    }
-    Q3MeshEdgeNodeInterpolation interpolation(*mesh_, edgeValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
-
-    Q3ContourPlot *contourPlot = new Q3ContourPlot(mesh_);
-    contourPlot->setValues(nodeValues);
-
+    Q3PreassurePlot *preassurePlot = new Q3PreassurePlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
-    plot->addSettingsWidget(new Q3ContourSettingsWidget(*contourPlot, this));
-    plot->addDrawable(contourPlot);
-    plot->plotWidget()->setSceneRect(mesh_->boundingRect());
+    connect(plot, SIGNAL(updatePlot()), preassurePlot, SLOT(update()));
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*preassurePlot, plot));
+    plot->addDrawable(preassurePlot);
+    plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
 
 void Q3CalculusEditor::on_internalMagnitudePlotButton_clicked()
 {
-    QVector<QVector3D> triValues;
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-    {
-        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
-        triValues.append(QVector3D(triangle->center().x(),
-                                   triangle->center().y(),
-                                   triangle->correctorVelocity().length()));
-    }
-    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
-
-    contourPlot_.clear();
-    contourPlot_.setValues(nodeValues);
-    contourPlot_.createFilledContour(250);
-
+    Q3MagnitudePlot::update(contourPlot_);
     plot_->addDrawable(&contourPlot_);
     plot_->update();
 }
 
 void Q3CalculusEditor::on_externalMagnitudePlotButton_clicked()
 {
-    QVector<QVector3D> triValues;
-    for (int i = 0; i < mesh_->triangles().count(); ++i)
-    {
-        Q3MeshTriangle *triangle = mesh_->triangles().at(i);
-        triValues.append(QVector3D(triangle->center().x(),
-                                   triangle->center().y(),
-                                   triangle->correctorVelocity().length()));
-    }
-    Q3MeshTriNodeInterpolation interpolation(*mesh_, triValues);
-    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
-
-    Q3ContourPlot *contourPlot = new Q3ContourPlot(mesh_);
-    contourPlot->setValues(nodeValues);
-
+    Q3MagnitudePlot *magnitudePlot = new Q3MagnitudePlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
-    plot->addSettingsWidget(new Q3ContourSettingsWidget(*contourPlot, this));
-    plot->addDrawable(contourPlot);
-    plot->plotWidget()->setSceneRect(mesh_->boundingRect());
+    connect(plot, SIGNAL(updatePlot()), magnitudePlot, SLOT(update()));
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*magnitudePlot, plot));
+    plot->addDrawable(magnitudePlot);
+    plot->plotWidget()->setSceneRect(mesh_.boundingRect());
+}
+
+void Q3CalculusEditor::on_externalVXButton_clicked()
+{
+    Q3VxByYPlot *vXbyYplot = new Q3VxByYPlot(mesh_);
+    Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->addSettingsWidget(new Q3VxByYSettingsWidget(*vXbyYplot,
+                                                      mesh_.boundingRect().left(),
+                                                      mesh_.boundingRect().right(),
+                                                      plot));
+    plot->addDrawable(vXbyYplot);
+    plot->plotWidget()->setSceneRect(vXbyYplot->boundingRect());
+
+    connect(plot, SIGNAL(updatePlot()), vXbyYplot, SLOT(update()));
+}
+
+void Q3CalculusEditor::on_externalVYButton_clicked()
+{
+    Q3VyByXPlot *vYbyXplot = new Q3VyByXPlot(mesh_);
+    Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->addSettingsWidget(new Q3VyByXSettingsWidget(*vYbyXplot,
+                                                      mesh_.boundingRect().top(),
+                                                      mesh_.boundingRect().bottom(),
+                                                      plot));
+    plot->addDrawable(vYbyXplot);
+    plot->plotWidget()->setSceneRect(vYbyXplot->boundingRect());
+
+    connect(plot, SIGNAL(updatePlot()), vYbyXplot, SLOT(update()));
 }

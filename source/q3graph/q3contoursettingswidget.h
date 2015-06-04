@@ -26,7 +26,6 @@ public:
 private slots:
 
     void on_isolinesCheckbox_clicked(bool checked);
-
     void on_addLevelsButton_clicked();
 
 private:

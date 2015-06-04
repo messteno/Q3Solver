@@ -6,15 +6,13 @@
 #include <QTime>
 #include <qmath.h>
 
-#include "q3contour.h"
 #include "q3mesh.h"
 
 const int Q3Mesh::maxStreamIterationsCount = 2000;
 const qreal Q3Mesh::maxStreamError = 1e-8;
 
-Q3Mesh::Q3Mesh(QWidget *parent) :
+Q3Mesh::Q3Mesh() :
     Q3PlotDrawable(),
-    QWidget(parent),
     square_(0),
     edgeSquare_(0),
     angles_(0),
@@ -109,7 +107,6 @@ void Q3Mesh::draw(Q3Painter &painter) const
 //                             QString::number(triangle->stream(), 'd', 6));
         }
 
-        painter.setPen(QColor(22, 63, 188));
         for (int eInd = 0; eInd < edges_.count(); ++eInd)
         {
             Q3MeshEdge *edge = edges_.at(eInd);
@@ -120,7 +117,10 @@ void Q3Mesh::draw(Q3Painter &painter) const
             QPointF end = (QVector2D(edge->center())
                            + 0.1 * edge->velocity()).toPointF();
             end = QPointF(end.x() * scaleX, end.y() * scaleY);
+            painter.setPen(QColor(22, 63, 188));
             painter.drawLine(begin, end);
+//            painter.setPen(Qt::red);
+//            painter.drawPoint(begin);
 //            painter.drawText(triangle->center().x() * scaleX,
 //                             triangle->center().y() * scaleY,
 //                             QString::number(triangle->stream(), 'd', 6));
@@ -244,6 +244,7 @@ void Q3Mesh::calcStream()
             break;
         iterationsCount++;
     }
+    qDebug() << "Stream: " << iterationsCount << streamDelta;
 }
 
 void Q3Mesh::calcVorticity()
@@ -299,21 +300,21 @@ QString Q3Mesh::info()
 {
     QString out;
     QTextStream stream(&out);
-    stream << tr("Количество узлов:  ")
+    stream << QObject::tr("Количество узлов:  ")
            << QString::number(nodes_.count()) << "\n";
-    stream << tr("Количество ребер:  ")
+    stream << QObject::tr("Количество ребер:  ")
            << QString::number(edges_.count()) << "\n";
-    stream << tr("Количество тр-в:   ")
+    stream << QObject::tr("Количество тр-в:   ")
            << QString::number(triangles_.count()) << "\n";
-    stream << tr("Площадь:           ")
+    stream << QObject::tr("Площадь:           ")
            << QString::number(square_) << "\n";
-    stream << tr("Площадь (ребра):   ")
+    stream << QObject::tr("Площадь (ребра):   ")
            << QString::number(edgeSquare_) << "\n";
-    stream << tr("Кол-во границ:     ")
+    stream << QObject::tr("Кол-во границ:     ")
            << QString::number(boundaries_.count()) << "\n";
-    stream << tr("Проверка углов:    ")
+    stream << QObject::tr("Проверка углов:    ")
            << QString::number(angles_) << "\n";
-    stream << tr("Тупоугольных тр-в: ")
+    stream << QObject::tr("Тупоугольных тр-в: ")
            << QString::number((100. * obtuseTrianglesCount_) / triangles_.count())
            << "\n";
     return out;

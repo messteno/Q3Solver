@@ -23,10 +23,10 @@ public:
 
     Q3MeshAdapter();
 
-    virtual bool generateMesh(Q3Sceleton *sceleton,
-                              QList<Q3Boundary *> *boundaries) = 0;
-    virtual bool meshToQ3Mesh(Q3Mesh *mesh,
-                              QList<Q3Boundary *> *boundaries) = 0;
+    virtual bool generateMesh(Q3Sceleton &sceleton,
+                              QList<Q3Boundary *> &boundaries) = 0;
+    virtual bool meshToQ3Mesh(Q3Mesh &mesh,
+                              QList<Q3Boundary *> &boundaries) = 0;
     virtual bool saveMesh() = 0;
 
     virtual void setSizePolicy(const SizePolicy &sizePolicy);

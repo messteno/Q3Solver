@@ -47,7 +47,7 @@ public:
 
     int id() const;
 
-    qreal processBoundaryPredictor(qreal Re);
+    qreal processBoundaryPredictor(qreal Re, bool monotoneTerm);
     qreal processBoundaryFlow();
     qreal processBoundaryCorrector();
     void processBoundaryOmega(qreal &dvXByY, qreal &dvYByX);

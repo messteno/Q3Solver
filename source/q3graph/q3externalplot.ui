@@ -7,19 +7,22 @@
     <x>0</x>
     <y>0</y>
     <width>606</width>
-    <height>518</height>
+    <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetFixedSize</enum>
+   </property>
    <item>
     <widget class="Q3Plot" name="plotWidget" native="true">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>1</horstretch>
+       <verstretch>1</verstretch>
       </sizepolicy>
      </property>
      <property name="minimumSize">
@@ -33,7 +36,7 @@
    <item>
     <layout class="QVBoxLayout" name="actionLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
+      <enum>QLayout::SetMinimumSize</enum>
      </property>
      <item>
       <layout class="QVBoxLayout" name="settingsLayout"/>
@@ -50,6 +53,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="updateButton">
+       <property name="text">
+        <string>Обновить</string>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="savePlotButton">

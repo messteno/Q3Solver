@@ -1,5 +1,5 @@
 # process input parameters
-set(CMAKE_BUILD_TYPE Release)
+#set(CMAKE_BUILD_TYPE Release)
 
 include_directories(${3RDPARTY_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3plot ${CMAKE_SOURCE_DIR}/source/q3sceleton ${CMAKE_SOURCE_DIR}/source/q3boundary)
 link_directories(${3RDPARTY_LIBS_DIR})
@@ -15,7 +15,7 @@ add_library(q3mesh STATIC
     ${q3mesh_UI})
 
 qt5_use_modules(q3mesh Widgets)
-target_link_libraries(q3mesh
+target_link_libraries(q3mesh optimized
     q3plot
     q3sceleton
     q3boundary

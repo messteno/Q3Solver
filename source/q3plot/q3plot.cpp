@@ -406,9 +406,7 @@ void Q3Plot::drawDrawables(Q3Painter &painter)
 {
     painter.save();
 
-    QPen pen = QPen(Qt::white);
-    painter.setPen(pen);
-
+    painter.setPen(penColor_);
     painter.setRenderHint(Q3Painter::Antialiasing);
     painter.setBrush(foregroundColor_);
     painter.translate(dx_, dy_);

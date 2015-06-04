@@ -14,7 +14,7 @@
 #include "q3sceletoneditor.h"
 #include "ui_q3sceletoneditor.h"
 
-Q3SceletonEditor::Q3SceletonEditor(Q3Plot *plot, Q3Sceleton *sceleton,
+Q3SceletonEditor::Q3SceletonEditor(Q3Plot *plot, Q3Sceleton &sceleton,
                                    QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Q3MeshBuilder),
@@ -38,7 +38,7 @@ Q3SceletonEditor::Q3SceletonEditor(Q3Plot *plot, Q3Sceleton *sceleton,
     directorManager_->addDirector(moveDirector);
 
     foreach (Q3Director *director, directorManager_->directors())
-        director->setSceleton(sceleton_);
+        director->setSceleton(&sceleton_);
 
     directorManager_->setPlot(plot_);
 
@@ -48,12 +48,12 @@ Q3SceletonEditor::Q3SceletonEditor(Q3Plot *plot, Q3Sceleton *sceleton,
     connect(resizeDirector, SIGNAL(itemResized()),
             selectDirector, SLOT(setupEditForm()));
     connect(resizeDirector, SIGNAL(itemResized()),
-            sceleton_, SLOT(itemsUpdated()));
+            &sceleton_, SLOT(itemsUpdated()));
 
     connect(selectDirector, SIGNAL(itemMoved()),
             addItemDirector, SLOT(setupAddForm()));
     connect(selectDirector, SIGNAL(itemMoved()),
-            sceleton_, SLOT(itemsUpdated()));
+            &sceleton_, SLOT(itemsUpdated()));
 
     plot_->addDrawable(static_cast<Q3PlotDrawable *>(addItemDirector));
 
@@ -62,7 +62,7 @@ Q3SceletonEditor::Q3SceletonEditor(Q3Plot *plot, Q3Sceleton *sceleton,
 
 //    ui->meshParametersBox->setEnabled(false);
 
-    ui->elementsTableView->setModel(sceleton_);
+    ui->elementsTableView->setModel(&sceleton_);
     ui->elementsTableView->horizontalHeader()->setSectionResizeMode(
                 QHeaderView::ResizeToContents);
 
@@ -132,7 +132,7 @@ void Q3SceletonEditor::on_snapToGrid_toggled(bool checked)
 
 void Q3SceletonEditor::on_prepareSceletonButton_clicked()
 {
-    bool ok = sceleton_->prepare();
+    bool ok = sceleton_.prepare();
     if (ok)
     {
         emit goToTab(1);

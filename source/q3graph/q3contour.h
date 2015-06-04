@@ -12,7 +12,7 @@ public:
     Q3ContourLine();
 };
 
-class Q3Contour : public QList<Q3ContourLine>, public Q3PlotDrawable
+class Q3Contour : public Q3PlotDrawable, public QList<Q3ContourLine>
 {
 public:
     Q3Contour();
@@ -29,7 +29,7 @@ private:
 class Q3ContourGenerator
 {
 public:
-    Q3ContourGenerator(Q3Mesh *mesh, const QVector<qreal> &values);
+    Q3ContourGenerator(Q3Mesh &mesh, const QVector<qreal> &values);
     ~Q3ContourGenerator();
 
     Q3Contour createContour(qreal level);
@@ -52,7 +52,7 @@ private:
     QPointF edgeInterpolation(const Q3MeshEdge *edge, qreal level);
     Q3MeshEdge* getExitEdge(Q3MeshTriangle *triangle, qreal level, bool onUpper);
 
-    Q3Mesh *mesh_;
+    Q3Mesh &mesh_;
     const QVector<qreal> &values_;
 
     QVector<bool> interiorVisited_;
@@ -63,10 +63,9 @@ private:
 class Q3ContourPlot : public Q3PlotDrawable
 {
 public:
-    Q3ContourPlot(Q3Mesh *mesh);
-    void createContour(int levels);
-    void createContour(QList<qreal> &levelsList);
-    void createFilledContour(int levels);
+    Q3ContourPlot(Q3Mesh &mesh);
+    void createContour();
+    void createFilledContour();
     void draw(Q3Painter &painter) const;
 
     QVector<qreal>& values();
@@ -74,15 +73,26 @@ public:
 
     bool clear();
 
+    Q3Mesh &mesh() const;
+    void setMesh(Q3Mesh &mesh);
+
+    void setContourLevels(int levels);
+    void setContourLevelsList(const QList<qreal> &contoursLevelsList);
+    void setFilledContourLevels(int levels);
+    void setFilledContourLevelsList(const QList<qreal> &filledContoursLevelsList);
+
 private:
+    Q3Mesh& mesh_;
     qreal minValue();
     qreal maxValue();
     QVector<qreal> normalize();
 
-    Q3Mesh *mesh_;
     QVector<Q3Contour> contours_;
     QVector<Q3Contour> filledContours_;
     QVector<qreal> values_;
+
+    QList<qreal> contourLevelsList_;
+    QList<qreal> filledContourLevelsList_;
 };
 
 QColor getColour(qreal level);

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>368</width>
-    <height>547</height>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -91,6 +91,16 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="monotoneTermCheckBox">
+     <property name="text">
+      <string>Монотонизирующее слагаемое</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QGroupBox" name="internalGraphicsGroup">
      <property name="title">
       <string>Графики</string>
@@ -99,16 +109,16 @@
       <item row="4" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="externalVXButton">
           <property name="text">
-           <string>Vx</string>
+           <string>Vx(x0, y)</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton_2">
+         <widget class="QPushButton" name="externalVYButton">
           <property name="text">
-           <string>Vy</string>
+           <string>Vy(x, y0)</string>
           </property>
          </widget>
         </item>

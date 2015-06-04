@@ -1,5 +1,7 @@
 #include <QDebug>
 #include <QFileDialog>
+#include <QApplication>
+#include <QDesktopWidget>
 
 #include "q3externalplot.h"
 #include "q3movedirector.h"
@@ -14,11 +16,14 @@ Q3ExternalPlot::Q3ExternalPlot(QWidget *parent) :
     ui->plotWidget->setForegroundColor(Qt::black);
     ui->plotWidget->setAxesColor(Qt::gray);
 
+    connect(this, SIGNAL(updatePlot()), ui->plotWidget, SLOT(update()));
+
     directorManager_ = new Q3DirectorManager(this);
     Q3Director *moveDirector = new Q3MoveDirector(directorManager_);
     directorManager_->addDirector(moveDirector);
     directorManager_->setPlot(ui->plotWidget);
 
+    move(QApplication::desktop()->rect().center() - rect().center());
     show();
 }
 
@@ -72,4 +77,9 @@ void Q3ExternalPlot::on_savePlotButton_clicked()
     ui->plotWidget->render(&painter);
 
     img.save(path);
+}
+
+void Q3ExternalPlot::on_updateButton_clicked()
+{
+    emit updatePlot();
 }

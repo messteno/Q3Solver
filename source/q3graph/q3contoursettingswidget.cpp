@@ -65,7 +65,7 @@ void Q3ContourSettingsWidget::updateContour()
     contourPlot_.clear();
 
     if (filled_)
-        contourPlot_.createFilledContour(250);
+        contourPlot_.createFilledContour();
 
     if (lines_)
     {
@@ -73,8 +73,11 @@ void Q3ContourSettingsWidget::updateContour()
         QList<qreal> levelsValues;
         foreach(const QString &strLevel, levelsStringList)
             levelsValues << strLevel.toDouble();
-        contourPlot_.createContour(levelsValues);
+        contourPlot_.setContourLevelsList(levelsValues);
+        contourPlot_.createContour();
     }
+    else
+        contourPlot_.setContourLevels(0);
 
     if (plot_)
         plot_->update();

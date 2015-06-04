@@ -19,7 +19,7 @@ class Q3SceletonEditor : public QWidget
     Q_OBJECT
 
 public:
-    explicit Q3SceletonEditor(Q3Plot *plot, Q3Sceleton *sceleton,
+    explicit Q3SceletonEditor(Q3Plot *plot, Q3Sceleton &sceleton,
                               QWidget *parent = 0);
     ~Q3SceletonEditor();
 
@@ -39,7 +39,7 @@ signals:
     void goToTab(int tab);
 
 private:
-    Q3Sceleton *sceleton_;
+    Q3Sceleton &sceleton_;
 
     Q3Mesh *mesh_;
     Q3MeshAdapter *meshAdapter_;

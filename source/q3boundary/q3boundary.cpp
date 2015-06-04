@@ -59,10 +59,10 @@ void Q3Boundary::setType(Q3BoundaryType *type)
     type_ = type;
 }
 
-Q3Boundary* Q3Boundary::findByElement(QList<Q3Boundary *> *boundaries,
-                                     Q3SceletonItem *item)
+Q3Boundary* Q3Boundary::findByElement(QList<Q3Boundary *> &boundaries,
+                                      Q3SceletonItem *item)
 {
-    foreach(Q3Boundary *boundary, *boundaries)
+    foreach(Q3Boundary *boundary, boundaries)
     {
         if (boundary->contains(item))
             return boundary;
@@ -70,9 +70,9 @@ Q3Boundary* Q3Boundary::findByElement(QList<Q3Boundary *> *boundaries,
     return NULL;
 }
 
-Q3Boundary *Q3Boundary::findByLabel(QList<Q3Boundary *> *boundaries, int label)
+Q3Boundary *Q3Boundary::findByLabel(QList<Q3Boundary *> &boundaries, int label)
 {
-    foreach(Q3Boundary *boundary, *boundaries)
+    foreach(Q3Boundary *boundary, boundaries)
     {
         if (boundary->label() == label)
             return boundary;
@@ -80,9 +80,9 @@ Q3Boundary *Q3Boundary::findByLabel(QList<Q3Boundary *> *boundaries, int label)
     return NULL;
 }
 
-void Q3Boundary::setUniqueLabels(QList<Q3Boundary *> *boundaries)
+void Q3Boundary::setUniqueLabels(QList<Q3Boundary *> &boundaries)
 {
     int label = 1;
-    foreach (Q3Boundary *boundary, *boundaries)
+    foreach (Q3Boundary *boundary, boundaries)
         boundary->setLabel(label++);
 }

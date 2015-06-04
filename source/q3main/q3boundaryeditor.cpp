@@ -25,8 +25,8 @@
  *       старый тип, сохраняем новый в границе, меняем родителя
  *****************************************************************************/
 
-Q3BoundaryEditor::Q3BoundaryEditor(Q3Plot *plot, Q3Sceleton *sceleton,
-                                   QList<Q3Boundary *> *boundaries,
+Q3BoundaryEditor::Q3BoundaryEditor(Q3Plot *plot, Q3Sceleton &sceleton,
+                                   QList<Q3Boundary *> &boundaries,
                                    QWidget *parent) :
     Q3Director(Q3Director::Boundary, parent),
     ui(new Ui::Q3BoundaryEditor),
@@ -45,7 +45,7 @@ Q3BoundaryEditor::Q3BoundaryEditor(Q3Plot *plot, Q3Sceleton *sceleton,
     directorManager_->addDirector(this);
 
     foreach (Q3Director *director, directorManager_->directors())
-        director->setSceleton(sceleton);
+        director->setSceleton(&sceleton);
 
     directorManager_->setPlot(plot);
 }
@@ -125,7 +125,7 @@ bool Q3BoundaryEditor::processClick(QMouseEvent *event, const QPointF &scenePos)
                                               QVariant(static_cast<int>(type)));
         }
 
-        foreach(Q3Boundary *boundary, *boundaries_)
+        foreach(Q3Boundary *boundary, boundaries_)
         {
             if (boundary->contains(item))
             {
@@ -191,7 +191,7 @@ void Q3BoundaryEditor::on_saveBoundaryButton_clicked()
     {
         boundary_ = new Q3Boundary();
         boundary_->addItem(boundaryItem_);
-        boundaries_->append(boundary_);
+        boundaries_.append(boundary_);
     }
 
     if (boundaryType_ != boundary_->type())
@@ -208,7 +208,7 @@ void Q3BoundaryEditor::on_removeBoundaryButton_clicked()
     if (!boundary_)
         return;
     ui->boundaryTypeComboBox->setCurrentIndex(0);
-    boundaries_->removeAll(boundary_);
+    boundaries_.removeAll(boundary_);
     delete boundary_;
     boundary_ = NULL;
 }
@@ -226,7 +226,7 @@ void Q3BoundaryEditor::on_defaultBoundaryButton_clicked()
             boundary = new Q3Boundary();
             boundary->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
             boundary->addItem(item);
-            boundaries_->append(boundary);
+            boundaries_.append(boundary);
         }
     }
 //    emit goToTab(2);

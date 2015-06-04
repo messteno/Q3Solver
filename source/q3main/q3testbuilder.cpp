@@ -47,11 +47,11 @@ void Q3CavityTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     sceleton.prepare();
 
-    Q3Boundary::setUniqueLabels(&boundaries);
+    Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
-    adapter.generateMesh(&sceleton, &boundaries);
-    adapter.meshToQ3Mesh(&mesh, &boundaries);
+    adapter.generateMesh(sceleton, boundaries);
+    adapter.meshToQ3Mesh(mesh, boundaries);
 }
 
 void Q3FlowPastCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
@@ -103,11 +103,11 @@ void Q3FlowPastCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     sceleton.prepare();
 
-    Q3Boundary::setUniqueLabels(&boundaries);
+    Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
-    adapter.generateMesh(&sceleton, &boundaries);
-    adapter.meshToQ3Mesh(&mesh, &boundaries);
+    adapter.generateMesh(sceleton, boundaries);
+    adapter.meshToQ3Mesh(mesh, boundaries);
 }
 
 void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
@@ -153,11 +153,11 @@ void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     sceleton.prepare();
 
-    Q3Boundary::setUniqueLabels(&boundaries);
+    Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
-    adapter.generateMesh(&sceleton, &boundaries);
-    adapter.meshToQ3Mesh(&mesh, &boundaries);
+    adapter.generateMesh(sceleton, boundaries);
+    adapter.meshToQ3Mesh(mesh, boundaries);
 }
 
 void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
@@ -212,11 +212,11 @@ void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     sceleton.prepare();
 
-    Q3Boundary::setUniqueLabels(&boundaries);
+    Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
-    adapter.generateMesh(&sceleton, &boundaries);
-    adapter.meshToQ3Mesh(&mesh, &boundaries);
+    adapter.generateMesh(sceleton, boundaries);
+    adapter.meshToQ3Mesh(mesh, boundaries);
 }
 
 void Q3BackwardFacingStepTestBuilder::buildTest(Q3Sceleton &sceleton,
@@ -271,11 +271,11 @@ void Q3BackwardFacingStepTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     sceleton.prepare();
 
-    Q3Boundary::setUniqueLabels(&boundaries);
+    Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
-    adapter.generateMesh(&sceleton, &boundaries);
-    adapter.meshToQ3Mesh(&mesh, &boundaries);
+    adapter.generateMesh(sceleton, boundaries);
+    adapter.meshToQ3Mesh(mesh, boundaries);
 }
 
 void Q3FlowPastSquareTestBuilder::buildTest(Q3Sceleton &sceleton,
@@ -354,9 +354,9 @@ void Q3FlowPastSquareTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     sceleton.prepare();
 
-    Q3Boundary::setUniqueLabels(&boundaries);
+    Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
     adapter.setElementsCount(15000);
-    adapter.generateMesh(&sceleton, &boundaries);
-    adapter.meshToQ3Mesh(&mesh, &boundaries);
+    adapter.generateMesh(sceleton, boundaries);
+    adapter.meshToQ3Mesh(mesh, boundaries);
 }

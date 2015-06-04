@@ -6,9 +6,9 @@
 #include "q3contour.h"
 #include "ui_q3mesheditor.h"
 
-Q3MeshEditor::Q3MeshEditor(Q3Plot *plot, Q3Mesh *mesh,
-                           Q3Sceleton *sceleton,
-                           QList<Q3Boundary *> *boundaries, QWidget *parent) :
+Q3MeshEditor::Q3MeshEditor(Q3Plot *plot, Q3Mesh &mesh,
+                           Q3Sceleton &sceleton,
+                           QList<Q3Boundary *> &boundaries, QWidget *parent) :
     QWidget(parent),
     plot_(plot),
     mesh_(mesh),
@@ -34,7 +34,7 @@ void Q3MeshEditor::enable()
     if (enabled_)
         return;
 
-    mesh_->setDrawPolicy(Q3Mesh::DrawEdges);
+    mesh_.setDrawPolicy(Q3Mesh::DrawEdges);
 
     directorManager_ = new Q3DirectorManager(this);
     Q3Director *moveDirector = new Q3MoveDirector(directorManager_);
@@ -111,8 +111,8 @@ void Q3MeshEditor::on_elementSizeSpinBox_valueChanged(double arg1)
 
 void Q3MeshEditor::on_removeMeshButton_clicked()
 {
-    mesh_->clear();
-    contourPlot_ = Q3ContourPlot(mesh_);
+    mesh_.clear();
+    contourPlot_.clear();
     ui->meshInfoLabel->clear();
     plot_->update();
 }
@@ -124,7 +124,7 @@ void Q3MeshEditor::on_saveMeshButton_clicked()
 
 void Q3MeshEditor::updateInfo()
 {
-    ui->meshInfoLabel->setText(mesh_->info());
+    ui->meshInfoLabel->setText(mesh_.info());
 }
 
 Q3MeshAdapter& Q3MeshEditor::meshAdapter()

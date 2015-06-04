@@ -9,9 +9,8 @@
 #include "q3meshedge.h"
 #include "q3meshtriangle.h"
 
-class Q3Mesh : public QWidget, public Q3PlotDrawable
+class Q3Mesh : public Q3PlotDrawable
 {
-    Q_OBJECT
 public:
 
     enum DrawPolicy
@@ -22,7 +21,7 @@ public:
         DrawVelocity = 8,
     };
 
-    Q3Mesh(QWidget *parent);
+    Q3Mesh();
     ~Q3Mesh();
 
     QList<Q3MeshNode *>& nodes();

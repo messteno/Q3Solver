@@ -61,6 +61,7 @@ public:
     static const QColor DefaultBorderColor;
     static const QColor DefaultTextColor;
     static const int MinTickCount;
+    static const int MaxTickCount;
 
     explicit Q3Plot(QWidget *parent = 0);
     ~Q3Plot();

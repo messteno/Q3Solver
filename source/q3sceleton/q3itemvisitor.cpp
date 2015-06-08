@@ -225,7 +225,10 @@ bool Q3ItemConnectedVisitor::visit(Q3PointConnection *conn)
         connectedItems_.append(conn);
 
         if (conn->a() == firstItem)
+        {
+            connectedItems_.append(conn->a());
             finish();
+        }
         else
             connectedItems_.append(conn->a());
 
@@ -404,7 +407,10 @@ bool Q3ItemInnerBoundaryVisitor::visit(Q3Point *point)
             lastPoint = maxAngleConnection->a();
 
         if (lastPoint == boundary_.first())
+        {
+            boundary_.append(lastPoint);
             break;
+        }
 
         pointConnMap[lastPoint].removeAll(lastConn);
         boundary_.append(lastPoint);

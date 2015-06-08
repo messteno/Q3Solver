@@ -1,6 +1,6 @@
 # process input parameters
 
-#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Release)
 
 include_directories(${CMAKE_SOURCE_DIR}/source/q3plot)
 include_directories(${CMAKE_SOURCE_DIR}/source/q3sceleton)

@@ -286,7 +286,9 @@ bool Q3Ani2DMeshAdapter::addBoundary(QList<Q3Boundary *> &boundaries,
             foreach (Q3SceletonItem *item, boundary)
                 item->accept(clockwiseVisitor);
 
-            bool clockwise = clockwiseVisitor.clockwise() ^ outer;
+            bool aa = clockwiseVisitor.clockwise();
+            bool bb = outer;
+            bool clockwise = aa ^ bb;
             QListIterator<Q3SceletonItem *> it(boundary);
             if (!clockwise)
                 it.toFront();
@@ -389,13 +391,17 @@ bool Q3Ani2DMeshAdapter::addBoundary(QList<Q3Boundary *> &boundaries,
 
 double Q3Ani2DMeshAdapter::sizeFunction(double *point)
 {
-    double hmax = elementSize;
-    double hmin = elementSize * (1.0 - elementSizeDecrease * 0.01);
-    double p;
-    double minDist = distToBoundary(point);
+//    double hmax = elementSize;
+//    double hmin = elementSize * (1.0 - elementSizeDecrease * 0.01);
+//    double hmax = 0.1;
+//    double hmin = 0.02;
 
-    p = minDist / maxDistToBoundaryEstimation;
-    return (1.0 - p) * hmin + p * hmax;
+//    double minDist = distToBoundary(point);
+
+//    double coef = minDist / maxDistToBoundaryEstimation;
+//    double coef = 2. * minDist;
+//    return (1.0 - coef) * hmin + coef * hmax;
+    return elementSize;
 }
 
 double Q3Ani2DMeshAdapter::distToBoundary(double *point)

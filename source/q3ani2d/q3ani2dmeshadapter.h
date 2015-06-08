@@ -30,7 +30,10 @@ private:
     bool addBoundary(QList<Q3Boundary *> &boundaries,
                      QList<Q3SceletonItem *> &boundary, qreal &square,
                      bool outer);
-};
 
+    static double distToBoundary(double *point);
+    static double sizeFunction (double *point);
+
+};
 #endif // Q3ANI2DMESHADAPTER_H
 

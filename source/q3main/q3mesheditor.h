@@ -38,6 +38,8 @@ private slots:
     void on_elementsCountSpinBox_valueChanged(int arg1);
     void on_elementSizeSlider_valueChanged(int value);
     void on_elementSizeSpinBox_valueChanged(double arg1);
+    void on_elementsSizeIntervalSlider_valueChanged(int value);
+    void on_elementsSizeIntervalSpinBox_valueChanged(double arg1);
     void on_removeMeshButton_clicked();
     void on_saveMeshButton_clicked();
 

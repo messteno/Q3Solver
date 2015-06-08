@@ -228,6 +228,9 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm)
         }
         case Q3BoundaryType::OutBoundary:
         {
+            // Фикс для графиков
+            velocity_ = triangle->correctorVelocity();
+
             qreal vni = QVector2D::dotProduct(
                             triangle->correctorVelocity(),
                             triangle->normalVectors().at(edgeIndex));

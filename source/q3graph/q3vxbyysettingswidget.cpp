@@ -13,7 +13,6 @@ Q3VxByYSettingsWidget::Q3VxByYSettingsWidget(Q3VxByYPlot &vXByYPlot, qreal minX,
     ui->xSpinBox->setMinimum(minX_);
     ui->xSpinBox->setMaximum(maxX_);
     ui->xSpinBox->setValue(0.5 * (minX_ + maxX_));
-    ui->xSlider->setValue(50);
     updatePlot();
 }
 
@@ -22,15 +21,8 @@ Q3VxByYSettingsWidget::~Q3VxByYSettingsWidget()
     delete ui;
 }
 
-void Q3VxByYSettingsWidget::on_xSlider_valueChanged(int value)
-{
-    ui->xSpinBox->setValue(minX_ + value / 100. * (maxX_ - minX_));
-    updatePlot();
-}
-
 void Q3VxByYSettingsWidget::on_xSpinBox_valueChanged(qreal value)
 {
-    ui->xSlider->setValue((value - minX_) / (maxX_ - minX_) * 100);
     updatePlot();
 }
 

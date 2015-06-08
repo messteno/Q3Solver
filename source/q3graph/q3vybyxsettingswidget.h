@@ -19,7 +19,6 @@ public:
     ~Q3VyByXSettingsWidget();
 
 private slots:
-    void on_ySlider_valueChanged(int value);
     void on_ySpinBox_valueChanged(qreal value);
 
 private:

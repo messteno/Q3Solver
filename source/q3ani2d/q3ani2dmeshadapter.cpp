@@ -395,34 +395,28 @@ double Q3Ani2DMeshAdapter::sizeFunction(double *point)
     double minDist = distToBoundary(point);
 
     p = minDist / maxDistToBoundaryEstimation;
-    return (1.0-p)*hmin + p * hmax;
+    return (1.0 - p) * hmin + p * hmax;
 }
 
 double Q3Ani2DMeshAdapter::distToBoundary(double *point)
 {
-    QPointF p;
-    double dist, minDist;
+    QPointF p(point[0], point[1]);
+    double minDist = 0.0;
     bool first = true;
-
-    p.setX(point[0]);
-    p.setY(point[1]);
 
     foreach (Q3SceletonItem *item, boundaryItems_)
     {
-        if (item->type() == Q3SceletonItem::PointConnection ||
-                item->type() == Q3SceletonItem::Circle)
-        {
-            dist = item->distanceFromBoundaryTo(p);
+        double dist = item->distanceFromBoundaryTo(p);
 
-            if (first)
-            {
+        if (first)
+        {
+            minDist = dist;
+            first = false;
+        }
+        else
+        {
+            if (dist < minDist)
                 minDist = dist;
-                first = false;
-            }
-            else
-            {
-                if (dist < minDist) minDist = dist;
-            }
         }
     }
 

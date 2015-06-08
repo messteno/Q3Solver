@@ -24,3 +24,7 @@ void Q3MeshAdapter::setElementSize(qreal elementSize)
     elementSize_ = elementSize;
 }
 
+void Q3MeshAdapter::setElementSizeDecrease(qreal elementSizeDecrease)
+{
+    elementSizeDecrease_ = elementSizeDecrease;
+}

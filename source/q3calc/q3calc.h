@@ -3,6 +3,7 @@
 
 #include <QThread>
 #include <QFile>
+#include <QTime>
 #include <QTextStream>
 
 #include "q3mesh.h"
@@ -62,6 +63,9 @@ private:
     qreal residual_;
 
     qreal time_;
+
+    quint64 calcTime_;
+    QTime calcTimer_;
 };
 
 template<class T>

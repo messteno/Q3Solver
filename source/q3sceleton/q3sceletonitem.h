@@ -18,7 +18,7 @@ public:
         Base,
         PointConnection,
         Point,
-        Circle,
+        Circle
     };
 
     static const QColor BackgroundColor;
@@ -72,6 +72,7 @@ public:
 
     bool moved() const;
     virtual void setMoved(bool moved);
+
 protected:
     Type type_;
     bool moved_;

@@ -76,10 +76,9 @@ public:
     Q3Mesh &mesh() const;
     void setMesh(Q3Mesh &mesh);
 
-    void setContourLevels(int levels);
-    void setContourLevelsList(const QList<qreal> &contoursLevelsList);
-    void setFilledContourLevels(int levels);
-    void setFilledContourLevelsList(const QList<qreal> &filledContoursLevelsList);
+    void setLevels(int levels, bool filled);
+    void setContourLevelsList(const QList<qreal> &contourLevelsList);
+    QList<qreal> contourLevelsList() const;
 
 private:
     Q3Mesh& mesh_;

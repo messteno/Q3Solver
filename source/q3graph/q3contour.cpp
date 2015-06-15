@@ -428,18 +428,17 @@ void Q3Contour::setColor(const QColor &color)
 
 Q3ContourPlot::Q3ContourPlot(Q3Mesh &mesh) :
     mesh_(mesh),
-    values_(mesh.nodes().count())
+    values_(mesh.nodes().count(), 0)
 {
-    setContourLevels(30);
-    setFilledContourLevels(250);
-    qFill(values_.begin(), values_.end(), 0);
+    setLevels(30, false);
+    setLevels(255, true);
 }
 
 void Q3ContourPlot::createContour()
 {
     contours_.clear();
-    QVector<qreal> normalizedValues = normalize();
-    Q3ContourGenerator contourGenerator(mesh_, normalizedValues);
+//    QVector<qreal> normalizedValues = normalize();
+    Q3ContourGenerator contourGenerator(mesh_, values_);
 
     if (contourLevelsList_.count() < 3)
         return;
@@ -455,22 +454,26 @@ void Q3ContourPlot::createContour()
 void Q3ContourPlot::createFilledContour()
 {
     filledContours_.clear();
-    QVector<qreal> normalizedValues = normalize();
-    Q3ContourGenerator contourGenerator(mesh_, normalizedValues);
+//    QVector<qreal> normalizedValues = normalize();
+    Q3ContourGenerator contourGenerator(mesh_, values_);
 
     if (filledContourLevelsList_.count() < 3)
         return;
 
+    qreal minVal = minValue();
+    qreal maxVal = maxValue();
+    qreal diffVal = maxVal - minVal;
+
     for (int i = 0; i < filledContourLevelsList_.count() - 1; ++i)
     {
         // TODO: Подумать над корректным удалением линий
-        qreal fixDelta = 5e-3;
+        qreal fixDelta = 4e-3 * diffVal;
         qreal lowerLevel = filledContourLevelsList_.at(i) - fixDelta;
         qreal upperLevel = filledContourLevelsList_.at(i + 1) + fixDelta;
         Q3Contour contour = contourGenerator.createFilledContour(lowerLevel,
                                                                  upperLevel);
         qreal level = (lowerLevel + upperLevel) * 0.5;
-        contour.setColor(getColour(level));
+        contour.setColor(getColour((level - minVal) / diffVal));
         filledContours_.append(contour);
     }
 }
@@ -533,59 +536,59 @@ QVector<qreal> Q3ContourPlot::normalize()
     qreal maxVal = maxValue();
 
     qreal diff = maxVal - minVal;
+    if (diff <= 0)
+    {
+        normalizedValues.fill(0);
+        return normalizedValues;
+    }
 
     for (int i = 0; i < values_.size(); ++i)
     {
         normalizedValues[i] -= minVal;
-        if (diff > 0)
-            normalizedValues[i] /= diff;
+        normalizedValues[i] /= diff;
     }
 
     return normalizedValues;
 }
 
-void Q3ContourPlot::setContourLevels(int levels)
+void Q3ContourPlot::setLevels(int levels, bool filled)
 {
-    contourLevelsList_.clear();
-    if (levels == 0)
+    QList<qreal> &levelsList =
+            filled ? filledContourLevelsList_ : contourLevelsList_;
+
+    levelsList.clear();
+    if (levels <= 1)
         return;
 
-    qreal step = 1. / levels;
-    for (int i = 0; i <= levels; ++i)
+    qreal minVal = minValue();
+    qreal maxVal = maxValue();
+    qreal diffVal = maxVal - minVal;
+
+    qreal step = diffVal / (levels - 1);
+    for (int i = 0; i < levels; ++i)
     {
-        qreal level = i * step;
-        contourLevelsList_ << level;
+        qreal level = minVal + i * step;
+        levelsList << level;
     }
 }
 
-void Q3ContourPlot::setContourLevelsList(const QList<qreal> &contoursLevelsList)
+void Q3ContourPlot::setContourLevelsList(const QList<qreal> &contourLevelsList)
 {
-    contourLevelsList_ = contoursLevelsList;
+    contourLevelsList_ = contourLevelsList;
+    // Возможно добавить минимальное и максимальное значение и отсортировать
 }
 
-void Q3ContourPlot::setFilledContourLevelsList(
-        const QList<qreal> &filledContoursLevelsList)
+QList<qreal> Q3ContourPlot::contourLevelsList() const
 {
-    filledContourLevelsList_ = filledContoursLevelsList;
-}
-
-void Q3ContourPlot::setFilledContourLevels(int levels)
-{
-    filledContourLevelsList_.clear();
-    if (levels == 0)
-        return;
-
-    qreal step = 1. / levels;
-    for (int i = 0; i <= levels; ++i)
-    {
-        qreal level = i * step;
-        filledContourLevelsList_ << level;
-    }
+    return contourLevelsList_;
 }
 
 void Q3ContourPlot::setValues(const QVector<qreal> &values)
 {
     values_ = values;
+
+    // TODO: подумать над этим
+    setLevels(filledContourLevelsList_.size(), true);
 }
 
 bool Q3ContourPlot::clear()

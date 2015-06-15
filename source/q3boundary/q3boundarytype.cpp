@@ -20,7 +20,11 @@ Q3BoundaryType::~Q3BoundaryType()
 
 QVector2D Q3BoundaryType::velocity(Q3SceletonItem *item, QPointF a, QPointF b)
 {
-   return QVector2D(0, 0);
+    Q_UNUSED(item);
+    Q_UNUSED(a);
+    Q_UNUSED(b);
+
+    return QVector2D(0, 0);
 }
 
 Q3BoundaryType::Type Q3BoundaryType::toEnum()
@@ -39,6 +43,9 @@ QList<Q3BoundaryType::Type> Q3BoundaryType::supportedBoundaryTypes(
             break;
         case Q3SceletonItem::Circle:
             types << NoSlipBoundary << FixedVelocity;
+            break;
+        default:
+            break;
     }
     return types;
 }
@@ -56,6 +63,8 @@ Q3BoundaryType *Q3BoundaryType::getBoundaryTypeByEnum(Q3BoundaryType::Type type,
             return new Q3BoundaryNoSlip(parent);
         case FixedVelocity:
             return new Q3BoundaryFixedVelocity(parent);
+        default:
+            break;
     }
     return NULL;
 }

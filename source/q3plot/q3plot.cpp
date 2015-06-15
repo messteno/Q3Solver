@@ -30,8 +30,8 @@ Q3Plot::Q3Plot(QWidget *parent) :
     countTickY_(10),
     backgroundColor_(DefaultBackgroundColor),
     foregroundColor_(DefaultForegroundColor),
-    axesColor_(DefaultAxesColor),
     penColor_(DefaultPenColor),
+    axesColor_(DefaultAxesColor),
     borderColor_(DefaultBorderColor),
     textColor_(DefaultTextColor),
     bottomMargin_(25),
@@ -50,11 +50,15 @@ Q3Plot::~Q3Plot()
 
 void Q3Plot::resizeEvent(QResizeEvent *event)
 {
+    Q_UNUSED(event);
+
     updateScene();
 }
 
 void Q3Plot::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
+
     Q3Painter painter;
     painter.begin(this);
     drawBackground(painter);

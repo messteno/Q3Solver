@@ -5,16 +5,16 @@
 #include "q3itemvisitor.h"
 
 Q3SceletonItem::Q3SceletonItem(Type type) :
+    type_(type),
+    moved_(false),
     selected_(false),
     selectable_(true),
     resizing_(false),
     resizable_(false),
-    moved_(false),
     backgroundColor_(Q3Plot::DefaultForegroundColor),
     selectedBackgroundColor_(Qt::red),
     penColor_(Q3Plot::DefaultPenColor),
-    selectedPenColor_(QColor(100, 100, 100)),
-    type_(type)
+    selectedPenColor_(QColor(100, 100, 100))
 {
 }
 
@@ -25,7 +25,8 @@ Q3SceletonItem::~Q3SceletonItem()
 
 void Q3SceletonItem::resize(const QPointF from, const QPointF to)
 {
-
+    Q_UNUSED(from);
+    Q_UNUSED(to);
 }
 
 bool Q3SceletonItem::isSelectable() const

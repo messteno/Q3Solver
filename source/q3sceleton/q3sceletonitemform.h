@@ -12,16 +12,16 @@ public:
     explicit Q3SceletonItemForm(QWidget *parent = 0);
     ~Q3SceletonItemForm();
 
-    bool visit(Q3Point *point1, Q3Point *point2) { return false; }
-    bool visit(Q3Point *point, Q3PointConnection *conn) { return false; }
-    bool visit(Q3Point *point, Q3Circle *circle) { return false; }
-    bool visit(Q3PointConnection *conn1, Q3PointConnection *conn2) { return false; }
-    bool visit(Q3PointConnection *conn, Q3Circle *circle) { return false; }
-    bool visit(Q3Circle *circle1, Q3Circle *circle2) { return false; }
+    bool visit(Q3Point *, Q3Point *) { return false; }
+    bool visit(Q3Point *, Q3PointConnection *) { return false; }
+    bool visit(Q3Point *, Q3Circle *) { return false; }
+    bool visit(Q3PointConnection *, Q3PointConnection *) { return false; }
+    bool visit(Q3PointConnection *, Q3Circle *) { return false; }
+    bool visit(Q3Circle *, Q3Circle *) { return false; }
 
-    virtual bool visit(Q3Point *point) { return false; }
-    virtual bool visit(Q3PointConnection *conn) { return false; }
-    virtual bool visit(Q3Circle *circle) { return false; }
+    virtual bool visit(Q3Point *) { return false; }
+    virtual bool visit(Q3PointConnection *) { return false; }
+    virtual bool visit(Q3Circle *) { return false; }
 
     virtual Q3SceletonItem* createItem() = 0;
     virtual void clear() = 0;

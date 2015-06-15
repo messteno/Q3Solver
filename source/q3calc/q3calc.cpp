@@ -5,6 +5,8 @@
 
 #include "q3calc.h"
 #include "conjugategradient.h"
+#include "bicgstablinearsolver.h"
+#include "preconditioner.h"
 
 const int Q3Calc::maxPredictorIterationsCount = 1000;
 const qreal Q3Calc::maxPredictorError = 1e-6;
@@ -21,7 +23,8 @@ Q3Calc::Q3Calc(Q3Mesh &mesh, qreal tau, qreal Re, QObject *parent) :
     started_(false),
     abort_(false),
     badTriangleFix_(false),
-    monotoneTerm_(true)
+    monotoneTerm_(true),
+    calcTime_(0)
 {
 }
 
@@ -33,6 +36,8 @@ Q3Calc::~Q3Calc()
 
 void Q3Calc::run()
 {
+    calcTimer_.start();
+
     started_ = true;
     abort_ = false;
     prepare();
@@ -80,6 +85,7 @@ void Q3Calc::run()
 
 //        break;
     }
+    calcTime_ += calcTimer_.elapsed();
 }
 
 void Q3Calc::prepare()
@@ -157,10 +163,6 @@ void Q3Calc::prepare()
 
 void Q3Calc::predictor()
 {
-    // TODO:
-    foreach (Q3MeshTriangle *triangle, mesh_.triangles())
-        triangle->setPredictorVelocity(triangle->correctorVelocity());
-
     int iterationsCount = 0;
     qreal maxVelocityDelta;
     while(!abort_ && iterationsCount++ < maxPredictorIterationsCount)
@@ -256,6 +258,9 @@ void Q3Calc::predictor()
         if (absV)
             maxVelocity = absV;
     }
+
+
+
     qDebug() << maxVelocityDelta;
 }
 
@@ -403,19 +408,24 @@ void Q3Calc::reset()
     wait();
     started_ = false;
     residual_ = 0;
+    calcTime_ = 0;
     emit updateInfo();
 }
 
 QString Q3Calc::info()
 {
+    if (started_)
+        calcTime_ += calcTimer_.restart();
+
     QString out;
     QTextStream stream(&out);
     if (started_)
     {
-        stream << tr("Невязка: ") << QString::number(residual_) << "\n"
-               << tr("Время: ") << QString::number(time_) << "\n";
+        stream << trUtf8("Невязка: ") << QString::number(residual_) << "\n"
+               << trUtf8("Время: ") << QString::number(time_) << "\n"
+               << trUtf8("Время расчета: ") << QString::number(calcTime_ / 1000.) << "\n";
     }
     else
-        stream << tr("Инфоормация о расчете\n");
+        stream << trUtf8("Инфоормация о расчете\n");
     return out;
 }

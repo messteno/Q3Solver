@@ -16,8 +16,7 @@ Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a,
     correctorVelocity_(0, 0),
     predictorVelocity_(0, 0),
     tempVelocity_(0, 0),
-    omega_(0),
-    tempStream_(0),
+    vorticity_(0),
     stream_(0)
 {
     vA_ = b->nodeAdjacentTo(c);
@@ -254,23 +253,19 @@ void Q3MeshTriangle::setStream(const qreal &stream)
 {
     stream_ = stream;
 }
-qreal Q3MeshTriangle::omega() const
+
+qreal Q3MeshTriangle::vorticity() const
 {
-    return omega_;
+    return vorticity_;
 }
 
-void Q3MeshTriangle::setOmega(const qreal &omega)
+void Q3MeshTriangle::setVorticity(const qreal &omega)
 {
-    omega_ = omega;
-}
-qreal Q3MeshTriangle::tempStream() const
-{
-    return tempStream_;
+    vorticity_ = omega;
 }
 
-void Q3MeshTriangle::setTempStream(const qreal &tempStream)
+bool Q3MeshTriangle::hasBoundaryEdge()
 {
-    tempStream_ = tempStream;
+    return a_->boundary() || b_->boundary() || c_->boundary();
 }
-
 

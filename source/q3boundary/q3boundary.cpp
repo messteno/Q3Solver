@@ -3,8 +3,8 @@
 #include "q3boundary.h"
 
 Q3Boundary::Q3Boundary() :
-    item_(NULL),
     type_(NULL),
+    item_(NULL),
     label_(0)
 {
 

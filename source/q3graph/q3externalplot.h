@@ -21,6 +21,7 @@ public:
 
     //  Добавляет динамический объект, который будет удален в деструкторе
     void addDrawable(Q3PlotDrawable *drawable);
+    void addDirector(Q3Director *director);
     void addSettingsWidget(Q3PlotSettingsWidget *widget);
 
 signals:

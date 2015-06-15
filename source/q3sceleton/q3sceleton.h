@@ -20,7 +20,7 @@ public:
     {
         ColumnElement,
         ColumnParameters,
-        ColumnBoundary,
+        ColumnBoundary
     };
 
     Q3Sceleton(QWidget *parent);

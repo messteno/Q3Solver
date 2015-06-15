@@ -3,9 +3,11 @@
 #include "q3calculuseditor.h"
 #include "q3externalplot.h"
 #include "q3movedirector.h"
+#include "q3pointinfodirector.h"
 #include "q3graphs.h"
 #include "q3meshinterpolation.h"
 #include "q3contoursettingswidget.h"
+#include "q3contourdirector.h"
 #include "q3vxbyysettingswidget.h"
 #include "q3vybyxsettingswidget.h"
 #include "ui_q3calculuseditor.h"
@@ -20,7 +22,7 @@ Q3CalculusEditor::Q3CalculusEditor(Q3Plot *plot, Q3Mesh &mesh, QWidget *parent) 
 {
     ui->setupUi(this);
 
-    contourPlot_.setContourLevels(0);
+    contourPlot_.setLevels(0, false);
 
     qreal meanVelocity = ui->meanVelocityEdit->text().toDouble();
     qreal characteristicLength = ui->characteristicLengthEdit->text().toDouble();
@@ -52,8 +54,8 @@ void Q3CalculusEditor::enable()
     mesh_.setDrawPolicy(Q3Mesh::DrawBorders | Q3Mesh::DrawVelocity);
 
     directorManager_ = new Q3DirectorManager(this);
-    Q3Director *moveDirector = new Q3MoveDirector(directorManager_);
-    directorManager_->addDirector(moveDirector);
+    directorManager_->addDirector(new Q3MoveDirector(directorManager_));
+    directorManager_->addDirector(new Q3PointInfoDirector(mesh_, directorManager_));
     directorManager_->setPlot(plot_);
 }
 
@@ -129,9 +131,12 @@ void Q3CalculusEditor::on_externalStreamPlotButton_clicked()
 {
     Q3StreamPlot *streamPlot = new Q3StreamPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    Q3ContourDirector *contourDirector = new Q3ContourDirector(mesh_,
+                                                               *streamPlot);
     connect(plot, SIGNAL(updatePlot()), streamPlot, SLOT(update()));
-    plot->addSettingsWidget(new Q3ContourSettingsWidget(*streamPlot, plot));
+
     plot->addDrawable(streamPlot);
+    plot->addDirector(contourDirector);
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
 
@@ -147,7 +152,6 @@ void Q3CalculusEditor::on_externalVorticityPlotButton_clicked()
     Q3VorticityPlot *vorticityPlot = new Q3VorticityPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     connect(plot, SIGNAL(updatePlot()), vorticityPlot, SLOT(update()));
-    plot->addSettingsWidget(new Q3ContourSettingsWidget(*vorticityPlot, plot));
     plot->addDrawable(vorticityPlot);
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
@@ -164,7 +168,6 @@ void Q3CalculusEditor::on_externalPreassurePlotButton_clicked()
     Q3PreassurePlot *preassurePlot = new Q3PreassurePlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     connect(plot, SIGNAL(updatePlot()), preassurePlot, SLOT(update()));
-    plot->addSettingsWidget(new Q3ContourSettingsWidget(*preassurePlot, plot));
     plot->addDrawable(preassurePlot);
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
@@ -181,7 +184,6 @@ void Q3CalculusEditor::on_externalMagnitudePlotButton_clicked()
     Q3MagnitudePlot *magnitudePlot = new Q3MagnitudePlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     connect(plot, SIGNAL(updatePlot()), magnitudePlot, SLOT(update()));
-    plot->addSettingsWidget(new Q3ContourSettingsWidget(*magnitudePlot, plot));
     plot->addDrawable(magnitudePlot);
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
@@ -190,10 +192,11 @@ void Q3CalculusEditor::on_externalVXButton_clicked()
 {
     Q3VxByYPlot *vXbyYplot = new Q3VxByYPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
-    plot->addSettingsWidget(new Q3VxByYSettingsWidget(*vXbyYplot,
-                                                      mesh_.boundingRect().left(),
-                                                      mesh_.boundingRect().right(),
-                                                      plot));
+    plot->addSettingsWidget(
+                new Q3VxByYSettingsWidget(*vXbyYplot,
+                                          mesh_.boundingRect().left(),
+                                          mesh_.boundingRect().right(),
+                                          plot));
     plot->addDrawable(vXbyYplot);
     plot->plotWidget()->setSceneRect(vXbyYplot->boundingRect());
 
@@ -204,10 +207,11 @@ void Q3CalculusEditor::on_externalVYButton_clicked()
 {
     Q3VyByXPlot *vYbyXplot = new Q3VyByXPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
-    plot->addSettingsWidget(new Q3VyByXSettingsWidget(*vYbyXplot,
-                                                      mesh_.boundingRect().top(),
-                                                      mesh_.boundingRect().bottom(),
-                                                      plot));
+    plot->addSettingsWidget(
+                new Q3VyByXSettingsWidget(*vYbyXplot,
+                                          mesh_.boundingRect().top(),
+                                          mesh_.boundingRect().bottom(),
+                                          plot));
     plot->addDrawable(vYbyXplot);
     plot->plotWidget()->setSceneRect(vYbyXplot->boundingRect());
 

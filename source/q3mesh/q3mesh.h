@@ -18,7 +18,7 @@ public:
         DrawBorders = 1,
         DrawEdges = 2,
         DrawTriangles = 4,
-        DrawVelocity = 8,
+        DrawVelocity = 8
     };
 
     Q3Mesh();

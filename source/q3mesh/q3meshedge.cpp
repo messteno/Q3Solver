@@ -306,7 +306,7 @@ qreal Q3MeshEdge::processBoundaryCorrector()
     return 0;
 }
 
-void Q3MeshEdge::processBoundaryOmega(qreal &dvXByY, qreal &dvYByX)
+void Q3MeshEdge::processBoundaryVorticity(qreal &dvXByY, qreal &dvYByX)
 {
     if (!boundary_)
         return;
@@ -375,7 +375,6 @@ void Q3MeshEdge::processBoundaryVelocity()
         return;
 
     velocity_ = boundary_->velocity(*a_, *b_);
-//    adjacentTriangles_.at(0)->setCorrectorVelocity(velocity_);
 }
 
 

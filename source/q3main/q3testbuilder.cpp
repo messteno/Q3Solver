@@ -49,7 +49,7 @@ void Q3CavityTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
-    adapter.setElementsCount(20000);
+    adapter.setElementsCount(15000);
     adapter.generateMesh(sceleton, boundaries);
     adapter.meshToQ3Mesh(mesh, boundaries);
 }

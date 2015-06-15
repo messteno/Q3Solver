@@ -111,7 +111,7 @@ bool Q3Point::accept(Q3ItemVisitor &visitor, Q3Circle *circle)
 
 bool Q3Point::accept(Q3ItemVisitor &visitor)
 {
-    visitor.visit(this);
+    return visitor.visit(this);
 }
 
 void Q3Point::editUI(QFormLayout *layout)

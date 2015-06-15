@@ -50,7 +50,7 @@ public:
     qreal processBoundaryPredictor(qreal Re, bool monotoneTerm);
     qreal processBoundaryFlow();
     qreal processBoundaryCorrector();
-    void processBoundaryOmega(qreal &dvXByY, qreal &dvYByX);
+    void processBoundaryVorticity(qreal &dvXByY, qreal &dvYByX);
     qreal processBoundaryStream();
     void processBoundaryVelocity();
 

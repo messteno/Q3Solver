@@ -55,11 +55,10 @@ public:
     qreal stream() const;
     void setStream(const qreal &stream);
 
-    qreal omega() const;
-    void setOmega(const qreal &omega);
+    qreal vorticity() const;
+    void setVorticity(const qreal &vorticity);
 
-    qreal tempStream() const;
-    void setTempStream(const qreal &tempStream);
+    bool hasBoundaryEdge();
 
 private:
     Q3MeshNode *vA_;
@@ -86,8 +85,7 @@ private:
     QVector2D tempVelocity_;
 
     qreal stream_;
-    qreal omega_;
-    qreal tempStream_;
+    qreal vorticity_;
 
     bool bad_;
     int id_;

@@ -46,6 +46,13 @@ void Q3ExternalPlot::addDrawable(Q3PlotDrawable *drawable)
     ui->plotWidget->addDrawable(drawable);
 }
 
+void Q3ExternalPlot::addDirector(Q3Director *director)
+{
+    directorManager_->addDirector(director);
+    director->setParent(directorManager_);
+    director->setPlot(ui->plotWidget);
+}
+
 void Q3ExternalPlot::addSettingsWidget(Q3PlotSettingsWidget *widget)
 {
     ui->settingsLayout->addWidget(widget);

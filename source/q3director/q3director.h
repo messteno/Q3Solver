@@ -21,6 +21,8 @@ public:
         Add,
         Resize,
         Boundary,
+        PointInfo,
+        Contour,
     };
 
 protected:

@@ -32,28 +32,28 @@ public:
     bool visit(Q3PointConnection *conn, Q3Circle *circle);
     bool visit(Q3Circle*circle1, Q3Circle *circle2);
 
-    bool visit(Q3Point *point) { return false; }
-    bool visit(Q3PointConnection *conn) { return false; }
-    bool visit(Q3Circle *circle) { return false; }
+    bool visit(Q3Point *) { return false; }
+    bool visit(Q3PointConnection *) { return false; }
+    bool visit(Q3Circle *) { return false; }
 };
 
 class Q3ItemLeftmostVisitor : public Q3ItemVisitor
 {
 private:
+    bool inited_;
     Q3SceletonItem *leftmost_;
     qreal minLeft_;
-    bool inited_;
     bool checkLeftmost(Q3SceletonItem *item);
 
 public:
     Q3ItemLeftmostVisitor();
 
-    bool visit(Q3Point *point1, Q3Point *point2) { return false; }
-    bool visit(Q3Point *point, Q3PointConnection *conn) { return false; }
-    bool visit(Q3Point *point, Q3Circle *circle) { return false; }
-    bool visit(Q3PointConnection *conn1, Q3PointConnection *conn2) { return false; }
-    bool visit(Q3PointConnection *conn, Q3Circle *circle) { return false; }
-    bool visit(Q3Circle *circle1, Q3Circle *circle2) { return false; }
+    bool visit(Q3Point *, Q3Point *) { return false; }
+    bool visit(Q3Point *, Q3PointConnection *) { return false; }
+    bool visit(Q3Point *, Q3Circle *) { return false; }
+    bool visit(Q3PointConnection *, Q3PointConnection *) { return false; }
+    bool visit(Q3PointConnection *, Q3Circle *) { return false; }
+    bool visit(Q3Circle *, Q3Circle *) { return false; }
 
     bool visit(Q3Point *point);
     bool visit(Q3PointConnection *conn);
@@ -81,12 +81,12 @@ public:
     QList<Q3SceletonItem *> connectedItems();
     void backward();
 
-    bool visit(Q3Point *point1, Q3Point *point2) { return false; }
-    bool visit(Q3Point *point, Q3PointConnection *conn) { return false; }
-    bool visit(Q3Point *point, Q3Circle *circle) { return false; }
-    bool visit(Q3PointConnection *conn1, Q3PointConnection *conn2) { return false; }
-    bool visit(Q3PointConnection *conn, Q3Circle *circle) { return false; }
-    bool visit(Q3Circle *circle1, Q3Circle *circle2) { return false; }
+    bool visit(Q3Point *, Q3Point *) { return false; }
+    bool visit(Q3Point *, Q3PointConnection *) { return false; }
+    bool visit(Q3Point *, Q3Circle *) { return false; }
+    bool visit(Q3PointConnection *, Q3PointConnection *) { return false; }
+    bool visit(Q3PointConnection *, Q3Circle *) { return false; }
+    bool visit(Q3Circle *, Q3Circle *) { return false; }
 
     bool visit(Q3Point *point);
     bool visit(Q3PointConnection *conn);
@@ -103,12 +103,12 @@ public:
 
     int rayCrossCount() const;
 
-    bool visit(Q3Point *point1, Q3Point *point2) { return false; }
-    bool visit(Q3Point *point, Q3PointConnection *conn) { return false; }
-    bool visit(Q3Point *point, Q3Circle *circle) { return false; }
-    bool visit(Q3PointConnection *conn1, Q3PointConnection *conn2) { return false; }
-    bool visit(Q3PointConnection *conn, Q3Circle *circle) { return false; }
-    bool visit(Q3Circle *circle1, Q3Circle *circle2) { return false; }
+    bool visit(Q3Point *, Q3Point *) { return false; }
+    bool visit(Q3Point *, Q3PointConnection *) { return false; }
+    bool visit(Q3Point *, Q3Circle *) { return false; }
+    bool visit(Q3PointConnection *, Q3PointConnection *) { return false; }
+    bool visit(Q3PointConnection *, Q3Circle *) { return false; }
+    bool visit(Q3Circle *, Q3Circle *) { return false; }
 
     bool visit(Q3Point *point);
     bool visit(Q3PointConnection *conn);
@@ -125,12 +125,12 @@ public:
 
     QList<Q3SceletonItem *> getBoundary() const;
 
-    bool visit(Q3Point *point1, Q3Point *point2) { return false; }
-    bool visit(Q3Point *point, Q3PointConnection *conn) { return false; }
-    bool visit(Q3Point *point, Q3Circle *circle) { return false; }
-    bool visit(Q3PointConnection *conn1, Q3PointConnection *conn2) { return false; }
-    bool visit(Q3PointConnection *conn, Q3Circle *circle) { return false; }
-    bool visit(Q3Circle *circle1, Q3Circle *circle2) { return false; }
+    bool visit(Q3Point *, Q3Point *) { return false; }
+    bool visit(Q3Point *, Q3PointConnection *) { return false; }
+    bool visit(Q3Point *, Q3Circle *) { return false; }
+    bool visit(Q3PointConnection *, Q3PointConnection *) { return false; }
+    bool visit(Q3PointConnection *, Q3Circle *) { return false; }
+    bool visit(Q3Circle *, Q3Circle *) { return false; }
 
     bool visit(Q3Point *point);
     bool visit(Q3PointConnection *conn);
@@ -149,12 +149,12 @@ public:
     bool clockwise() const;
     qreal square();
 
-    bool visit(Q3Point *point1, Q3Point *point2) { return false; }
-    bool visit(Q3Point *point, Q3PointConnection *conn) { return false; }
-    bool visit(Q3Point *point, Q3Circle *circle) { return false; }
-    bool visit(Q3PointConnection *conn1, Q3PointConnection *conn2) { return false; }
-    bool visit(Q3PointConnection *conn, Q3Circle *circle) { return false; }
-    bool visit(Q3Circle *circle1, Q3Circle *circle2) { return false; }
+    bool visit(Q3Point *, Q3Point *) { return false; }
+    bool visit(Q3Point *, Q3PointConnection *) { return false; }
+    bool visit(Q3Point *, Q3Circle *) { return false; }
+    bool visit(Q3PointConnection *, Q3PointConnection *) { return false; }
+    bool visit(Q3PointConnection *, Q3Circle *) { return false; }
+    bool visit(Q3Circle *, Q3Circle *) { return false; }
 
     bool visit(Q3Point *point);
     bool visit(Q3PointConnection *conn);

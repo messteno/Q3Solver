@@ -7,8 +7,11 @@
 #include <qmath.h>
 
 #include "q3mesh.h"
+#include "preconditioner.h"
+#include "q3meshlaplacestreamoperator.h"
+#include "bicgstablinearsolver.h"
 
-const int Q3Mesh::maxStreamIterationsCount = 2000;
+const int Q3Mesh::maxStreamIterationsCount = 20000;
 const qreal Q3Mesh::maxStreamError = 1e-8;
 
 Q3Mesh::Q3Mesh() :
@@ -187,64 +190,50 @@ void Q3Mesh::calcStream()
 {
     calcVorticity();
 
-    for (int trInd = 0; trInd < triangles_.count(); ++trInd)
-    {
-        Q3MeshTriangle *triangle = triangles_.at(trInd);
-        triangle->setTempStream(triangle->stream());
-    }
+    Q3Vector vorticity(triangles_.size());
+    Q3Vector stream(triangles_.size());
 
-    int iterationsCount = 0;
-    qreal streamDelta = 0;
-    while (iterationsCount < maxStreamIterationsCount)
+    for (int i = 0; i < triangles_.count(); ++i)
     {
-        streamDelta = 0;
-        for (int trInd = 0; trInd < triangles_.count(); ++trInd)
+        bool noslip = false;
+        foreach (Q3MeshEdge *edge, triangles_.at(i)->edges())
         {
-            Q3MeshTriangle *triangle = triangles_.at(trInd);
-            qreal A = 0;
-            qreal B = 0;
-
-            for (int eInd = 0; eInd < triangle->edges().size(); ++eInd)
+            if (edge->boundary()
+                && (edge->boundary()->type()->toEnum() == Q3BoundaryType::NoSlipBoundary
+                    || edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity))
             {
-                Q3MeshEdge *edge = triangle->edges().at(eInd);
-                Q3MeshTriangle *adjTriangle = triangle->adjacentTriangles().at(eInd);
-                QVector2D normal = triangle->normalVectors().at(eInd);
-
-                if (adjTriangle)
-                {
-                    qreal dL = triangle->distanceToTriangles().at(eInd);
-
-                    QVector2D tAt(adjTriangle->center() - triangle->center());
-                    tAt.normalize();
-
-                    qreal cosin = qAbs(QVector2D::dotProduct(tAt, normal));
-                    A += edge->length() / dL / cosin;
-                    B += edge->length() / dL * adjTriangle->stream() / cosin;
-                }
-                else
-                {
-                    qreal deltaB = edge->processBoundaryStream();
-                    B += deltaB;
-                }
+                noslip = true;
+                break;
             }
-            qreal diff = (triangle->omega() + B) / A - triangle->tempStream();
-            triangle->setTempStream(triangle->tempStream() + diff);
-            qreal trStreamDelta = qAbs(diff);
-            if (trStreamDelta > streamDelta)
-                streamDelta = trStreamDelta;
         }
 
-        for (int trInd = 0; trInd < triangles_.count(); ++trInd)
+        if (!noslip)
         {
-            Q3MeshTriangle *triangle = triangles_.at(trInd);
-            triangle->setStream(triangle->tempStream());
+            vorticity[i] = -triangles_.at(i)->vorticity();
+            stream[i] = triangles_.at(i)->stream();
         }
-
-        if (streamDelta < maxStreamError)
-            break;
-        iterationsCount++;
+        else
+        {
+            vorticity[i] = 0;
+            stream[i] = 0;
+        }
     }
-    qDebug() << "Stream: " << iterationsCount << streamDelta;
+
+    IdentityPreconditioner preconditioner(triangles_.count());
+    Q3MeshLaplaceStreamOperator laplaceStreamOperator(*this, triangles_.count());
+
+    BiCGStabLinearSolver solver(1e-8, 1000);
+    qreal residual = 0;
+    int it = solver.solve(laplaceStreamOperator,
+                          stream,
+                          vorticity,
+                          preconditioner,
+                          residual);
+
+    for (int i = 0; i < triangles_.count(); ++i)
+        triangles_.at(i)->setStream(stream[i]);
+
+    qDebug() << "Stream: it = " << it << ", res = " << residual;
 }
 
 void Q3Mesh::calcVorticity()
@@ -272,10 +261,10 @@ void Q3Mesh::calcVorticity()
             }
             else
             {
-                edge->processBoundaryOmega(dvXByY, dvYByX);
+                edge->processBoundaryVorticity(dvXByY, dvYByX);
             }
         }
-        triangle->setOmega(dvXByY - dvYByX);
+        triangle->setVorticity((dvXByY - dvYByX) / triangle->square());
     }
 }
 

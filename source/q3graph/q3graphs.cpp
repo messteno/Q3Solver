@@ -30,6 +30,7 @@ void Q3StreamPlot::update(Q3ContourPlot &contourPlot)
 
     contourPlot.clear();
     contourPlot.setValues(nodeValues);
+    contourPlot.setLevels(contourPlot.contourLevelsList().size(), false);
     contourPlot.createFilledContour();
     contourPlot.createContour();
 }
@@ -56,13 +57,14 @@ void Q3VorticityPlot::update(Q3ContourPlot &contourPlot)
         Q3MeshTriangle *triangle = mesh.triangles().at(i);
         triValues.append(QVector3D(triangle->center().x(),
                                    triangle->center().y(),
-                                   triangle->omega()));
+                                   triangle->vorticity()));
     }
     Q3MeshTriNodeInterpolation interpolation(mesh, triValues);
     QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
     contourPlot.clear();
     contourPlot.setValues(nodeValues);
+    contourPlot.setLevels(contourPlot.contourLevelsList().size(), false);
     contourPlot.createFilledContour();
     contourPlot.createContour();
 }
@@ -95,6 +97,7 @@ void Q3MagnitudePlot::update(Q3ContourPlot &contourPlot)
 
     contourPlot.clear();
     contourPlot.setValues(nodeValues);
+    contourPlot.setLevels(contourPlot.contourLevelsList().size(), false);
     contourPlot.createFilledContour();
     contourPlot.createContour();
 }
@@ -126,6 +129,7 @@ void Q3PreassurePlot::update(Q3ContourPlot &contourPlot)
 
     contourPlot.clear();
     contourPlot.setValues(nodeValues);
+    contourPlot.setLevels(contourPlot.contourLevelsList().size(), false);
     contourPlot.createFilledContour();
     contourPlot.createContour();
 }

@@ -16,4 +16,3 @@ target_link_libraries(q3director
     q3plot
     q3sceleton
     m)
-

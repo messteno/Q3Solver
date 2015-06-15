@@ -59,6 +59,8 @@ void Q3Circle::move(const QPointF diff)
 
 void Q3Circle::resize(const QPointF from, const QPointF to)
 {
+    Q_UNUSED(from);
+
     qreal radius = sqrt((to.x() - center_.x()) * (to.x() - center_.x()) +
                         (to.y() - center_.y()) * (to.y() - center_.y()));
     if (radius < Q3Circle::MinRadius)
@@ -111,7 +113,7 @@ bool Q3Circle::accept(Q3ItemVisitor &visitor, Q3Circle *circle)
 
 bool Q3Circle::accept(Q3ItemVisitor &visitor)
 {
-    visitor.visit(this);
+    return visitor.visit(this);
 }
 
 QString Q3Circle::toString()

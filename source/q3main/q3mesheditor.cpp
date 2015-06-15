@@ -65,11 +65,13 @@ void Q3MeshEditor::on_createMeshButton_clicked()
 void Q3MeshEditor::on_meshParameter_count_clicked()
 {
     meshAdapter_.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
+    meshAdapter_.setElementsCount(ui->elementsCountSpinBox->value());
 }
 
 void Q3MeshEditor::on_meshParameter_size_clicked()
 {
     meshAdapter_.setSizePolicy(Q3MeshAdapter::ElementSizeBySize);
+    meshAdapter_.setElementSize(ui->elementSizeSpinBox->value());
 }
 
 void Q3MeshEditor::on_meshParameter_auto_clicked()

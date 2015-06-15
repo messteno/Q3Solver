@@ -4,7 +4,8 @@
 #include "q3contoursettingswidget.h"
 #include "ui_q3contoursettingswidget.h"
 
-Q3ContourSettingsWidget::Q3ContourSettingsWidget(Q3ContourPlot &contourPlot, QWidget *parent) :
+Q3ContourSettingsWidget::Q3ContourSettingsWidget(Q3ContourPlot &contourPlot,
+                                                 QWidget *parent) :
     Q3PlotSettingsWidget(parent),
     ui(new Ui::Q3ContourSettingsWidget),
     contourPlot_(contourPlot),
@@ -15,12 +16,15 @@ Q3ContourSettingsWidget::Q3ContourSettingsWidget(Q3ContourPlot &contourPlot, QWi
     ui->isolinesCheckbox->setChecked(lines_);
     ui->verticalLayout->setMargin(0);
 
-    QStringList levels_;
-    for (int i = 0; i < DefaultContourLevelsCount_; ++i)
-        levels_ << QString::number(i / (DefaultContourLevelsCount_ - 1.));
+    contourPlot_.setLevels(DefaultContourLevelsCount_, false);
+    QList<qreal> contourLevels = contourPlot_.contourLevelsList();
+
+    QStringList levels;
+    for (int i = 0; i < contourLevels.size(); ++i)
+        levels << QString::number(contourLevels.at(i));
 
     levelsModel_ = new QStringListModel(this);
-    levelsModel_->setStringList(levels_);
+    levelsModel_->setStringList(levels);
 
     ui->listView->setModel(levelsModel_);
     ui->listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -77,7 +81,7 @@ void Q3ContourSettingsWidget::updateContour()
         contourPlot_.createContour();
     }
     else
-        contourPlot_.setContourLevels(0);
+        contourPlot_.setLevels(0, false);
 
     if (plot_)
         plot_->update();

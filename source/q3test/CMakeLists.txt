@@ -10,6 +10,7 @@ include_directories(
     ${CMAKE_SOURCE_DIR}/source/q3boundary
     ${CMAKE_SOURCE_DIR}/source/q3plot
     ${CMAKE_SOURCE_DIR}/source/q3calc
+    ${CMAKE_SOURCE_DIR}/source/q3algorithms
 )
 link_directories(${3RDPARTY_LIBS_DIR} ${ANI_LIBS_DIR} ${QCUSTOM_PLOT_LIBS_DIR})
 
@@ -40,6 +41,16 @@ target_link_libraries(q3calctest
     m)
 add_test(NAME q3calctest COMMAND q3calctest)
 
+
+set(q3bicgtest_SRC
+    q3bicgtest.cpp
+)
+add_executable(q3bicgtest ${q3bicgtest_SRC})
+qt5_use_modules(q3bicgtest Test)
+target_link_libraries(q3bicgtest
+    q3algorithms
+    m)
+add_test(NAME q3bicgtest COMMAND q3bicgtest)
 
 #set(q3qcustomplottest_SRC
 #    q3qcustomplottest.cpp

@@ -376,11 +376,15 @@ bool Q3Sceleton::prepare()
 
 int Q3Sceleton::rowCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
+
     return items_.count();
 }
 
 int Q3Sceleton::columnCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent);
+
     return tableColumns_;
 }
 

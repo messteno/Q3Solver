@@ -16,7 +16,7 @@ public:
         NoSlipBoundary,
         InBoundary,
         OutBoundary,
-        FixedVelocity,
+        FixedVelocity
     };
 
     Q3BoundaryType(Type toEnum, QWidget *parent = NULL);

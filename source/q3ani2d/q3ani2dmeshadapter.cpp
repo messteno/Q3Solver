@@ -42,8 +42,8 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton &sceleton,
 
     q3ani2d_.reset();
     q3ani2d_.setMaxElements(1500000);
-    q3ani2d_.setQuality(0.9);
-    q3ani2d_.setMaxIters(30000);
+    q3ani2d_.setQuality(0.95);
+    q3ani2d_.setMaxIters(50000);
 
     boundaryItems_ = items;
 
@@ -88,23 +88,24 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton &sceleton,
         {
             case Q3SceletonItem::PointConnection:
             {
+                Q3PointConnection *conn = dynamic_cast<Q3PointConnection *>(item);
+                Q_ASSERT(conn);
+
+                int label = -1;
                 Q3Boundary *boundary = Q3Boundary::findByElement(boundaries,
                                                                  item);
-                if (!boundary)
-                    return false;
-                Q3PointConnection *conn = \
-                        dynamic_cast<Q3PointConnection *>(item);
-                if (conn)
+                if (boundary)
                 {
-                    int label = boundary->label();
-                    q3ani2d_.addEdge(pointMap_[conn->a()], pointMap_[conn->b()],
-                                     label, 1, 1);
+                    label = boundary->label();
                     if (lastDelimeter == false)
                     {
                         labelBoundaryDelimeters_.append(label);
                         lastDelimeter = true;
                     }
                 }
+
+                q3ani2d_.addEdge(pointMap_[conn->a()], pointMap_[conn->b()],
+                        label, 1, 1);
                 break;
             }
         }
@@ -391,17 +392,16 @@ bool Q3Ani2DMeshAdapter::addBoundary(QList<Q3Boundary *> &boundaries,
 
 double Q3Ani2DMeshAdapter::sizeFunction(double *point)
 {
-//    double hmax = elementSize;
-//    double hmin = elementSize * (1.0 - elementSizeDecrease * 0.01);
+    double hmin = elementSize;
+    double hmax = elementSize / (1.0 - elementSizeDecrease * 0.01);
 //    double hmax = 0.1;
 //    double hmin = 0.02;
 
-//    double minDist = distToBoundary(point);
-
-//    double coef = minDist / maxDistToBoundaryEstimation;
-//    double coef = 2. * minDist;
-//    return (1.0 - coef) * hmin + coef * hmax;
-    return elementSize;
+    double minDist = distToBoundary(point);
+    double coef = minDist;
+    coef = coef > 1 ? 1 : coef;
+    return (1.0 - coef) * hmin + coef * hmax;
+//    return elementSize;
 }
 
 double Q3Ani2DMeshAdapter::distToBoundary(double *point)

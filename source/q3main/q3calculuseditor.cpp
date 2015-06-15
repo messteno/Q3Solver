@@ -16,13 +16,11 @@ Q3CalculusEditor::Q3CalculusEditor(Q3Plot *plot, Q3Mesh &mesh, QWidget *parent) 
     QWidget(parent),
     mesh_(mesh),
     plot_(plot),
-    contourPlot_(mesh),
+    contourPlot_(NULL),
     enabled_(false),
     ui(new Ui::Q3CalculusEditor)
 {
     ui->setupUi(this);
-
-    contourPlot_.setLevels(0, false);
 
     qreal meanVelocity = ui->meanVelocityEdit->text().toDouble();
     qreal characteristicLength = ui->characteristicLengthEdit->text().toDouble();
@@ -64,7 +62,7 @@ void Q3CalculusEditor::disable()
     enabled_ = false;
     delete directorManager_;
     directorManager_ = NULL;
-    plot_->removeDrawable(&contourPlot_);
+    plot_->removeDrawable(contourPlot_);
 }
 
 void Q3CalculusEditor::updateInfo()
@@ -116,14 +114,18 @@ void Q3CalculusEditor::on_resetCalcButton_clicked()
 
 void Q3CalculusEditor::on_internalClearPlotButton_clicked()
 {
-    plot_->removeDrawable(&contourPlot_);
+    plot_->removeDrawable(contourPlot_);
+    delete contourPlot_;
+    contourPlot_ = NULL;
     plot_->update();
 }
 
 void Q3CalculusEditor::on_internalStreamPlotButton_clicked()
 {
-    Q3StreamPlot::update(contourPlot_);
-    plot_->addDrawable(&contourPlot_);
+    plot_->removeDrawable(contourPlot_);
+    delete contourPlot_;
+    contourPlot_ = new Q3StreamPlot(mesh_);
+    plot_->addDrawable(contourPlot_);
     plot_->update();
 }
 
@@ -131,19 +133,20 @@ void Q3CalculusEditor::on_externalStreamPlotButton_clicked()
 {
     Q3StreamPlot *streamPlot = new Q3StreamPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
-    Q3ContourDirector *contourDirector = new Q3ContourDirector(mesh_,
-                                                               *streamPlot);
     connect(plot, SIGNAL(updatePlot()), streamPlot, SLOT(update()));
 
     plot->addDrawable(streamPlot);
-    plot->addDirector(contourDirector);
+    plot->addDirector(new Q3ContourDirector(mesh_, *streamPlot));
+    plot->addDirector(new Q3PointInfoDirector(mesh_));
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
 
 void Q3CalculusEditor::on_internalVorticityPlotButton_clicked()
 {
-    Q3VorticityPlot::update(contourPlot_);
-    plot_->addDrawable(&contourPlot_);
+    plot_->removeDrawable(contourPlot_);
+    delete contourPlot_;
+    contourPlot_ = new Q3VorticityPlot(mesh_);
+    plot_->addDrawable(contourPlot_);
     plot_->update();
 }
 
@@ -153,13 +156,17 @@ void Q3CalculusEditor::on_externalVorticityPlotButton_clicked()
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     connect(plot, SIGNAL(updatePlot()), vorticityPlot, SLOT(update()));
     plot->addDrawable(vorticityPlot);
+    plot->addDirector(new Q3ContourDirector(mesh_, *vorticityPlot));
+    plot->addDirector(new Q3PointInfoDirector(mesh_));
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
 
 void Q3CalculusEditor::on_internalPreassurePlotButton_clicked()
 {
-    Q3PreassurePlot::update(contourPlot_);
-    plot_->addDrawable(&contourPlot_);
+    plot_->removeDrawable(contourPlot_);
+    delete contourPlot_;
+    contourPlot_ = new Q3PreassurePlot(mesh_);
+    plot_->addDrawable(contourPlot_);
     plot_->update();
 }
 
@@ -169,13 +176,17 @@ void Q3CalculusEditor::on_externalPreassurePlotButton_clicked()
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     connect(plot, SIGNAL(updatePlot()), preassurePlot, SLOT(update()));
     plot->addDrawable(preassurePlot);
+    plot->addDirector(new Q3ContourDirector(mesh_, *preassurePlot));
+    plot->addDirector(new Q3PointInfoDirector(mesh_));
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
 
 void Q3CalculusEditor::on_internalMagnitudePlotButton_clicked()
 {
-    Q3MagnitudePlot::update(contourPlot_);
-    plot_->addDrawable(&contourPlot_);
+    plot_->removeDrawable(contourPlot_);
+    delete contourPlot_;
+    contourPlot_ = new Q3MagnitudePlot(mesh_);
+    plot_->addDrawable(contourPlot_);
     plot_->update();
 }
 
@@ -185,6 +196,8 @@ void Q3CalculusEditor::on_externalMagnitudePlotButton_clicked()
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     connect(plot, SIGNAL(updatePlot()), magnitudePlot, SLOT(update()));
     plot->addDrawable(magnitudePlot);
+    plot->addDirector(new Q3ContourDirector(mesh_, *magnitudePlot));
+    plot->addDirector(new Q3PointInfoDirector(mesh_));
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
 

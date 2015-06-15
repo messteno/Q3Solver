@@ -583,11 +583,32 @@ QList<qreal> Q3ContourPlot::contourLevelsList() const
     return contourLevelsList_;
 }
 
-void Q3ContourPlot::setValues(const QVector<qreal> &values)
+bool Q3ContourPlot::addContourAtPoint(const QPointF &point)
+{
+    for (int i = 0; i < mesh_.triangles().size(); ++i)
+    {
+        Q3MeshTriangle *triangle = mesh_.triangles().at(i);
+        QPolygonF polygon = triangle->toPolygonF(1, 1);
+        if (polygon.containsPoint(point, Qt::OddEvenFill))
+        {
+            qreal value = 0;
+            foreach (Q3MeshNode *node, triangle->vertices())
+                value += values_.at(node->id());
+            value /= triangle->vertices().count();
+            contourLevelsList_.append(value);
+            createContour();
+            return true;
+        }
+    }
+    return false;
+}
+
+void Q3ContourPlot::setValues(const QVector<qreal> &values, bool init)
 {
     values_ = values;
 
-    // TODO: подумать над этим
+    if (init)
+        setLevels(contourLevelsList_.size(), false);
     setLevels(filledContourLevelsList_.size(), true);
 }
 

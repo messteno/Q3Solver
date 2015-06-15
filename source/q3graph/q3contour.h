@@ -69,7 +69,7 @@ public:
     void draw(Q3Painter &painter) const;
 
     QVector<qreal>& values();
-    void setValues(const QVector<qreal> &values);
+    void setValues(const QVector<qreal> &values, bool init);
 
     bool clear();
 
@@ -80,8 +80,13 @@ public:
     void setContourLevelsList(const QList<qreal> &contourLevelsList);
     QList<qreal> contourLevelsList() const;
 
+    // Выбирается ближайший узел
+    bool addContourAtPoint(const QPointF &point);
+
+protected:
+    Q3Mesh &mesh_;
+
 private:
-    Q3Mesh& mesh_;
     qreal minValue();
     qreal maxValue();
     QVector<qreal> normalize();

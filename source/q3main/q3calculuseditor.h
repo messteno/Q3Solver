@@ -56,7 +56,7 @@ private:
     Q3Plot *plot_;
     Q3DirectorManager *directorManager_;
     Q3Calc *calc_;
-    Q3ContourPlot contourPlot_;
+    Q3ContourPlot *contourPlot_;
 
     bool enabled_;
 };

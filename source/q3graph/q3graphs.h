@@ -9,10 +9,9 @@ class Q3StreamPlot : public QObject, public Q3ContourPlot
     Q_OBJECT
 public:
     Q3StreamPlot(Q3Mesh &mesh);
-    static void update(Q3ContourPlot &contourPlot);
 
 public slots:
-    void update();
+    void update(bool init = false);
 };
 
 class Q3VorticityPlot: public QObject, public Q3ContourPlot
@@ -20,10 +19,9 @@ class Q3VorticityPlot: public QObject, public Q3ContourPlot
     Q_OBJECT
 public:
     Q3VorticityPlot(Q3Mesh &mesh);
-    static void update(Q3ContourPlot &contourPlot);
 
 public slots:
-    void update();
+    void update(bool init = false);
 };
 
 class Q3MagnitudePlot: public QObject, public Q3ContourPlot
@@ -31,10 +29,9 @@ class Q3MagnitudePlot: public QObject, public Q3ContourPlot
     Q_OBJECT
 public:
     Q3MagnitudePlot(Q3Mesh &mesh);
-    static void update(Q3ContourPlot &contourPlot);
 
 public slots:
-    void update();
+    void update(bool init = false);
 };
 
 class Q3PreassurePlot : public QObject, public Q3ContourPlot
@@ -42,10 +39,9 @@ class Q3PreassurePlot : public QObject, public Q3ContourPlot
     Q_OBJECT
 public:
     Q3PreassurePlot(Q3Mesh &mesh);
-    static void update(Q3ContourPlot &contourPlot);
 
 public slots:
-    void update();
+    void update(bool init = false);
 };
 
 class Q3XYPlot : public Q3PlotDrawable

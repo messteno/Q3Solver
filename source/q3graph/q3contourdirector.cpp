@@ -18,23 +18,10 @@ Q3ContourDirector::~Q3ContourDirector()
 
 bool Q3ContourDirector::processClick(QMouseEvent *event, const QPointF &scenePos)
 {
-    Q_UNUSED(event);
+    if (event->button() != Qt::LeftButton)
+        return false;
 
-    for (int i = 0; i < mesh_.triangles().count(); ++i)
-    {
-        Q3MeshTriangle *triangle = mesh_.triangles().at(i);
-        QPolygonF polygon = triangle->toPolygonF(1, 1);
-        if (polygon.containsPoint(scenePos, Qt::OddEvenFill))
-        {
-            QList<qreal> levelsList = contourPlot_.contourLevelsList();
-            levelsList.append(triangle->stream());
-            qSort(levelsList.begin(), levelsList.end());
-            contourPlot_.setContourLevelsList(levelsList);
-            contourPlot_.createContour();
-            return true;
-        }
-    }
-    return false;
+    return contourPlot_.addContourAtPoint(scenePos);
 }
 
 void Q3ContourDirector::stop()

@@ -39,6 +39,9 @@ private:
 
     bool snapToGrid_;
 
+    QString xLabel_;
+    QString yLabel_;
+
     QList<Q3PlotDrawable *> drawables_;
     void updateScene();
 
@@ -104,6 +107,9 @@ public:
 
     void setSceneRect(const QRectF &sceneRect);
     QRectF sceneRect() const;
+
+    void setXLabel(const QString &xLabel);
+    void setYLabel(const QString &yLabel);
 
 signals:
     void mouseClicked(QMouseEvent *event, const QPointF scenePos);

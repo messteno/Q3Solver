@@ -5,7 +5,7 @@
 
 namespace ConjugateGradient
 {
-const int maxIterations = 1000;
+const int maxIterations = 2000;
 const double eps = 1e-8;
 
 int calculate(double *AN, int *JA, int *IA,

@@ -102,6 +102,7 @@ void Q3CalculusEditor::on_resetCalcButton_clicked()
         Q3MeshTriangle *triangle = mesh_.triangles().at(i);
         triangle->setCorrectorVelocity(QVector2D(0, 0));
         triangle->setPredictorVelocity(QVector2D(0, 0));
+        triangle->setStream(0);
     }
 
     for (int i = 0; i < mesh_.edges().count(); ++i)
@@ -136,6 +137,7 @@ void Q3CalculusEditor::on_externalStreamPlotButton_clicked()
     connect(plot, SIGNAL(updatePlot()), streamPlot, SLOT(update()));
 
     plot->addDrawable(streamPlot);
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*streamPlot, plot));
     plot->addDirector(new Q3ContourDirector(mesh_, *streamPlot));
     plot->addDirector(new Q3PointInfoDirector(mesh_));
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
@@ -205,6 +207,8 @@ void Q3CalculusEditor::on_externalVXButton_clicked()
 {
     Q3VxByYPlot *vXbyYplot = new Q3VxByYPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->plotWidget()->setXLabel("x");
+    plot->plotWidget()->setYLabel("u(x0,y)");
     plot->addSettingsWidget(
                 new Q3VxByYSettingsWidget(*vXbyYplot,
                                           mesh_.boundingRect().left(),
@@ -220,6 +224,8 @@ void Q3CalculusEditor::on_externalVYButton_clicked()
 {
     Q3VyByXPlot *vYbyXplot = new Q3VyByXPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->plotWidget()->setXLabel("x");
+    plot->plotWidget()->setYLabel("v(x,y0)");
     plot->addSettingsWidget(
                 new Q3VyByXSettingsWidget(*vYbyXplot,
                                           mesh_.boundingRect().top(),

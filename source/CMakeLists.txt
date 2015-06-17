@@ -1,4 +1,9 @@
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -FPIC")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+find_package(OpenMP)
+if(OPENMP_FOUND)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
 
 add_subdirectory(q3plot)
 add_subdirectory(q3algorithms)

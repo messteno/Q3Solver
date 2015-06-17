@@ -47,7 +47,7 @@ public:
 
     int id() const;
 
-    qreal processBoundaryPredictor(qreal Re, bool monotoneTerm);
+    qreal processBoundaryPredictor(qreal Re, bool monotoneTerm, QVector2D &tV);
     qreal processBoundaryFlow();
     qreal processBoundaryCorrector();
     void processBoundaryVorticity(qreal &dvXByY, qreal &dvYByX);

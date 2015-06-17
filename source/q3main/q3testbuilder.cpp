@@ -115,10 +115,10 @@ void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
                                             QList<Q3Boundary *> &boundaries,
                                             Q3MeshAdapter &adapter)
 {
-    Q3Point *a1 = new Q3Point(QPointF(0, 0));
-    Q3Point *a2 = new Q3Point(QPointF(0, 1));
-    Q3Point *a3 = new Q3Point(QPointF(30, 1));
-    Q3Point *a4 = new Q3Point(QPointF(30, 0));
+    Q3Point *a1 = new Q3Point(QPointF(0, -0.5));
+    Q3Point *a2 = new Q3Point(QPointF(0, 0.5));
+    Q3Point *a3 = new Q3Point(QPointF(10, 0.5));
+    Q3Point *a4 = new Q3Point(QPointF(10, -0.5));
     sceleton.addItem(a1);
     sceleton.addItem(a2);
     sceleton.addItem(a3);

@@ -196,7 +196,8 @@ int Q3MeshEdge::id() const
     return id_;
 }
 
-qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm)
+qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm, 
+                                           QVector2D &tV)
 {
     if (!boundary_)
         return 0;
@@ -223,12 +224,12 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm)
                 tnu = dl * qAbs(vni) * Re;
 
             QVector2D deltaV = length_ / Re / dl * (1. + tnu) * velocity_;
-            triangle->setTempVelocity(triangle->tempVelocity() + deltaV);
+            tV += deltaV;
             return length_ / Re * (1. + tnu) / dl - length_ * vni;
         }
         case Q3BoundaryType::OutBoundary:
         {
-            // Фикс для графиков
+            // Фикс для графиков и корректора
             velocity_ = triangle->correctorVelocity();
 
             qreal vni = QVector2D::dotProduct(
@@ -239,8 +240,7 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm)
                 tnu = dl * qAbs(vni) * Re;
 
             qreal deltaA = length_ * ((1. + tnu) / Re / dl - vni);
-            triangle->setTempVelocity(triangle->tempVelocity()
-                                      + deltaA * triangle->predictorVelocity());
+            tV += deltaA * triangle->predictorVelocity();
             return deltaA;
         }
         default:
@@ -265,11 +265,8 @@ qreal Q3MeshEdge::processBoundaryFlow()
             return length_ * QVector2D::dotProduct(velocity_, normal);
         case Q3BoundaryType::OutBoundary:
         {
-            qreal flow = length_ * QVector2D::dotProduct(triangle->predictorVelocity(),
-                                                         normal);
-            if (flow < 0)
-                flow = 0;
-            return flow;
+            qreal flow = length_ * QVector2D::dotProduct(velocity_, normal);
+            return flow > 0 ? flow : 0;
         }
         default:
             break;
@@ -351,11 +348,13 @@ qreal Q3MeshEdge::processBoundaryStream()
         case Q3BoundaryType::InBoundary:
         case Q3BoundaryType::FixedVelocity:
         {
+//            qDebug() << "In" << velocity_;
             return (normal.x() * velocity_.y() - normal.y() * velocity_.x())
                     * length_;
         }
         case Q3BoundaryType::OutBoundary:
         {
+//            qDebug() << "Out" << triangle->correctorVelocity();
             return (normal.x() * triangle->correctorVelocity().y()
                     - normal.y() * triangle->correctorVelocity().x())
                     * length_;

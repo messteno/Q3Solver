@@ -41,9 +41,6 @@ public:
     QVector2D predictorVelocity() const;
     void setPredictorVelocity(const QVector2D &predictorVelocity);
 
-    QVector2D tempVelocity() const;
-    void setTempVelocity(const QVector2D &tempVelocity);
-
     QVector<qreal> distancesToEdges() const;
     void setDistancesToEdges(const QVector<qreal> &distancesToEdges);
 

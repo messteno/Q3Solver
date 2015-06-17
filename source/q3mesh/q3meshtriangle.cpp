@@ -219,16 +219,6 @@ void Q3MeshTriangle::setPredictorVelocity(const QVector2D &predictorVelocity)
     predictorVelocity_ = predictorVelocity;
 }
 
-QVector2D Q3MeshTriangle::tempVelocity() const
-{
-    return tempVelocity_;
-}
-
-void Q3MeshTriangle::setTempVelocity(const QVector2D &tempVelocity)
-{
-    tempVelocity_ = tempVelocity;
-}
-
 QVector<qreal> Q3MeshTriangle::distancesToEdges() const
 {
     return distancesToEdges_;

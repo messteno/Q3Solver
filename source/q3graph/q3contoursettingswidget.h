@@ -21,24 +21,13 @@ public:
     explicit Q3ContourSettingsWidget(Q3ContourPlot &contourPlot,
                                      QWidget *parent = 0);
     ~Q3ContourSettingsWidget();
-    void keyPressEvent(QKeyEvent *event);
 
 private slots:
-
-    void on_isolinesCheckbox_clicked(bool checked);
-    void on_addLevelsButton_clicked();
+    void on_coloursCountSpinBox_valueChanged(int value);
 
 private:
-    void updateContour();
-
     Ui::Q3ContourSettingsWidget *ui;
     Q3ContourPlot &contourPlot_;
-
-    bool filled_;
-    bool lines_;
-
-    static const int DefaultContourLevelsCount_ = 21;
-    QStringListModel *levelsModel_;
 };
 
 #endif // Q3CONTOURSETTINGSWIDGET_H

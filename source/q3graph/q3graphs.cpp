@@ -144,6 +144,13 @@ Q3VxByYPlot::Q3VxByYPlot(Q3Mesh &mesh) :
     update();
 }
 
+Q3VxByYPlot::Q3VxByYPlot(Q3Mesh &mesh, qreal x0) :
+    mesh_(mesh),
+    xValue_(x0)
+{
+    update();
+}
+
 void Q3VxByYPlot::update()
 {
     QVector<QVector3D> values;
@@ -178,8 +185,7 @@ void Q3VxByYPlot::update()
     for (int i = 0; i < steps; ++i)
     {
         qreal x = meshRect.top() + i * step;
-        qreal y = interpolation.interpolateToPoint(
-                      QPointF(xValue_, x));
+        qreal y = interpolation.interpolateToPoint(QPointF(xValue_, x));
         points_.append(QPointF(x, y));
 
         if (i == 0)
@@ -200,7 +206,6 @@ void Q3VxByYPlot::update()
         }
     }
     boundingRect_ = QRectF(minX, minY, maxX - minX, maxY - minY);
-    qDebug() << boundingRect_;
 }
 
 void Q3VxByYPlot::setXValue(const qreal &xValue)

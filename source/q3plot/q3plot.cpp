@@ -42,6 +42,9 @@ Q3Plot::Q3Plot(QWidget *parent) :
     setMouseTracking(true);
     setMinimumWidth(100);
     setMinimumHeight(100);
+
+    setXLabel("");
+    setYLabel("");
 }
 
 Q3Plot::~Q3Plot()
@@ -196,6 +199,21 @@ QRectF Q3Plot::sceneRect() const
     return sceneRect_;
 }
 
+void Q3Plot::setXLabel(const QString &xLabel)
+{
+    xLabel_ = xLabel;
+
+    QFontMetrics metrics = QFontMetrics(font());
+    bottomMargin_ = metrics.height() + 5;
+    if (xLabel_.size() != 0)
+        bottomMargin_ += metrics.height();
+}
+
+void Q3Plot::setYLabel(const QString &yLabel)
+{
+    yLabel_ = yLabel;
+}
+
 void Q3Plot::updateScene()
 {
     qreal dw = sceneRect_.width();
@@ -222,6 +240,9 @@ void Q3Plot::updateScene()
 
     while (countTickX_ < MinTickCount && tickDx_ > 1e-10)
     {
+//        QFontMetrics metrics = QFontMetrics(font());
+//        if (1.5 * countTickX_ * metrics.width(QString::number(tickDx_)) > width())
+//            break;
         tickDx_ /= 2.;
         countTickX_ = ceil(drawRect_.width() / tickDx_);
     }
@@ -321,27 +342,34 @@ void Q3Plot::drawAxes(Q3Painter &painter)
 
 int Q3Plot::borderWidth()
 {
+    QFontMetrics metrics = QFontMetrics(font());
+    int tw = 0;
+
     double ytick = ceil(drawRect_.y() / tickDy_) * tickDy_;
     int maxYtw = 0;
     for (int i = 0; i < countTickY_; ++i)
     {
         if (fabs(ytick) < 1e-9)
             ytick = 0;
-        std::stringstream tickStream;
-        tickStream << ytick;
+        QString yTickStr = QString::number(ytick);
 
-        QFontMetrics metrics = QFontMetrics(font());
-        int tw = metrics.width(tickStream.str().c_str());
+        tw = metrics.width(yTickStr);
         if (tw > maxYtw)
             maxYtw = tw;
         ytick += tickDy_;
     }
+
     maxYtw += 10;
+    if (yLabel_.size() != 0)
+        maxYtw += metrics.height();
     return maxYtw;
 }
 
 void Q3Plot::drawBorders(Q3Painter &painter)
 {
+    QFontMetrics metrics = QFontMetrics(font());
+    int tw = 0;
+
     int maxYtw = borderWidth();
     setLeftMargin(maxYtw);
 
@@ -355,17 +383,16 @@ void Q3Plot::drawBorders(Q3Painter &painter)
     {
         if (fabs (xtick) < 1e-9)
             xtick = 0;
-        std::stringstream tickStream;
-        tickStream << xtick;
-
-        QFontMetrics metrics = QFontMetrics(font());
-        int tw = metrics.width(tickStream.str().c_str());
+        QString xTickStr = QString::number(xtick);
+        tw = metrics.width(xTickStr);
 
         painter.setPen(textColor_);
         if (sceneToMapX(xtick) - 0.5 * tw > leftMargin_)
+        {
             painter.drawText(QPointF(sceneToMapX(xtick) - 0.5 * tw,
-                                     height() - 9),
-                             tickStream.str().c_str());
+                                     height() - bottomMargin_ + metrics.height()),
+                             xTickStr);
+        }
 
         painter.setPen(axesColor_);
         painter.drawLine(sceneToMapX(xtick), height() - bottomMargin_ - 10,
@@ -383,18 +410,16 @@ void Q3Plot::drawBorders(Q3Painter &painter)
     {
         if (fabs (ytick) < 1e-9)
             ytick = 0;
-        std::stringstream tickStream;
-        tickStream << ytick;
+        QString yTickStr = QString::number(ytick);
 
-        QFontMetrics metrics = QFontMetrics(font());
-        int tw = metrics.width(tickStream.str().c_str());
+        tw = metrics.width(yTickStr);
 
         painter.setPen(textColor_);
         if (sceneToMapY(ytick) < height() - bottomMargin_)
         {
             painter.drawText(QPointF(leftMargin_ - tw - 5,
                                      sceneToMapY(ytick) + 3),
-                             tickStream.str().c_str());
+                             yTickStr);
             painter.setPen(QPen(axesColor_));
             painter.drawLine(leftMargin_, sceneToMapY(ytick),
                              leftMargin_ + 10, sceneToMapY(ytick));
@@ -404,6 +429,17 @@ void Q3Plot::drawBorders(Q3Painter &painter)
     painter.setPen(QPen(Qt::black, 1));
     painter.drawLine(leftMargin_, 0,
                      leftMargin_, height() - bottomMargin_);
+
+    painter.setRenderHint(Q3Painter::TextAntialiasing, false);
+    tw = metrics.width(xLabel_);
+    painter.drawText(QPointF(width() / 2 - tw / 2,
+                             height() - 7), xLabel_);
+
+    painter.rotate(-90);
+    tw = metrics.width(yLabel_);
+    painter.drawText(QPointF(- height() / 2 - tw / 2, metrics.height() - 3),
+                     yLabel_);
+    painter.rotate(90);
 }
 
 void Q3Plot::drawDrawables(Q3Painter &painter)

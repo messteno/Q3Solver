@@ -127,7 +127,7 @@ void Q3ContourGenerator::findBoundaryLinesFilled(Q3Contour &contour,
             contour.append(Q3ContourLine());
             Q3ContourLine &contourLine = contour.last();
             for (int j = 0; j < boundary.size(); ++j)
-                contourLine.append(*edge->a());
+                contourLine.append(*boundary[j]->a());
         }
     }
 }
@@ -261,6 +261,8 @@ bool Q3ContourGenerator::followBoundary(Q3ContourLine &contourLine,
     bool firstEdge = true;
     qreal zStart , zEnd = 0;
 
+    boundariesUsed_[boundaryIndex] = true;
+
     while (!stop)
     {
         Q_ASSERT(!boundariesVisited_[boundaryIndex][edgeIndex]);
@@ -393,7 +395,6 @@ void Q3Contour::draw(Q3Painter &painter) const
     if (filled_)
     {
         painter.setPen(Qt::NoPen);
-//        painter.setPen(Qt::gray);
         painter.setBrush(color_);
     }
     else

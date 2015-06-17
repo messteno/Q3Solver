@@ -59,6 +59,7 @@ class Q3VxByYPlot : public QObject, public Q3XYPlot
     Q_OBJECT
 public:
     Q3VxByYPlot(Q3Mesh &mesh);
+    Q3VxByYPlot(Q3Mesh &mesh, qreal x0);
     QRectF boundingRect() const;
     void setXValue(const qreal &xValue);
 

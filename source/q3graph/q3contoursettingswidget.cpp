@@ -26,3 +26,10 @@ void Q3ContourSettingsWidget::on_coloursCountSpinBox_valueChanged(int value)
     if (plot_)
         plot_->update();
 }
+
+void Q3ContourSettingsWidget::on_isolinesCheckBox_toggled(bool checked)
+{
+    contourPlot_.setShowLines(checked);
+    if (plot_)
+        plot_->update();
+}

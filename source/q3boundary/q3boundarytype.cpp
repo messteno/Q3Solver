@@ -18,11 +18,14 @@ Q3BoundaryType::~Q3BoundaryType()
 {
 }
 
-QVector2D Q3BoundaryType::velocity(Q3SceletonItem *item, QPointF a, QPointF b)
+QVector2D Q3BoundaryType::velocity(Q3SceletonItem *item,
+                                   const QPointF &a, const QPointF &b,
+                                   qreal time)
 {
     Q_UNUSED(item);
     Q_UNUSED(a);
     Q_UNUSED(b);
+    Q_UNUSED(time);
 
     return QVector2D(0, 0);
 }

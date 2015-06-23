@@ -51,7 +51,7 @@ void Q3Calc::run()
         corrector();
         qDebug() << "Corrector time: " << timer.elapsed();
         time_ += tau_;
-        emit updateInfo();
+        emit calcStepEnded(time_);
 
 //        QFile pr("/home/mesteno/pr.txt");
 //        if (pr.open(QFile::WriteOnly | QFile::Truncate))
@@ -112,8 +112,6 @@ void Q3Calc::prepare()
     {
         Q3MeshEdge *edge = mesh_.edges().at(edgeIndex);
 
-        edge->processBoundaryVelocity();
-
         // Возможно вынести в соответствующий boundarytype-класс
         if (edge->boundary())
         {
@@ -160,6 +158,12 @@ void Q3Calc::prepare()
 
 void Q3Calc::predictor()
 {
+    for (int edgeIndex = 0; edgeIndex < mesh_.edges().count(); ++edgeIndex)
+    {
+        Q3MeshEdge *edge = mesh_.edges().at(edgeIndex);
+        edge->processBoundaryVelocity(time_ + tau_ / 2.);
+    }
+
     int iterationsCount = 0;
     qreal maxVelocityDelta;
     while(!abort_ && iterationsCount++ < maxPredictorIterationsCount)
@@ -167,7 +171,7 @@ void Q3Calc::predictor()
         QVector<QVector2D> tempVelocity(mesh_.triangles().count());
         maxVelocityDelta = 0;
 
-//        #pragma omp parallel for
+        #pragma omp parallel for
         for (int trInd = 0; trInd < mesh_.triangles().size(); ++trInd)
         {
             Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
@@ -184,7 +188,7 @@ void Q3Calc::predictor()
                 QVector2D normal = triangle->normalVectors().at(eInd);
 
                 // Вроде бы всегда так
-                C -= edge->length() * edge->preassure() * normal;
+                C -= edge->length() * edge->pressure() * normal;
 
                 if (adjTr)
                 {
@@ -303,7 +307,7 @@ void Q3Calc::corrector()
     for (int eInd = 0; eInd < mesh_.edges().count(); ++eInd)
     {
         Q3MeshEdge *edge = mesh_.edges().at(eInd);
-        edge->setPreassure(edge->preassure() + XN_[eInd]/* - XN_[0] */);
+        edge->setPressure(edge->pressure() + XN_[eInd]/* - XN_[0] */);
     }
 
     qreal residual = 0;
@@ -398,7 +402,7 @@ void Q3Calc::reset()
     started_ = false;
     residual_ = 0;
     calcTime_ = 0;
-    emit updateInfo();
+    emit calcStepEnded(time_);
 }
 
 QString Q3Calc::info()

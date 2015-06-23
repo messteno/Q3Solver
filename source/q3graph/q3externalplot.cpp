@@ -24,6 +24,7 @@ Q3ExternalPlot::Q3ExternalPlot(QWidget *parent) :
     directorManager_->setPlot(ui->plotWidget);
 
     move(QApplication::desktop()->rect().center() - rect().center());
+    setAttribute(Qt::WA_DeleteOnClose, true);
     show();
 }
 

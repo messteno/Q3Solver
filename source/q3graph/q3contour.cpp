@@ -429,7 +429,9 @@ void Q3Contour::setColor(const QColor &color)
 
 Q3ContourPlot::Q3ContourPlot(Q3Mesh &mesh) :
     mesh_(mesh),
-    values_(mesh.nodes().count(), 0)
+    values_(mesh.nodes().count(), 0),
+    showLines_(true),
+    showFilled_(true)
 {
     setLevels(30, false);
     setLevels(255, true);
@@ -481,11 +483,17 @@ void Q3ContourPlot::createFilledContour()
 
 void Q3ContourPlot::draw(Q3Painter &painter) const
 {
-    foreach (const Q3Contour& contour, filledContours_)
-        contour.draw(painter);
+    if (showFilled_)
+    {
+        foreach (const Q3Contour& contour, filledContours_)
+            contour.draw(painter);
+    }
 
-    foreach (const Q3Contour& contour, contours_)
-        contour.draw(painter);
+    if (showLines_)
+    {
+        foreach (const Q3Contour& contour, contours_)
+            contour.draw(painter);
+    }
 }
 
 QVector<qreal>& Q3ContourPlot::values()
@@ -550,6 +558,16 @@ QVector<qreal> Q3ContourPlot::normalize()
     }
 
     return normalizedValues;
+}
+
+void Q3ContourPlot::setShowLines(bool showLines)
+{
+    showLines_ = showLines;
+}
+
+void Q3ContourPlot::setShowFilled(bool showFilled)
+{
+    showFilled_ = showFilled;
 }
 
 void Q3ContourPlot::setLevels(int levels, bool filled)

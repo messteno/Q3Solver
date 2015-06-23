@@ -60,9 +60,9 @@ void Q3FlowPastCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
                                               Q3MeshAdapter &adapter)
 {
     Q3Point *a1 = new Q3Point(QPointF(0, 0));
-    Q3Point *a2 = new Q3Point(QPointF(0, 4.1));
-    Q3Point *a3 = new Q3Point(QPointF(22, 4.1));
-    Q3Point *a4 = new Q3Point(QPointF(22, 0));
+    Q3Point *a2 = new Q3Point(QPointF(0, 0.41));
+    Q3Point *a3 = new Q3Point(QPointF(2.2, 0.41));
+    Q3Point *a4 = new Q3Point(QPointF(2.2, 0));
     sceleton.addItem(a1);
     sceleton.addItem(a2);
     sceleton.addItem(a3);
@@ -75,7 +75,7 @@ void Q3FlowPastCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
     sceleton.addItem(c2);
     sceleton.addItem(c3);
     sceleton.addItem(c4);
-    Q3Circle *circle = new Q3Circle(QPointF(2, 2), 0.5);
+    Q3Circle *circle = new Q3Circle(QPointF(0.2, 0.2), 0.05);
     sceleton.addItem(circle);
 
     Q3Boundary *b1 = new Q3Boundary();
@@ -86,7 +86,8 @@ void Q3FlowPastCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
     b1->addItem(c1);
     b1->setTypeByEnum(Q3BoundaryType::InBoundary);
     Q3BoundaryIn *boundaryIn = dynamic_cast<Q3BoundaryIn *>(b1->type());
-    boundaryIn->setVelocityText("y * (4.1 - y) / 4.1 / 4.1 * 4", "0");
+    boundaryIn->setVelocityText("y * (0.41 - y) / 0.41 / 0.41 * 6", "0");
+//    boundaryIn->setVelocityText("y * (0.41 - y) / 0.41 / 0.41 * 6 * sin(3.1415926 * t / 8)", "0");
     b2->addItem(c2);
     b2->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
     b3->addItem(c3);
@@ -192,7 +193,7 @@ void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
     b1->addItem(c1);
     b1->setTypeByEnum(Q3BoundaryType::InBoundary);
     Q3BoundaryIn *boundaryIn = dynamic_cast<Q3BoundaryIn *>(b1->type());
-    boundaryIn->setVelocityText("y * (4.1 - y) / 4.1 / 4.1 * 4", "0");
+    boundaryIn->setVelocityText("y * (4.1 - y) / 4.1 / 4.1 * 6", "0");
     b2->addItem(c2);
     b2->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
     b3->addItem(c3);

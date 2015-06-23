@@ -18,7 +18,7 @@ public:
     virtual qreal distanceTo(const QPointF &pos) const;
     virtual qreal distanceFromBoundaryTo(const QPointF &pos) const;
     virtual QRectF boundingRect() const;
-    virtual void move(const QPointF diff);
+    virtual void move(const QPointF &diff);
 
     void setA(Q3Point *a);
     void setB(Q3Point *b);

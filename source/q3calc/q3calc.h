@@ -29,7 +29,7 @@ protected:
     void run() Q_DECL_OVERRIDE;
 
 signals:
-    void updateInfo();
+    void calcStepEnded(qreal time);
 
 private:
     void prepare();
@@ -43,8 +43,8 @@ private:
     bool abort_;
     bool started_;
 
-    const static int maxPredictorIterationsCount;
-    const static qreal maxPredictorError;
+    static const int maxPredictorIterationsCount;
+    static const qreal maxPredictorError;
 
     QVector<qreal> AN_;
     QVector<qreal> MN_;
@@ -68,18 +68,4 @@ private:
     QTime calcTimer_;
 };
 
-template<class T>
-void vectorToFile(QVector<T> &vec, const char *fileName)
-{
-    QFile file(fileName);
-    file.open(QIODevice::WriteOnly | QIODevice::Text);
-    QTextStream out(&file);
-    out.setRealNumberPrecision(7);
-    out.setRealNumberNotation(QTextStream::FixedNotation);
-    foreach (const T& elem, vec)
-        out << elem << "\n";
-    file.close();
-}
-
 #endif // Q3CALC_H
-

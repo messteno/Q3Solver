@@ -34,11 +34,10 @@ public:
     virtual qreal distanceTo(const QPointF &pos) const = 0;
     virtual qreal distanceFromBoundaryTo(const QPointF &pos) const = 0;
     virtual QRectF boundingRect() const = 0;
-    virtual void move(const QPointF diff) = 0;
+    virtual void move(const QPointF &diff) = 0;
     virtual QString toString() = 0;
     virtual QString typeToString() = 0;
-
-    virtual void resize(const QPointF from, const QPointF to);
+    virtual void resize(const QPointF &from, const QPointF &to);
 
     bool isSelectable() const;
     void setSelectable(bool selectable);

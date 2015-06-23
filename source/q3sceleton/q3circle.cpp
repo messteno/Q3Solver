@@ -51,13 +51,13 @@ QRectF Q3Circle::boundingRect() const
                   2 * radius_, 2 * radius_);
 }
 
-void Q3Circle::move(const QPointF diff)
+void Q3Circle::move(const QPointF &diff)
 {
     center_ += diff;
     moved_ = true;
 }
 
-void Q3Circle::resize(const QPointF from, const QPointF to)
+void Q3Circle::resize(const QPointF &from, const QPointF &to)
 {
     Q_UNUSED(from);
 

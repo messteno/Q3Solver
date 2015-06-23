@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>132</width>
-    <height>67</height>
+    <height>96</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,16 @@
    <property name="sizeConstraint">
     <enum>QLayout::SetFixedSize</enum>
    </property>
+   <item>
+    <widget class="QCheckBox" name="isolinesCheckBox">
+     <property name="text">
+      <string>Изолинии</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item>
     <widget class="QLabel" name="coloursCountLabel">
      <property name="text">

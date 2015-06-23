@@ -13,7 +13,6 @@ public:
     void setTypeByEnum(Q3BoundaryType::Type type);
     void setType(Q3BoundaryType *type);
     bool contains(Q3SceletonItem *item);
-
     void addItem(Q3SceletonItem *item);
 
     Q3BoundaryType *type() const;
@@ -27,11 +26,12 @@ public:
     int label() const;
     void setLabel(int label);
 
-    QVector2D velocity(QPointF a, QPointF b);
+    QVector2D velocity(const QPointF &a, const QPointF &b, qreal time);
+    QList<Q3SceletonItem *> items() const;
 
 private:
     Q3BoundaryType *type_;
-    Q3SceletonItem *item_;
+    QList<Q3SceletonItem *> items_;
     int label_;
 };
 

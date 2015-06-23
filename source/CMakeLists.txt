@@ -1,3 +1,5 @@
+cmake_policy(SET CMP0043 NEW)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 find_package(OpenMP)
 if(OPENMP_FOUND)
@@ -22,7 +24,18 @@ include_directories(
     ${3RDPARTY_HEADERS_DIR}
     ${ANI_HEADERS_DIR}
     ${QCUSTOM_PLOT_HEADERS_DIR}
-    q3plot q3algorithms q3sceleton q3boundary q3mesh q3ani2d q3interpolation q3director q3calc q3graph q3main)
+    q3plot
+    q3algorithms
+    q3sceleton
+    q3boundary
+    q3mesh
+    q3ani2d
+    q3interpolation
+    q3director
+    q3calc
+    q3graph
+    q3main
+)
 link_directories(${3RDPARTY_LIBS_DIR} ${ANI_LIBS_DIR} ${QCUSTOM_PLOT_LIBS_DIR})
 
 aux_source_directory(. q3solver_SRC)
@@ -45,6 +58,6 @@ target_link_libraries(q3solver
     q3ani2d
     q3interpolation
     q3director
-    q3calc
+    optimized q3calc
     q3graph
     q3main)

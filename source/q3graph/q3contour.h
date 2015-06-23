@@ -83,6 +83,9 @@ public:
     // Выбирается ближайший узел
     bool addContourAtPoint(const QPointF &point);
 
+    void setShowLines(bool showLines);
+    void setShowFilled(bool showFilled);
+
 protected:
     Q3Mesh &mesh_;
 
@@ -97,6 +100,9 @@ private:
 
     QList<qreal> contourLevelsList_;
     QList<qreal> filledContourLevelsList_;
+
+    bool showLines_;
+    bool showFilled_;
 };
 
 QColor getColour(qreal level);

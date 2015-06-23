@@ -17,7 +17,8 @@ public:
     explicit Q3BoundaryIn(QWidget *parent = 0);
     ~Q3BoundaryIn();
 
-    QVector2D velocity(Q3SceletonItem *item, QPointF a, QPointF b);
+    QVector2D velocity(Q3SceletonItem *item,
+                       const QPointF &a, const QPointF &b, qreal time);
     void setVelocityText(const QString &vXText, const QString &vYText);
     virtual void save();
 

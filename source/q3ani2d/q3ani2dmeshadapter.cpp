@@ -398,9 +398,9 @@ double Q3Ani2DMeshAdapter::sizeFunction(double *point)
 //    double hmin = 0.02;
 
     double minDist = distToBoundary(point);
-    double coef = minDist;
+    double coef = 5 * minDist;
     coef = coef > 1 ? 1 : coef;
-    return (1.0 - coef) * hmin + coef * hmax;
+    return (1 - coef) * hmin + coef * hmax;
 //    return elementSize;
 }
 

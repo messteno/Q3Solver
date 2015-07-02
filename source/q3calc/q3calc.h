@@ -35,6 +35,8 @@ private:
     void prepare();
     void predictor();
     void corrector();
+    void calcFaithfulResidualNS();
+    void calcFaithfulResidualDiv();
 
     // TODO: переместить в отдельный класс
     static void incompleteCholesky(qreal *AN, int *JA, int *IA, int n);
@@ -61,6 +63,8 @@ private:
     qreal Re_;
 
     qreal residual_;
+    qreal faithfulResidualNS_;
+    qreal faithfulResidualDiv_;
 
     qreal time_;
 

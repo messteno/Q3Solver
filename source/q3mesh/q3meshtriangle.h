@@ -38,6 +38,9 @@ public:
     QVector2D correctorVelocity() const;
     void setCorrectorVelocity(const QVector2D &correctorVelocity);
 
+    QVector2D previousCorrectorVelocity() const;
+    void setPreviousCorrectorVelocity(const QVector2D &previousCorrectorVelocity);
+
     QVector2D predictorVelocity() const;
     void setPredictorVelocity(const QVector2D &predictorVelocity);
 
@@ -81,6 +84,7 @@ private:
     QPointF center_;
 
     QVector2D correctorVelocity_;
+    QVector2D previousCorrectorVelocity_;
     QVector2D predictorVelocity_;
     QVector2D tempVelocity_;
 

@@ -222,7 +222,7 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm)
             if (monotoneTerm)
                 tnu = dl * qAbs(vni) * Re;
 
-            QVector2D deltaV = length_ / Re / dl * (1. + tnu) * velocity_;
+            QVector2D deltaV = length_ * (1. / Re / dl * (1. + tnu) - vni) * velocity_;
             triangle->setTempVelocity(triangle->tempVelocity() + deltaV);
             return length_ / Re * (1. + tnu) / dl - length_ * vni;
         }
@@ -265,7 +265,7 @@ qreal Q3MeshEdge::processBoundaryFlow()
             return length_ * QVector2D::dotProduct(velocity_, normal);
         case Q3BoundaryType::OutBoundary:
         {
-            qreal flow = length_ * QVector2D::dotProduct(triangle->predictorVelocity(),
+            qreal flow = length_ * QVector2D::dotProduct(triangle->correctorVelocity(),
                                                          normal);
             if (flow < 0)
                 flow = 0;

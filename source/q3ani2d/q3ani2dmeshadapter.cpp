@@ -47,7 +47,7 @@ bool Q3Ani2DMeshAdapter::generateMesh(Q3Sceleton &sceleton,
 
     boundaryItems_ = items;
 
-    // Создаем карту точек - номеров
+    // Создаем отображение точек - номеров
     int count = 0;
     foreach (Q3SceletonItem *item, items)
     {

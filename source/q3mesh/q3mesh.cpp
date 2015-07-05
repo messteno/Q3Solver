@@ -27,7 +27,7 @@ Q3Mesh::Q3Mesh() :
 
 Q3Mesh::~Q3Mesh()
 {
-
+    clear();
 }
 
 QList<Q3MeshNode *>& Q3Mesh::nodes()

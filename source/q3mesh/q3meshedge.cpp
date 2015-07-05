@@ -223,7 +223,7 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm,
             if (monotoneTerm)
                 tnu = dl * qAbs(vni) * Re;
 
-            QVector2D deltaV = length_ / Re / dl * (1. + tnu) * velocity_;
+            QVector2D deltaV = length_ * (1. / Re / dl * (1. + tnu) - vni) * velocity_;
             tV += deltaV;
             return length_ / Re * (1. + tnu) / dl - length_ * vni;
         }

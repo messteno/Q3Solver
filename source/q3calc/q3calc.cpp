@@ -244,15 +244,6 @@ void Q3Calc::predictor()
             break;
     }
 
-    qreal maxVelocity = 0;
-    for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
-    {
-        Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
-        qreal absV = qAbs(triangle->predictorVelocity().length() > maxVelocity);
-        if (absV)
-            maxVelocity = absV;
-    }
-
     qDebug() << maxVelocityDelta;
 }
 

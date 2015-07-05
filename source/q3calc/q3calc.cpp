@@ -383,23 +383,24 @@ void Q3Calc::calcFaithfulResidualNS()
 
         // Производная по времени
         QVector2D deltaV = (triangle->correctorVelocity() -
-                triangle->previousCorrectorVelocity()) / tau_ * triangle->square();
+                            triangle->previousCorrectorVelocity())
+                           / tau_ * triangle->square();
 
-        for (int edgeIndex = 0; edgeIndex < triangle->edges().count(); ++edgeIndex)
+        for (int edInd = 0; edInd < triangle->edges().count(); ++edInd)
         {
-            Q3MeshEdge *edge = triangle->edges().at(edgeIndex);
+            Q3MeshEdge *edge = triangle->edges().at(edInd);
             Q3MeshTriangle *adjacentTriangle =
-                        triangle->adjacentTriangles().at(edgeIndex);
-            QVector2D normal = triangle->normalVectors().at(edgeIndex);
+                        triangle->adjacentTriangles().at(edInd);
+            QVector2D normal = triangle->normalVectors().at(edInd);
 
             // Давление
-            deltaV += edge->length() * edge->preassure() * normal;
+            deltaV += edge->length() * edge->pressure() * normal;
 
             if (adjacentTriangle)
             {
                 // Конвективный поток
-                qreal dL = triangle->distanceToTriangles().at(edgeIndex);
-                qreal dl = triangle->distancesToEdges().at(edgeIndex);
+                qreal dL = triangle->distanceToTriangles().at(edInd);
+                qreal dl = triangle->distancesToEdges().at(edInd);
 
                 qreal vni = (dl * QVector2D::dotProduct(
                         adjacentTriangle->correctorVelocity(),
@@ -419,7 +420,7 @@ void Q3Calc::calcFaithfulResidualNS()
             else
             {
                 // dL равна dl
-                qreal dl = triangle->distancesToEdges().at(edgeIndex);
+                qreal dl = triangle->distancesToEdges().at(edInd);
                 qreal vni;
 
                 switch ( edge->boundary()->type()->toEnum() )
@@ -486,17 +487,17 @@ void Q3Calc::calcFaithfulResidualDiv()
 
         qreal delta = 0.0;
 
-        for (int edgeIndex = 0; edgeIndex < triangle->edges().count(); ++edgeIndex)
+        for (int edInd = 0; edInd < triangle->edges().count(); ++edInd)
         {
-            Q3MeshEdge *edge = triangle->edges().at(edgeIndex);
+            Q3MeshEdge *edge = triangle->edges().at(edInd);
             Q3MeshTriangle *adjacentTriangle =
-                    triangle->adjacentTriangles().at(edgeIndex);
-            QVector2D normal = triangle->normalVectors().at(edgeIndex);
+                    triangle->adjacentTriangles().at(edInd);
+            QVector2D normal = triangle->normalVectors().at(edInd);
 
             if (adjacentTriangle)
             {
-                qreal dL = triangle->distanceToTriangles().at(edgeIndex);
-                qreal dl = triangle->distancesToEdges().at(edgeIndex);
+                qreal dL = triangle->distanceToTriangles().at(edInd);
+                qreal dl = triangle->distancesToEdges().at(edInd);
 
                 qreal vni = (dl * QVector2D::dotProduct(
                         adjacentTriangle->correctorVelocity(),
@@ -591,11 +592,16 @@ QString Q3Calc::info()
     QTextStream stream(&out);
     if (started_)
     {
-        stream << trUtf8("Невязка предиктор-корректор: ") << QString::number(residual_) << "\n"
-               << trUtf8("Настоящая невязка Навье-Стокс: ") << QString::number(faithfulResidualNS_) << "\n"
-               << trUtf8("Настоящая невязка Дивергенция: ") << QString::number(faithfulResidualDiv_) << "\n"
-               << trUtf8("Время: ") << QString::number(time_) << "\n"
-               << trUtf8("Время расчета: ") << QString::number(calcTime_ / 1000.) << "\n";
+        stream << trUtf8("Невязка предиктор-корректор: ")
+               << QString::number(residual_) << "\n"
+               << trUtf8("Настоящая невязка Навье-Стокс: ")
+               << QString::number(faithfulResidualNS_) << "\n"
+               << trUtf8("Настоящая невязка Дивергенция: ")
+               << QString::number(faithfulResidualDiv_) << "\n"
+               << trUtf8("Время: ")
+               << QString::number(time_) << "\n"
+               << trUtf8("Время расчета: ")
+               << QString::number(calcTime_ / 1000.) << "\n";
     }
     else
         stream << trUtf8("Инфоормация о расчете\n");

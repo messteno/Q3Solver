@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>368</width>
-    <height>637</height>
+    <height>676</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -210,45 +210,55 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="calcInfoLabel">
-     <property name="text">
-      <string>Информация о расчете</string>
+    <widget class="QScrollArea" name="scrollArea">
+     <property name="widgetResizable">
+      <bool>true</bool>
      </property>
+     <widget class="QWidget" name="scrollAreaWidgetContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>348</width>
+        <height>134</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QLabel" name="calcInfoLabel">
+         <property name="text">
+          <string>Информация о расчете</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item>
-    <widget class="QPushButton" name="startCalcButton">
-     <property name="text">
-      <string>Запуск расчета</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="stopCalcButton">
-     <property name="text">
-      <string>Остановка расчета</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="resetCalcButton">
-     <property name="text">
-      <string>Сброс расчета</string>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="actionLayout">
+     <item>
+      <widget class="QPushButton" name="startCalcButton">
+       <property name="text">
+        <string>Запуск</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="stopCalcButton">
+       <property name="text">
+        <string>Остановка</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="resetCalcButton">
+       <property name="text">
+        <string>Сброс</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
   </layout>
  </widget>

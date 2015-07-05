@@ -43,13 +43,19 @@ void Q3Calc::run()
     prepare();
     while(!abort_)
     {
-        QTime timer;
-        timer.start();
+        // QTime timer;
+
+        // timer.start();
         predictor();
-        qDebug() << "Predictor time:" << timer.elapsed();
-        timer.start();
+        // qDebug() << "Predictor time:" << timer.elapsed();
+
+        // timer.start();
         corrector();
-        qDebug() << "Corrector time: " << timer.elapsed();
+        // qDebug() << "Corrector time: " << timer.elapsed();
+
+        calcFaithfulResidualNS();
+        calcFaithfulResidualDiv();
+
         time_ += tau_;
         emit calcStepEnded(time_);
 
@@ -211,7 +217,7 @@ void Q3Calc::predictor()
                         tnu /= cosin;
                     }
 
-                    qreal B = edge->length() * ((1. + tnu) / Re_ / dL - 0.5 * vni);
+                    qreal B = edge->length() * ((1. + tnu) / Re_ / dL - 0.5 *  vni);
 
                     tempVelocity[trInd] += B * adjTr->predictorVelocity();
                     A += B;
@@ -249,6 +255,13 @@ void Q3Calc::predictor()
 
 void Q3Calc::corrector()
 {
+
+    for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
+    {
+        Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
+        triangle->setPreviousCorrectorVelocity(triangle->correctorVelocity());
+    }
+
     qreal flow = 0;
     for (int edgeIndex = 0; edgeIndex < mesh_.edges().size(); ++edgeIndex)
     {
@@ -359,6 +372,179 @@ void Q3Calc::incompleteCholesky(qreal *AN, int *JA, int *IA, int n)
 
     AN[d] = sqrt(AN[d]);
 }
+
+void Q3Calc::calcFaithfulResidualNS()
+{
+    qreal maxDelta = 0.0;
+
+    for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
+    {
+        Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
+
+        // Производная по времени
+        QVector2D deltaV = (triangle->correctorVelocity() -
+                triangle->previousCorrectorVelocity()) / tau_ * triangle->square();
+
+        for (int edgeIndex = 0; edgeIndex < triangle->edges().count(); ++edgeIndex)
+        {
+            Q3MeshEdge *edge = triangle->edges().at(edgeIndex);
+            Q3MeshTriangle *adjacentTriangle =
+                        triangle->adjacentTriangles().at(edgeIndex);
+            QVector2D normal = triangle->normalVectors().at(edgeIndex);
+
+            // Давление
+            deltaV += edge->length() * edge->preassure() * normal;
+
+            if (adjacentTriangle)
+            {
+                // Конвективный поток
+                qreal dL = triangle->distanceToTriangles().at(edgeIndex);
+                qreal dl = triangle->distancesToEdges().at(edgeIndex);
+
+                qreal vni = (dl * QVector2D::dotProduct(
+                        adjacentTriangle->correctorVelocity(),
+                        normal)
+                    + (dL - dl) * QVector2D::dotProduct(
+                        triangle->correctorVelocity(), normal)) / dL;
+
+                deltaV += vni * edge->length() * (
+                            triangle->correctorVelocity() +
+                            adjacentTriangle->correctorVelocity())  * 0.5;
+
+                // Лапласиан
+                deltaV -= edge->length() / Re_ * (
+                            adjacentTriangle->correctorVelocity() -
+                            triangle->correctorVelocity()) / dL;
+            }
+            else
+            {
+                // dL равна dl
+                qreal dl = triangle->distancesToEdges().at(edgeIndex);
+                qreal vni;
+
+                switch ( edge->boundary()->type()->toEnum() )
+                {
+                case Q3BoundaryType::NoSlipBoundary:
+                    // Конвективный поток вклада не дает
+                    // Лапласиан
+                    // Скорость на границе равна 0
+
+                    deltaV += edge->length() / Re_ *
+                            triangle->correctorVelocity() / dl;
+                    break;
+
+                case Q3BoundaryType::FixedVelocity:
+                case Q3BoundaryType::InBoundary:
+                    // Конвективный поток
+                    vni = QVector2D::dotProduct(edge->velocity(), normal);
+
+                    deltaV += vni * edge->length() *
+                                edge->velocity();
+
+                    // Лапласиан
+                    deltaV -= edge->length() / Re_ *
+                            (edge->velocity() -
+                             triangle->correctorVelocity()) / dl;
+
+                    break;
+
+                case Q3BoundaryType::OutBoundary:
+                    // Конвективный поток
+                    vni = QVector2D::dotProduct(
+                                triangle->correctorVelocity(), normal);
+
+                    deltaV += vni * edge->length() *
+                                triangle->correctorVelocity();
+
+                    // Лапласиан вклада не дает
+                    // Производная по нормали должна равняться 0
+                    break;
+
+                default:
+                    break;
+                }
+            }
+        }
+
+        deltaV /= triangle->square();
+
+        if (maxDelta < deltaV.length())
+            maxDelta = deltaV.length();
+    }
+
+    faithfulResidualNS_ = maxDelta;
+    return;
+}
+
+void Q3Calc::calcFaithfulResidualDiv()
+{
+    qreal maxDelta = 0.0;
+
+    for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
+    {
+        Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
+
+        qreal delta = 0.0;
+
+        for (int edgeIndex = 0; edgeIndex < triangle->edges().count(); ++edgeIndex)
+        {
+            Q3MeshEdge *edge = triangle->edges().at(edgeIndex);
+            Q3MeshTriangle *adjacentTriangle =
+                    triangle->adjacentTriangles().at(edgeIndex);
+            QVector2D normal = triangle->normalVectors().at(edgeIndex);
+
+            if (adjacentTriangle)
+            {
+                qreal dL = triangle->distanceToTriangles().at(edgeIndex);
+                qreal dl = triangle->distancesToEdges().at(edgeIndex);
+
+                qreal vni = (dl * QVector2D::dotProduct(
+                        adjacentTriangle->correctorVelocity(),
+                        normal)
+                    + (dL - dl) * QVector2D::dotProduct(
+                        triangle->correctorVelocity(), normal)) / dL;
+
+                delta += vni * edge->length();
+            }
+            else
+            {
+                qreal vni;
+
+                switch ( edge->boundary()->type()->toEnum() )
+                {
+                case Q3BoundaryType::NoSlipBoundary:
+                    vni = 0.0;
+                    break;
+
+                case Q3BoundaryType::FixedVelocity:
+                case Q3BoundaryType::InBoundary:
+
+                    vni = QVector2D::dotProduct(edge->velocity(), normal);
+                    break;
+
+                case Q3BoundaryType::OutBoundary:
+                    vni = QVector2D::dotProduct(
+                                triangle->correctorVelocity(), normal);
+                    break;
+
+                default:
+                    break;
+                }
+
+                delta += vni * edge->length();
+            }
+        }
+
+        delta /= triangle->square();
+
+        if (maxDelta < qAbs(delta))
+            maxDelta = qAbs(delta);
+   }
+
+   faithfulResidualDiv_ = maxDelta;
+   return;
+}
+
 void Q3Calc::setMonotoneTerm(bool monotoneTerm)
 {
     monotoneTerm_ = monotoneTerm;
@@ -405,7 +591,9 @@ QString Q3Calc::info()
     QTextStream stream(&out);
     if (started_)
     {
-        stream << trUtf8("Невязка: ") << QString::number(residual_) << "\n"
+        stream << trUtf8("Невязка предиктор-корректор: ") << QString::number(residual_) << "\n"
+               << trUtf8("Настоящая невязка Навье-Стокс: ") << QString::number(faithfulResidualNS_) << "\n"
+               << trUtf8("Настоящая невязка Дивергенция: ") << QString::number(faithfulResidualDiv_) << "\n"
                << trUtf8("Время: ") << QString::number(time_) << "\n"
                << trUtf8("Время расчета: ") << QString::number(calcTime_ / 1000.) << "\n";
     }

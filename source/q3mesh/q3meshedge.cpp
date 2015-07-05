@@ -264,8 +264,16 @@ qreal Q3MeshEdge::processBoundaryFlow()
             return length_ * QVector2D::dotProduct(velocity_, normal);
         case Q3BoundaryType::OutBoundary:
         {
+<<<<<<< HEAD
+            qreal flow = length_ * QVector2D::dotProduct(triangle->correctorVelocity(),
+                                                         normal);
+            if (flow < 0)
+                flow = 0;
+            return flow;
+=======
             qreal flow = length_ * QVector2D::dotProduct(velocity_, normal);
             return flow > 0 ? flow : 0;
+>>>>>>> master
         }
         default:
             break;

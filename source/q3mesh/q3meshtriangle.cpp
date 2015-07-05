@@ -14,6 +14,7 @@ Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a,
     c_(c),
     id_(id),
     correctorVelocity_(0, 0),
+    previousCorrectorVelocity_(0, 0),
     predictorVelocity_(0, 0),
     tempVelocity_(0, 0),
     vorticity_(0),
@@ -207,6 +208,16 @@ QVector2D Q3MeshTriangle::correctorVelocity() const
 void Q3MeshTriangle::setCorrectorVelocity(const QVector2D &correctorVelocity)
 {
     correctorVelocity_ = correctorVelocity;
+}
+
+QVector2D Q3MeshTriangle::previousCorrectorVelocity() const
+{
+    return previousCorrectorVelocity_;
+}
+
+void Q3MeshTriangle::setPreviousCorrectorVelocity(const QVector2D &previousCorrectorVelocity)
+{
+    previousCorrectorVelocity_ = previousCorrectorVelocity;
 }
 
 QVector2D Q3MeshTriangle::predictorVelocity() const

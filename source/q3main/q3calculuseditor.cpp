@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QLayout>
 
 #include "q3calculuseditor.h"
 #include "q3externalplot.h"
@@ -35,7 +36,7 @@ Q3CalculusEditor::Q3CalculusEditor(Q3Plot *plot, Q3Mesh &mesh, QWidget *parent) 
     bool monotoneTerm = ui->monotoneTermCheckBox->isChecked();
     calc_->setMonotoneTerm(monotoneTerm);
 
-    connect(calc_, SIGNAL(updateInfo()), this, SLOT(updateInfo()));
+    connect(calc_, SIGNAL(calcStepEnded(qreal)), this, SLOT(updateInfo()));
 }
 
 Q3CalculusEditor::~Q3CalculusEditor()
@@ -102,13 +103,14 @@ void Q3CalculusEditor::on_resetCalcButton_clicked()
         Q3MeshTriangle *triangle = mesh_.triangles().at(i);
         triangle->setCorrectorVelocity(QVector2D(0, 0));
         triangle->setPredictorVelocity(QVector2D(0, 0));
+        triangle->setStream(0);
     }
 
     for (int i = 0; i < mesh_.edges().count(); ++i)
     {
         Q3MeshEdge *edge = mesh_.edges().at(i);
         edge->setVelocity(QVector2D(0, 0));
-        edge->setPreassure(0);
+        edge->setPressure(0);
     }
 }
 
@@ -136,6 +138,7 @@ void Q3CalculusEditor::on_externalStreamPlotButton_clicked()
     connect(plot, SIGNAL(updatePlot()), streamPlot, SLOT(update()));
 
     plot->addDrawable(streamPlot);
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*streamPlot, plot));
     plot->addDirector(new Q3ContourDirector(mesh_, *streamPlot));
     plot->addDirector(new Q3PointInfoDirector(mesh_));
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
@@ -156,27 +159,29 @@ void Q3CalculusEditor::on_externalVorticityPlotButton_clicked()
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     connect(plot, SIGNAL(updatePlot()), vorticityPlot, SLOT(update()));
     plot->addDrawable(vorticityPlot);
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*vorticityPlot, plot));
     plot->addDirector(new Q3ContourDirector(mesh_, *vorticityPlot));
     plot->addDirector(new Q3PointInfoDirector(mesh_));
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
 
-void Q3CalculusEditor::on_internalPreassurePlotButton_clicked()
+void Q3CalculusEditor::on_internalPressurePlotButton_clicked()
 {
     plot_->removeDrawable(contourPlot_);
     delete contourPlot_;
-    contourPlot_ = new Q3PreassurePlot(mesh_);
+    contourPlot_ = new Q3PressurePlot(mesh_);
     plot_->addDrawable(contourPlot_);
     plot_->update();
 }
 
-void Q3CalculusEditor::on_externalPreassurePlotButton_clicked()
+void Q3CalculusEditor::on_externalPressurePlotButton_clicked()
 {
-    Q3PreassurePlot *preassurePlot = new Q3PreassurePlot(mesh_);
+    Q3PressurePlot *pressurePlot = new Q3PressurePlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
-    connect(plot, SIGNAL(updatePlot()), preassurePlot, SLOT(update()));
-    plot->addDrawable(preassurePlot);
-    plot->addDirector(new Q3ContourDirector(mesh_, *preassurePlot));
+    connect(plot, SIGNAL(updatePlot()), pressurePlot, SLOT(update()));
+    plot->addDrawable(pressurePlot);
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*pressurePlot, plot));
+    plot->addDirector(new Q3ContourDirector(mesh_, *pressurePlot));
     plot->addDirector(new Q3PointInfoDirector(mesh_));
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
 }
@@ -196,6 +201,7 @@ void Q3CalculusEditor::on_externalMagnitudePlotButton_clicked()
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
     connect(plot, SIGNAL(updatePlot()), magnitudePlot, SLOT(update()));
     plot->addDrawable(magnitudePlot);
+    plot->addSettingsWidget(new Q3ContourSettingsWidget(*magnitudePlot, plot));
     plot->addDirector(new Q3ContourDirector(mesh_, *magnitudePlot));
     plot->addDirector(new Q3PointInfoDirector(mesh_));
     plot->plotWidget()->setSceneRect(mesh_.boundingRect());
@@ -203,8 +209,11 @@ void Q3CalculusEditor::on_externalMagnitudePlotButton_clicked()
 
 void Q3CalculusEditor::on_externalVXButton_clicked()
 {
-    Q3VxByYPlot *vXbyYplot = new Q3VxByYPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->plotWidget()->setXLabel("x");
+    plot->plotWidget()->setYLabel("u(x0,y)");
+
+    Q3VxByYPlot *vXbyYplot = new Q3VxByYPlot(mesh_);
     plot->addSettingsWidget(
                 new Q3VxByYSettingsWidget(*vXbyYplot,
                                           mesh_.boundingRect().left(),
@@ -212,7 +221,6 @@ void Q3CalculusEditor::on_externalVXButton_clicked()
                                           plot));
     plot->addDrawable(vXbyYplot);
     plot->plotWidget()->setSceneRect(vXbyYplot->boundingRect());
-
     connect(plot, SIGNAL(updatePlot()), vXbyYplot, SLOT(update()));
 }
 
@@ -220,6 +228,8 @@ void Q3CalculusEditor::on_externalVYButton_clicked()
 {
     Q3VyByXPlot *vYbyXplot = new Q3VyByXPlot(mesh_);
     Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+    plot->plotWidget()->setXLabel("x");
+    plot->plotWidget()->setYLabel("v(x,y0)");
     plot->addSettingsWidget(
                 new Q3VyByXSettingsWidget(*vYbyXplot,
                                           mesh_.boundingRect().top(),
@@ -229,4 +239,73 @@ void Q3CalculusEditor::on_externalVYButton_clicked()
     plot->plotWidget()->setSceneRect(vYbyXplot->boundingRect());
 
     connect(plot, SIGNAL(updatePlot()), vYbyXplot, SLOT(update()));
+}
+
+// Нужно переделать на выбор мышкой
+void Q3CalculusEditor::on_externalCdButton_clicked()
+{
+    qreal meanVelocity = ui->meanVelocityEdit->text().toDouble();
+    qreal characteristicLength = ui->characteristicLengthEdit->text().toDouble();
+    qreal kinematicViscosity = ui->kinematicViscosityEdit->text().toDouble();
+    qreal Re = meanVelocity * characteristicLength / kinematicViscosity;
+    Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+
+    // Находим первую попавшуюся окружность
+    for (int bndInd = 0; bndInd < mesh_.boundaries().count(); ++bndInd)
+    {
+        Q3Mesh::EdgeBoundary &boundary = mesh_.boundaries()[bndInd];
+        if (boundary.empty())
+            continue;
+        Q3MeshEdge *edge = boundary.first();
+        Q_ASSERT(edge->boundary());
+        Q_ASSERT(!edge->boundary()->items().empty());
+
+        Q3SceletonItem *item = edge->boundary()->items().first();
+        if (item->type() == Q3SceletonItem::Circle)
+        {
+            Q3CdRealTimePlot *cdPlot = new Q3CdRealTimePlot(mesh_, boundary,
+                                                            *plot->plotWidget(), Re);
+            cdPlot->setTimeDelta(10);
+            connect(calc_, SIGNAL(calcStepEnded(qreal)),
+                    cdPlot, SLOT(update(qreal)));
+            plot->addDrawable(cdPlot);
+            plot->plotWidget()->setXLabel("t");
+            plot->plotWidget()->setYLabel("Cd");
+            break;
+        }
+    }
+}
+
+void Q3CalculusEditor::on_externalClButton_clicked()
+{
+    qreal meanVelocity = ui->meanVelocityEdit->text().toDouble();
+    qreal characteristicLength = ui->characteristicLengthEdit->text().toDouble();
+    qreal kinematicViscosity = ui->kinematicViscosityEdit->text().toDouble();
+    qreal Re = meanVelocity * characteristicLength / kinematicViscosity;
+    Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+
+    // Находим первую попавшуюся окружность
+    for (int bndInd = 0; bndInd < mesh_.boundaries().count(); ++bndInd)
+    {
+        Q3Mesh::EdgeBoundary &boundary = mesh_.boundaries()[bndInd];
+        if (boundary.empty())
+            continue;
+        Q3MeshEdge *edge = boundary.first();
+        Q_ASSERT(edge->boundary());
+        Q_ASSERT(!edge->boundary()->items().empty());
+
+        Q3SceletonItem *item = edge->boundary()->items().first();
+        if (item->type() == Q3SceletonItem::Circle)
+        {
+            Q3ClRealTimePlot *clPlot = new Q3ClRealTimePlot(mesh_, boundary,
+                                                            *plot->plotWidget(), Re);
+            clPlot->setTimeDelta(10);
+            connect(calc_, SIGNAL(calcStepEnded(qreal)),
+                    clPlot, SLOT(update(qreal)));
+            plot->addDrawable(clPlot);
+            plot->plotWidget()->setXLabel("t");
+            plot->plotWidget()->setYLabel("Cl");
+            break;
+        }
+    }
 }

@@ -27,7 +27,7 @@ Q3Mesh::Q3Mesh() :
 
 Q3Mesh::~Q3Mesh()
 {
-
+    clear();
 }
 
 QList<Q3MeshNode *>& Q3Mesh::nodes()
@@ -198,9 +198,15 @@ void Q3Mesh::calcStream()
         bool noslip = false;
         foreach (Q3MeshEdge *edge, triangles_.at(i)->edges())
         {
-            if (edge->boundary()
-                && (edge->boundary()->type()->toEnum() == Q3BoundaryType::NoSlipBoundary
-                    || edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity))
+            // TODO: добавить как условие на границу
+//            if (edge->boundary()
+//                && (0/* edge->boundary()->type()->toEnum() == Q3BoundaryType::NoSlipBoundary */
+//                    || edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity))
+//            {
+//                noslip = true;
+//                break;
+//            }
+            if (edge->boundary() && qAbs(edge->a()->y()) < 1e-10)
             {
                 noslip = true;
                 break;

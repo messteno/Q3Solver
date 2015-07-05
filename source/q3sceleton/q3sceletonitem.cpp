@@ -23,7 +23,7 @@ Q3SceletonItem::~Q3SceletonItem()
 
 }
 
-void Q3SceletonItem::resize(const QPointF from, const QPointF to)
+void Q3SceletonItem::resize(const QPointF &from, const QPointF &to)
 {
     Q_UNUSED(from);
     Q_UNUSED(to);

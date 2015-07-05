@@ -40,7 +40,7 @@ void Q3Point::draw(Q3Painter &painter)
                         PointSize, PointSize);
 }
 
-void Q3Point::move(const QPointF diff)
+void Q3Point::move(const QPointF &diff)
 {
     point_ += diff;
     moved_ = true;

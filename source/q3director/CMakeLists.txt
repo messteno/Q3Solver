@@ -1,5 +1,7 @@
-# process input parameters
-include_directories(${CMAKE_SOURCE_DIR}/source/q3plot ${CMAKE_SOURCE_DIR}/source/q3sceleton)
+include_directories(
+    ${CMAKE_SOURCE_DIR}/source/q3plot
+    ${CMAKE_SOURCE_DIR}/source/q3sceleton
+)
 
 aux_source_directory(. q3director_SRC)
 FILE(GLOB q3director_UI_list "*.ui")

@@ -1,4 +1,3 @@
-# process input parameters
 include_directories(${CMAKE_SOURCE_DIR}/source/q3plot)
 
 aux_source_directory(. q3sceleton_SRC)

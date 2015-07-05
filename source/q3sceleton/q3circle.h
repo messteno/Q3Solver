@@ -17,8 +17,8 @@ public:
     virtual qreal distanceTo(const QPointF &pos) const;
     virtual qreal distanceFromBoundaryTo(const QPointF &pos) const;
     virtual QRectF boundingRect() const;
-    virtual void move(const QPointF diff);
-    virtual void resize(const QPointF from, const QPointF to);
+    virtual void move(const QPointF &diff);
+    virtual void resize(const QPointF &from, const QPointF &to);
 
     QPointF center();
     void setCenter(const QPointF &center);

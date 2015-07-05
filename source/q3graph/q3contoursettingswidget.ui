@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>170</width>
-    <height>367</height>
+    <width>132</width>
+    <height>96</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,93 +18,31 @@
     <enum>QLayout::SetFixedSize</enum>
    </property>
    <item>
-    <widget class="QCheckBox" name="isolinesCheckbox">
+    <widget class="QCheckBox" name="isolinesCheckBox">
      <property name="text">
       <string>Изолинии</string>
      </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label">
+    <widget class="QLabel" name="coloursCountLabel">
      <property name="text">
-      <string>Список изолиний</string>
+      <string>Количество цветов</string>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QListView" name="listView">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
+    <widget class="QSpinBox" name="coloursCountSpinBox">
+     <property name="maximum">
+      <number>256</number>
      </property>
-     <property name="viewMode">
-      <enum>QListView::ListMode</enum>
-     </property>
-     <property name="batchSize">
-      <number>90</number>
+     <property name="value">
+      <number>255</number>
      </property>
     </widget>
-   </item>
-   <item>
-    <layout class="QFormLayout" name="formLayout">
-     <item row="0" column="0">
-      <widget class="QLabel" name="startLevelLabel">
-       <property name="text">
-        <string>От</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="startLevelEdit">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="endLevelLabel">
-       <property name="text">
-        <string>До</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLineEdit" name="endLevelEdit">
-       <property name="text">
-        <string>1</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="stepLevelLabel">
-       <property name="text">
-        <string>Шаг</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="stepLevelEdit">
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>0.01</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QPushButton" name="addLevelsButton">
-       <property name="text">
-        <string>Добавить</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
    </item>
   </layout>
  </widget>

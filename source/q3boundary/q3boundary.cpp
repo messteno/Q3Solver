@@ -4,7 +4,6 @@
 
 Q3Boundary::Q3Boundary() :
     type_(NULL),
-    item_(NULL),
     label_(0)
 {
 
@@ -23,13 +22,12 @@ void Q3Boundary::setTypeByEnum(Q3BoundaryType::Type type)
 
 bool Q3Boundary::contains(Q3SceletonItem *item)
 {
-    return item == item_;
+    return items_.contains(item);
 }
 
 void Q3Boundary::addItem(Q3SceletonItem *item)
 {
-    Q_ASSERT(!item_);
-    item_ = item;
+    items_.append(item);
 }
 
 Q3BoundaryType *Q3Boundary::type() const
@@ -47,11 +45,29 @@ void Q3Boundary::setLabel(int label)
     label_ = label;
 }
 
-QVector2D Q3Boundary::velocity(QPointF a, QPointF b)
+QVector2D Q3Boundary::velocity(const QPointF &a, const QPointF &b, qreal time)
 {
+    // Тут нужно все переделать
     Q_ASSERT(type_);
-    // TODO: Возможно нужно проверить на принадлежность точки границе
-    return type_->velocity(item_, a, b);
+
+    qreal minDist = 0;
+    Q3SceletonItem *nearestItem = NULL;
+    foreach (Q3SceletonItem *item, items_)
+    {
+        qreal dist = item->distanceFromBoundaryTo(a);
+        if (!nearestItem || (dist < minDist))
+        {
+            minDist = dist;
+            nearestItem = item;
+        }
+    }
+
+    return type_->velocity(nearestItem, a, b, time);
+}
+
+QList<Q3SceletonItem *> Q3Boundary::items() const
+{
+    return items_;
 }
 
 void Q3Boundary::setType(Q3BoundaryType *type)

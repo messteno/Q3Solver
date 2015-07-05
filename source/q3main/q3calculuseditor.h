@@ -38,8 +38,8 @@ private slots:
     void on_internalVorticityPlotButton_clicked();
     void on_externalVorticityPlotButton_clicked();
 
-    void on_internalPreassurePlotButton_clicked();
-    void on_externalPreassurePlotButton_clicked();
+    void on_internalPressurePlotButton_clicked();
+    void on_externalPressurePlotButton_clicked();
 
     void on_internalMagnitudePlotButton_clicked();
     void on_externalMagnitudePlotButton_clicked();
@@ -48,6 +48,9 @@ private slots:
 
     void on_externalVXButton_clicked();
     void on_externalVYButton_clicked();
+
+    void on_externalCdButton_clicked();
+    void on_externalClButton_clicked();
 
 private:
     Ui::Q3CalculusEditor *ui;

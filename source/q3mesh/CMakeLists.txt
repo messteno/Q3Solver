@@ -1,12 +1,13 @@
-# process input parameters
-
 set(CMAKE_BUILD_TYPE Release)
 
-include_directories(${3RDPARTY_HEADERS_DIR})
-include_directories(${CMAKE_SOURCE_DIR}/source/q3plot)
-include_directories(${CMAKE_SOURCE_DIR}/source/q3sceleton)
-include_directories(${CMAKE_SOURCE_DIR}/source/q3boundary)
-include_directories(${CMAKE_SOURCE_DIR}/source/q3algorithms)
+include_directories(
+    ${3RDPARTY_HEADERS_DIR}
+    ${CMAKE_SOURCE_DIR}/source/q3plot
+    ${CMAKE_SOURCE_DIR}/source/q3sceleton
+    ${CMAKE_SOURCE_DIR}/source/q3boundary
+    ${CMAKE_SOURCE_DIR}/source/q3algorithms
+)
+
 link_directories(${3RDPARTY_LIBS_DIR})
 
 aux_source_directory(. q3mesh_SRC)

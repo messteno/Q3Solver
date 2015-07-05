@@ -1,3 +1,5 @@
+#include <QDebug>
+
 #include "q3boundaryin.h"
 #include "ui_q3boundaryin.h"
 
@@ -14,11 +16,15 @@ Q3BoundaryIn::~Q3BoundaryIn()
     delete ui;
 }
 
-QVector2D Q3BoundaryIn::velocity(Q3SceletonItem *item, QPointF a, QPointF b)
+QVector2D Q3BoundaryIn::velocity(Q3SceletonItem *item,
+                                 const QPointF &a, const QPointF &b, qreal time)
 {
+    Q_UNUSED(item);
+
     QPointF point = 0.5 * (a + b);
-    return QVector2D(velocityXExp_.getValue(point.x(), point.y()),
-                     velocityYExp_.getValue(point.x(), point.y()));
+    QVector2D velocity(velocityXExp_.getValue(point.x(), point.y(), time),
+                       velocityYExp_.getValue(point.x(), point.y(), time));
+    return velocity;
 
     //return QVector2D(ui->vxEdit->text().toDouble(),
     //                 ui->vyEdit->text().toDouble());

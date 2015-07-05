@@ -4,7 +4,13 @@ else ()
   set(LAPACK_LIBS "lapack-3.2;lapack_ext-3.2;blas-3.2")
 endif()
 
-include_directories(${ANI_HEADERS_DIR} ${CMAKE_SOURCE_DIR}/source/q3mesh ${CMAKE_SOURCE_DIR}/source/q3sceleton ${CMAKE_SOURCE_DIR}/source/q3plot ${CMAKE_SOURCE_DIR}/source/q3boundary)
+include_directories(
+    ${ANI_HEADERS_DIR}
+    ${CMAKE_SOURCE_DIR}/source/q3mesh
+    ${CMAKE_SOURCE_DIR}/source/q3sceleton
+    ${CMAKE_SOURCE_DIR}/source/q3plot
+    ${CMAKE_SOURCE_DIR}/source/q3boundary
+)
 link_directories(${ANI_LIBS_DIR})
 
 aux_source_directory(. q3ani2d_SRC)

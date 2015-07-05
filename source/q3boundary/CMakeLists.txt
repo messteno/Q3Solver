@@ -1,5 +1,9 @@
 # process input parameters
-include_directories(${CMAKE_SOURCE_DIR}/source/q3sceleton ${CMAKE_SOURCE_DIR}/source/q3plot)
+include_directories(
+    ${3RDPARTY_HEADERS_DIR}
+    ${CMAKE_SOURCE_DIR}/source/q3sceleton
+    ${CMAKE_SOURCE_DIR}/source/q3plot
+)
 
 aux_source_directory(. q3boundary_SRC)
 FILE(GLOB q3boundary_UI_list "*.ui")
@@ -18,6 +22,7 @@ target_link_libraries(q3boundary
     m)
 
 if(PCHSupport_FOUND)
-    ADD_PRECOMPILED_HEADER (q3boundary ${CMAKE_SOURCE_DIR}/source/q3boundary/exprtk.h)
+    MESSAGE("PCH ok")
+    ADD_PRECOMPILED_HEADER (q3boundary ${3RDPARTY_HEADERS_DIR}/exprtk.h)
 endif(PCHSupport_FOUND)
 

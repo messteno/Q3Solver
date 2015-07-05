@@ -14,8 +14,12 @@ Q3BoundaryFixedVelocity::~Q3BoundaryFixedVelocity()
 }
 
 QVector2D Q3BoundaryFixedVelocity::velocity(Q3SceletonItem *item,
-                                            QPointF a, QPointF b)
+                                            const QPointF &a, const QPointF &b,
+                                            qreal time)
 {
+    Q_UNUSED(time);
+    Q_ASSERT(item);
+
     switch (item->type())
     {
         case Q3SceletonItem::Circle:

@@ -127,3 +127,4 @@ void Q3DirectorManager::plotMouseMoved(const QPointF &oldScenePos,
     }
     emit plotUpdate();
 }
+

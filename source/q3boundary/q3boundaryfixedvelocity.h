@@ -15,7 +15,8 @@ public:
     explicit Q3BoundaryFixedVelocity(QWidget *parent = 0);
     ~Q3BoundaryFixedVelocity();
 
-    QVector2D velocity(Q3SceletonItem *item, QPointF a, QPointF b);
+    QVector2D velocity(Q3SceletonItem *item,
+                       const QPointF &a, const QPointF &b, qreal time);
     void setVelocityText(const QString &vText);
 
 private:

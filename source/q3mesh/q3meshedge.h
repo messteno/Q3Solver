@@ -38,8 +38,8 @@ public:
     QVector2D velocity() const;
     void setVelocity(const QVector2D &velocity);
 
-    qreal preassure() const;
-    void setPreassure(const qreal &preassure);
+    qreal pressure() const;
+    void setPressure(const qreal &pressure);
 
     int label() const;
 
@@ -47,12 +47,12 @@ public:
 
     int id() const;
 
-    qreal processBoundaryPredictor(qreal Re, bool monotoneTerm);
+    qreal processBoundaryPredictor(qreal Re, bool monotoneTerm, QVector2D &tV);
     qreal processBoundaryFlow();
     qreal processBoundaryCorrector();
     void processBoundaryVorticity(qreal &dvXByY, qreal &dvYByX);
     qreal processBoundaryStream();
-    void processBoundaryVelocity();
+    void processBoundaryVelocity(qreal time);
 
 private:
     Q3MeshNode *a_;
@@ -72,7 +72,7 @@ private:
     QList<Q3MeshNode *> vertices_;
 
     QVector2D velocity_;
-    qreal preassure_;
+    qreal pressure_;
 
     int id_;
 };

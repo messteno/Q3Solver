@@ -58,7 +58,7 @@ QRectF Q3PointConnection::boundingRect() const
                   QPointF(qMax(x1, x2), qMin(y1, y2)));
 }
 
-void Q3PointConnection::move(const QPointF diff)
+void Q3PointConnection::move(const QPointF &diff)
 {
     if (!a_->isSelected() && !a_->moved())
         a_->move(diff);

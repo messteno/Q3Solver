@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QDebug>
 #include <QLabel>
+#include <QFileDialog>
 
 #include "q3movedirector.h"
 #include "q3additemdirector.h"
@@ -142,5 +143,17 @@ void Q3SceletonEditor::on_prepareSceletonButton_clicked()
 
 void Q3SceletonEditor::on_saveSceletonButton_clicked()
 {
+    QFileDialog *fileDialog = new QFileDialog(this);
+    QString path = fileDialog->getSaveFileName(this, tr("Save sceleton"),
+                                               "../data",
+                                               tr("Q3S file (*.q3s)"));
 
+    if (path.isEmpty())
+        return;
+
+    QFileInfo file(path);
+    if (file.suffix() != "q3s")
+        path += ".q3s";
+
+    sceleton_.save(path);
 }

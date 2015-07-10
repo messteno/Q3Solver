@@ -207,14 +207,10 @@ void Q3VxByYPlot::update()
         }
         else
         {
-            if (x < minX)
-                minX = x;
-            if (x > maxX)
-                maxX = x;
-            if (y < minY)
-                minY = y;
-            if (y > maxY)
-                maxY = y;
+            minX = qMin(minX, x);
+            minY = qMin(minY, y);
+            maxX = qMax(maxX, x);
+            maxY = qMax(maxY, y);
         }
     }
     boundingRect_ = QRectF(minX, minY, maxX - minX, maxY - minY);
@@ -282,14 +278,10 @@ void Q3VyByXPlot::update()
         }
         else
         {
-            if (x < minX)
-                minX = x;
-            if (x > maxX)
-                maxX = x;
-            if (y < minY)
-                minY = y;
-            if (y > maxY)
-                maxY = y;
+            minX = qMin(minX, x);
+            minY = qMin(minY, y);
+            maxX = qMax(maxX, x);
+            maxY = qMax(maxY, y);
         }
     }
     boundingRect_ = QRectF(minX, minY, maxX - minX, maxY - minY);
@@ -409,11 +401,11 @@ void Q3CdRealTimePlot::update(qreal time)
         QVector2D normal = edge->normalVector();
         QVector2D tangentVector = QVector2D(normal.y(), -normal.x());
         Fd += edge->length()
-              * (QVector2D::dotProduct(trV, tangentVector)
-                 / QVector2D(triangle->center() - edge->center()).length() * normal.y() / Re_
+              * (/*QVector2D::dotProduct(trV - edge->velocity(), tangentVector)
+                 / QVector2D(triangle->center() - edge->center()).length() * normal.y() / Re_*/
                  - edge->pressure() * normal.x());
     }
-    qreal Cd = 2 * Fd * 10.;
+    qreal Cd = 2 * Fd;
 
     addValue(time, Cd);
     if (timeValues_.size() <= 2)
@@ -440,14 +432,67 @@ void Q3ClRealTimePlot::update(qreal time)
         QVector2D normal = edge->normalVector();
         QVector2D tangentVector = QVector2D(normal.y(), -normal.x());
         Fl += -edge->length()
-              * (QVector2D::dotProduct(trV, tangentVector)
+              * (QVector2D::dotProduct(trV - edge->velocity(), tangentVector)
                  / QVector2D(triangle->center() - edge->center()).length() * normal.x() / Re_
-                 - edge->pressure() * normal.y());
+                 + edge->pressure() * normal.y());
     }
-    qreal Cl = 2 * Fl * 10.;
+    qreal Cl = 2 * Fl;
 
     addValue(time, Cl);
     if (timeValues_.size() <= 2)
         plot_.setSceneRect(boundingRect_);
     plot_.update();
+}
+
+Q3CpPlot::Q3CpPlot(Q3Mesh &mesh, Q3Mesh::EdgeBoundary &boundary, const QPointF &center) :
+    mesh_(mesh),
+    boundary_(boundary),
+    center_(center)
+{
+    update();
+}
+
+bool qPointCmp(const QPointF &p1, const QPointF &p2)
+{
+    return p1.x() < p2.x();
+}
+
+void Q3CpPlot::update()
+{
+    bool first = true;
+    qreal minX = 0;
+    qreal minY = 0;
+    qreal maxX = 0;
+    qreal maxY = 0;
+    QVector<QPointF> points;
+    foreach (Q3MeshEdge *edge, boundary_)
+    {
+        QLineF line(edge->center(), center_);
+        qreal x = line.angle();
+        qreal y = edge->pressure() * 2;
+        points.append(QPointF(x, y));
+
+        if (first)
+        {
+            first = false;
+            minX = maxX = x;
+            minY = maxY = y;
+        }
+        else
+        {
+            minX = qMin(minX, x);
+            minY = qMin(minY, y);
+            maxX = qMax(maxX, x);
+            maxY = qMax(maxY, y);
+        }
+    }
+
+    qSort(points.begin(), points.end(), qPointCmp);
+    points_ = points.toList();
+    boundingRect_ = QRectF(minX, minY, maxX - minX, maxY - minY);
+}
+
+QRectF Q3CpPlot::boundingRect() const
+{
+    return boundingRect_;
 }

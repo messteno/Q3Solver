@@ -309,3 +309,33 @@ void Q3CalculusEditor::on_externalClButton_clicked()
         }
     }
 }
+
+void Q3CalculusEditor::on_externalCpButton_clicked()
+{
+    Q3ExternalPlot *plot = new Q3ExternalPlot(this);
+
+    // Находим первую попавшуюся окружность
+    for (int bndInd = 0; bndInd < mesh_.boundaries().count(); ++bndInd)
+    {
+        Q3Mesh::EdgeBoundary &boundary = mesh_.boundaries()[bndInd];
+        if (boundary.empty())
+            continue;
+        Q3MeshEdge *edge = boundary.first();
+        Q_ASSERT(edge->boundary());
+        Q_ASSERT(!edge->boundary()->items().empty());
+
+        Q3SceletonItem *item = edge->boundary()->items().first();
+        if (item->type() == Q3SceletonItem::Circle)
+        {
+            Q3Circle *circle = dynamic_cast<Q3Circle*>(item);
+            Q_ASSERT(circle);
+            Q3CpPlot *cpPlot = new Q3CpPlot(mesh_, boundary, circle->center());
+            plot->addDrawable(cpPlot);
+            plot->plotWidget()->setXLabel("theta");
+            plot->plotWidget()->setYLabel("Cp");
+            plot->plotWidget()->setSceneRect(cpPlot->boundingRect());
+            connect(plot, SIGNAL(updatePlot()), cpPlot, SLOT(update()));
+            break;
+        }
+    }
+}

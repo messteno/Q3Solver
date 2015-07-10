@@ -33,8 +33,8 @@ public:
 
     bool accept(Q3ItemVisitor &visitor);
 
-    QString typeToString();
-    QString toString();
+    QString typeToString() const;
+    QString toString() const;
 };
 
 #endif // Q3CIRCLE_H

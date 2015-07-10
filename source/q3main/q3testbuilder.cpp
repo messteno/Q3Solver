@@ -161,15 +161,15 @@ void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
     adapter.meshToQ3Mesh(mesh, boundaries);
 }
 
-void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
+void Q3FlowPastRotatingCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
                                                       Q3Mesh &mesh,
                                                       QList<Q3Boundary *> &boundaries,
                                                       Q3MeshAdapter &adapter)
 {
     Q3Point *a1 = new Q3Point(QPointF(0, 0));
-    Q3Point *a2 = new Q3Point(QPointF(0, 4.1));
-    Q3Point *a3 = new Q3Point(QPointF(22, 4.1));
-    Q3Point *a4 = new Q3Point(QPointF(22, 0));
+    Q3Point *a2 = new Q3Point(QPointF(0, 20));
+    Q3Point *a3 = new Q3Point(QPointF(20, 20));
+    Q3Point *a4 = new Q3Point(QPointF(20, 0));
     sceleton.addItem(a1);
     sceleton.addItem(a2);
     sceleton.addItem(a3);
@@ -182,7 +182,7 @@ void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
     sceleton.addItem(c2);
     sceleton.addItem(c3);
     sceleton.addItem(c4);
-    Q3Circle *circle = new Q3Circle(QPointF(2, 2), 0.5);
+    Q3Circle *circle = new Q3Circle(QPointF(10, 10), 0.5);
     sceleton.addItem(circle);
 
     Q3Boundary *b1 = new Q3Boundary();
@@ -193,7 +193,7 @@ void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
     b1->addItem(c1);
     b1->setTypeByEnum(Q3BoundaryType::InBoundary);
     Q3BoundaryIn *boundaryIn = dynamic_cast<Q3BoundaryIn *>(b1->type());
-    boundaryIn->setVelocityText("y * (4.1 - y) / 4.1 / 4.1 * 6", "0");
+    boundaryIn->setVelocityText("1", "0");
     b2->addItem(c2);
     b2->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
     b3->addItem(c3);
@@ -204,7 +204,7 @@ void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
     b5->setTypeByEnum(Q3BoundaryType::FixedVelocity);
     Q3BoundaryFixedVelocity *circleBoundary =
             dynamic_cast<Q3BoundaryFixedVelocity *>(b5->type());
-    circleBoundary->setVelocityText("1");
+    circleBoundary->setVelocityText("3");
     boundaries.append(b1);
     boundaries.append(b2);
     boundaries.append(b3);
@@ -215,7 +215,8 @@ void Q3FlowPastCircularCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
-    adapter.setElementsCount(15000);
+    adapter.setElementsCount(1000000);
+    adapter.setElementSizeDecrease(88);
     adapter.generateMesh(sceleton, boundaries);
     adapter.meshToQ3Mesh(mesh, boundaries);
 }

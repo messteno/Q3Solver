@@ -127,3 +127,9 @@ void Q3SceletonItem::setMoved(bool moved)
 {
     moved_ = moved;
 }
+
+QTextStream &operator <<(QTextStream &out, const Q3SceletonItem &item)
+{
+    out << item.typeToString() << " " << item.toString();
+    return out;
+}

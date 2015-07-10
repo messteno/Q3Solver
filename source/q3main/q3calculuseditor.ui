@@ -178,17 +178,17 @@
       <string>Двумерные графики</string>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="1">
+       <widget class="QPushButton" name="externalClButton">
+        <property name="text">
+         <string>Cl</string>
+        </property>
+       </widget>
+      </item>
       <item row="0" column="0">
        <widget class="QPushButton" name="externalVXButton">
         <property name="text">
          <string>Vx(x0, y)</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QPushButton" name="externalVYButton">
-        <property name="text">
-         <string>Vy(x, y0)</string>
         </property>
        </widget>
       </item>
@@ -199,10 +199,17 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="externalClButton">
+      <item row="0" column="1">
+       <widget class="QPushButton" name="externalVYButton">
         <property name="text">
-         <string>Cl</string>
+         <string>Vy(x, y0)</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QPushButton" name="externalCpButton">
+        <property name="text">
+         <string>Cp</string>
         </property>
        </widget>
       </item>
@@ -220,7 +227,7 @@
         <x>0</x>
         <y>0</y>
         <width>348</width>
-        <height>134</height>
+        <height>103</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">

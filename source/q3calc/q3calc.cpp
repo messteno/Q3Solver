@@ -270,12 +270,19 @@ void Q3Calc::corrector()
     }
     qDebug() << "Flow: " << flow;
 
+    int nullPrEInd = -1;
     for (int eInd = 0; eInd < mesh_.edges().size(); ++eInd)
     {
         Q3MeshEdge *edge = mesh_.edges().at(eInd);
         Q3MeshTriangle *tr0 = edge->adjacentTriangles().at(0);
         int trEdgeIndex = tr0->edges().indexOf(edge);
         QVector2D normal = tr0->normalVectors().at(trEdgeIndex);
+
+        if (nullPrEInd == -1 && edge->boundary()
+            && edge->boundary()->type()->toEnum() == Q3BoundaryType::OutBoundary)
+        {
+            nullPrEInd = eInd;
+        }
 
         if (edge->adjacentTriangles().size() == 2)
         {
@@ -311,7 +318,11 @@ void Q3Calc::corrector()
     for (int eInd = 0; eInd < mesh_.edges().count(); ++eInd)
     {
         Q3MeshEdge *edge = mesh_.edges().at(eInd);
-        edge->setPressure(edge->pressure() + XN_[eInd]/* - XN_[0] */);
+        if (!edge->boundary()
+            || edge->boundary()->type()->toEnum() != Q3BoundaryType::OutBoundary)
+        {
+            edge->setPressure(edge->pressure() + XN_[eInd] - XN_[nullPrEInd]);
+        }
     }
 
     qreal residual = 0;

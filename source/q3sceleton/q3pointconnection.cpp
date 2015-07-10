@@ -119,12 +119,12 @@ void Q3PointConnection::setMoved(bool moved)
     b_->setMoved(moved);
 }
 
-QString Q3PointConnection::toString()
+QString Q3PointConnection::toString() const
 {
     return a_->toString() + " - " + b_->toString();
 }
 
-QString Q3PointConnection::typeToString()
+QString Q3PointConnection::typeToString() const
 {
     return "Отрезок";
 }

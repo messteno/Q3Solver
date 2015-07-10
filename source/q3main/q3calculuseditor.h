@@ -52,6 +52,8 @@ private slots:
     void on_externalCdButton_clicked();
     void on_externalClButton_clicked();
 
+    void on_externalCpButton_clicked();
+
 private:
     Ui::Q3CalculusEditor *ui;
 

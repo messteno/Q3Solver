@@ -35,8 +35,8 @@ public:
 
     void setMoved(bool moved);
 
-    QString toString();
-    QString typeToString();
+    QString toString() const;
+    QString typeToString() const;
 };
 
 #endif // Q3POINTCONNECTION_H

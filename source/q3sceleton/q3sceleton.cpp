@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QtGlobal>
 #include <QTime>
+#include <QFile>
 
 #include "q3sceleton.h"
 #include "q3pointconnection.h"
@@ -460,6 +461,28 @@ QList<Q3SceletonItem *>& Q3Sceleton::items()
 QList<Q3SceletonItem *>& Q3Sceleton::innerElements()
 {
     return innerElements_;
+}
+
+void Q3Sceleton::save(const QString &filename) const
+{
+    QFile scelFile(filename);
+    if (scelFile.open(QFile::WriteOnly | QFile::Truncate))
+    {
+        QTextStream out(&scelFile);
+        foreach (Q3SceletonItem *item, items_)
+            out << *item << "\n";
+        scelFile.close();
+    }
+}
+
+void Q3Sceleton::load(const QString &filename)
+{
+    QFile scelFile(filename);
+    if (scelFile.open(QFile::ReadOnly))
+    {
+        QTextStream in(&scelFile);
+        scelFile.close();
+    }
 }
 
 QList<QList<Q3SceletonItem *> >& Q3Sceleton::innerBoundaries()

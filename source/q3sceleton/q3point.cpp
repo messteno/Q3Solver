@@ -120,13 +120,13 @@ void Q3Point::editUI(QFormLayout *layout)
     layout->addRow("x:", xEdit);
 }
 
-QString Q3Point::toString()
+QString Q3Point::toString() const
 {
     return "(" + QString::number(point_.x()) + " , "
             + QString::number(point_.y()) + ")";
 }
 
-QString Q3Point::typeToString()
+QString Q3Point::typeToString() const
 {
     return "Точка";
 }

@@ -40,6 +40,9 @@ public:
     QList<QList<Q3SceletonItem *> >& innerBoundaries();
     QList<Q3SceletonItem *>& innerElements();
 
+    void save(const QString &filename) const;
+    void load(const QString &filename);
+
 public slots:
     void itemsUpdated();
 

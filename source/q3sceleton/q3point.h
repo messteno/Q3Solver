@@ -41,8 +41,8 @@ public:
 
     void editUI(QFormLayout *layout);
 
-    QString toString();
-    QString typeToString();
+    QString toString() const;
+    QString typeToString() const;
 };
 
 #endif // Q3POINT_H

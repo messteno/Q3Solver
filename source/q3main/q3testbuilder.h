@@ -35,7 +35,7 @@ public:
                    QList<Q3Boundary *> &boundaries, Q3MeshAdapter &adapter);
 };
 
-class Q3FlowPastCircularCylinderTestBuilder : public Q3TestBuilder
+class Q3FlowPastRotatingCylinderTestBuilder : public Q3TestBuilder
 {
 public:
     void buildTest(Q3Sceleton &sceleton, Q3Mesh &mesh,

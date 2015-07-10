@@ -2,6 +2,7 @@
 #define Q3SCELETONITEM_H
 
 #include <QFormLayout>
+#include <QTextStream>
 
 #include "q3painter.h"
 
@@ -35,8 +36,8 @@ public:
     virtual qreal distanceFromBoundaryTo(const QPointF &pos) const = 0;
     virtual QRectF boundingRect() const = 0;
     virtual void move(const QPointF &diff) = 0;
-    virtual QString toString() = 0;
-    virtual QString typeToString() = 0;
+    virtual QString toString() const = 0;
+    virtual QString typeToString() const = 0;
     virtual void resize(const QPointF &from, const QPointF &to);
 
     bool isSelectable() const;
@@ -86,5 +87,7 @@ private:
     QColor penColor_;
     QColor selectedPenColor_;
 };
+
+QTextStream& operator <<(QTextStream &out, const Q3SceletonItem &item);
 
 #endif // Q3SCELETONITEM_H

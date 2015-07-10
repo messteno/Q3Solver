@@ -137,4 +137,21 @@ private:
     qreal Re_;
 };
 
+class Q3CpPlot : public QObject, public Q3XYPlot
+{
+    Q_OBJECT
+public:
+    Q3CpPlot(Q3Mesh &mesh, Q3Mesh::EdgeBoundary &boundary, const QPointF &center);
+    QRectF boundingRect() const;
+
+public slots:
+    void update();
+
+private:
+    Q3Mesh &mesh_;
+    Q3Mesh::EdgeBoundary &boundary_;
+    QRectF boundingRect_;
+    QPointF center_;
+};
+
 #endif // Q3GRAPHS_H

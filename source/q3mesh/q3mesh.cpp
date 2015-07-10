@@ -193,103 +193,104 @@ void Q3Mesh::calcStream()
     Q3Vector vorticity(triangles_.size());
     Q3Vector stream(triangles_.size());
 
-//    for (int i = 0; i < triangles_.count(); ++i)
-//    {
-//        bool noslip = false;
-//        foreach (Q3MeshEdge *edge, triangles_.at(i)->edges())
-//        {
-//            // TODO: добавить как условие на границу
-//            if (edge->boundary()
-//                && (edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity
-//                    || edge->boundary()->type()->toEnum() == Q3BoundaryType::NoSlipBoundary))
-//            {
-//                noslip = true;
-//                break;
-//            }
-//        }
-//        if (!noslip)
-//            vorticity[i] = -triangles_.at(i)->vorticity();
-//        else
-//            vorticity[i] = 0;
-
-//        stream[i] = triangles_.at(i)->stream();
-////        else
-////            stream[i] = 0;
-//    }
-
-//    IdentityPreconditioner preconditioner(triangles_.count());
-//    Q3MeshLaplaceStreamOperator laplaceStreamOperator(*this, triangles_.count());
-
-//    BiCGStabLinearSolver solver(1e-8, 1000);
-//    qreal residual = 0;
-//    int it = solver.solve(laplaceStreamOperator,
-//                          stream,
-//                          vorticity,
-//                          preconditioner,
-//                          residual);
-
-//    for (int i = 0; i < triangles_.count(); ++i)
-//        triangles_.at(i)->setStream(stream[i]);
-
     for (int i = 0; i < triangles_.count(); ++i)
     {
-        vorticity[i] = triangles_.at(i)->vorticity();
-        stream[i] = triangles_.at(i)->stream();
-    }
-
-    int it = 0;
-    qreal residual = 0;
-
-    while (it < maxStreamIterationsCount)
-    {
-        residual = 0;
-        for (int trInd = 0; trInd < triangles_.count(); ++trInd)
+        bool noslip = false;
+        foreach (Q3MeshEdge *edge, triangles_.at(i)->edges())
         {
-            Q3MeshTriangle *triangle = triangles_.at(trInd);
-            qreal A = 0;
-            qreal B = 0;
-
-            for (int eInd = 0; eInd < triangle->edges().size(); ++eInd)
+            // TODO: добавить как условие на границу
+            if (edge->boundary()
+                && (edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity))
             {
-                Q3MeshEdge *edge = triangle->edges().at(eInd);
-                Q3MeshTriangle *adjTriangle = triangle->adjacentTriangles().at(eInd);
-                QVector2D normal = triangle->normalVectors().at(eInd);
-
-                if (adjTriangle)
-                {
-                    qreal dL = triangle->distanceToTriangles().at(eInd);
-
-                    QVector2D tAt(adjTriangle->center() - triangle->center());
-                    tAt.normalize();
-
-                    qreal cosin = qAbs(QVector2D::dotProduct(tAt, normal));
-                    A += edge->length() / dL / cosin;
-                    B += edge->length() / dL * adjTriangle->stream() / cosin;
-                }
-                else
-                {
-                    qreal deltaB = edge->processBoundaryStream();
-                    B += deltaB;
-                }
+                noslip = true;
+                break;
             }
-            qreal diff = (vorticity[trInd] + B) / A - stream[trInd];
-            stream[trInd] += diff;
-
-            qreal trStreamDelta = qAbs(diff);
-            if (trStreamDelta > residual)
-                residual = trStreamDelta;
         }
-
-        for (int trInd = 0; trInd < triangles_.count(); ++trInd)
+        if (!noslip)
         {
-            Q3MeshTriangle *triangle = triangles_.at(trInd);
-            triangle->setStream(stream[trInd]);
+            vorticity[i] = -triangles_.at(i)->vorticity();
+            stream[i] = triangles_.at(i)->stream();
         }
-
-        if (residual < maxStreamError)
-            break;
-        it++;
+        else
+        {
+            vorticity[i] = 0;
+            stream[i] = 0;
+        }
     }
+
+    IdentityPreconditioner preconditioner(triangles_.count());
+    Q3MeshLaplaceStreamOperator laplaceStreamOperator(*this, triangles_.count());
+
+    BiCGStabLinearSolver solver(1e-8, 1000);
+    qreal residual = 0;
+    int it = solver.solve(laplaceStreamOperator,
+                          stream,
+                          vorticity,
+                          preconditioner,
+                          residual);
+
+    for (int i = 0; i < triangles_.count(); ++i)
+        triangles_.at(i)->setStream(stream[i]);
+
+//    for (int i = 0; i < triangles_.count(); ++i)
+//    {
+//        vorticity[i] = triangles_.at(i)->vorticity();
+//        stream[i] = triangles_.at(i)->stream();
+//    }
+
+//    int it = 0;
+//    qreal residual = 0;
+
+//    while (it < maxStreamIterationsCount)
+//    {
+//        residual = 0;
+//        for (int trInd = 0; trInd < triangles_.count(); ++trInd)
+//        {
+//            Q3MeshTriangle *triangle = triangles_.at(trInd);
+//            qreal A = 0;
+//            qreal B = 0;
+
+//            for (int eInd = 0; eInd < triangle->edges().size(); ++eInd)
+//            {
+//                Q3MeshEdge *edge = triangle->edges().at(eInd);
+//                Q3MeshTriangle *adjTriangle = triangle->adjacentTriangles().at(eInd);
+//                QVector2D normal = triangle->normalVectors().at(eInd);
+
+//                if (adjTriangle)
+//                {
+//                    qreal dL = triangle->distanceToTriangles().at(eInd);
+
+//                    QVector2D tAt(adjTriangle->center() - triangle->center());
+//                    tAt.normalize();
+
+//                    qreal cosin = qAbs(QVector2D::dotProduct(tAt, normal));
+//                    A += edge->length() / dL / cosin;
+//                    B += edge->length() / dL * adjTriangle->stream() / cosin;
+//                }
+//                else
+//                {
+//                    qreal deltaB = edge->processBoundaryStream();
+//                    B += deltaB;
+//                }
+//            }
+//            qreal diff = (vorticity[trInd] + B) / A - stream[trInd];
+//            stream[trInd] += diff;
+
+//            qreal trStreamDelta = qAbs(diff);
+//            if (trStreamDelta > residual)
+//                residual = trStreamDelta;
+//        }
+
+//        for (int trInd = 0; trInd < triangles_.count(); ++trInd)
+//        {
+//            Q3MeshTriangle *triangle = triangles_.at(trInd);
+//            triangle->setStream(stream[trInd]);
+//        }
+
+//        if (residual < maxStreamError)
+//            break;
+//        it++;
+//    }
 
     qDebug() << "Stream: it = " << it << ", res = " << residual;
 }

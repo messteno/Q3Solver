@@ -44,8 +44,7 @@ Q3Vector Q3MeshLaplaceStreamOperator::operator *(const Q3Vector &vec) const
                 Q3BoundaryType::Type bndType = edge->boundary()->type()->toEnum();
 
                 // TODO: добавить как условие на границу
-                if (bndType == Q3BoundaryType::NoSlipBoundary
-                    || bndType == Q3BoundaryType::FixedVelocity)
+                if (bndType == Q3BoundaryType::FixedVelocity)
                 {
                     noslip = true;
                     break;

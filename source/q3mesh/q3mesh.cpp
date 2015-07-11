@@ -190,47 +190,47 @@ void Q3Mesh::calcStream()
 {
     calcVorticity();
 
-    Q3Vector vorticity(triangles_.size());
-    Q3Vector stream(triangles_.size());
+//    Q3Vector vorticity(triangles_.size());
+//    Q3Vector stream(triangles_.size());
 
-    for (int i = 0; i < triangles_.count(); ++i)
-    {
-        bool noslip = false;
-        foreach (Q3MeshEdge *edge, triangles_.at(i)->edges())
-        {
-            // TODO: добавить как условие на границу
-            if (edge->boundary()
-                && (edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity))
-            {
-                noslip = true;
-                break;
-            }
-        }
-        if (!noslip)
-        {
-            vorticity[i] = -triangles_.at(i)->vorticity();
-            stream[i] = triangles_.at(i)->stream();
-        }
-        else
-        {
-            vorticity[i] = 0;
-            stream[i] = 0;
-        }
-    }
+//    for (int i = 0; i < triangles_.count(); ++i)
+//    {
+//        bool noslip = false;
+//        foreach (Q3MeshEdge *edge, triangles_.at(i)->edges())
+//        {
+//            // TODO: добавить как условие на границу
+//            if (edge->boundary()
+//                && (edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity))
+//            {
+//                noslip = true;
+//                break;
+//            }
+//        }
+//        if (!noslip)
+//        {
+//            vorticity[i] = -triangles_.at(i)->vorticity();
+//            stream[i] = triangles_.at(i)->stream();
+//        }
+//        else
+//        {
+//            vorticity[i] = 0;
+//            stream[i] = 0;
+//        }
+//    }
 
-    IdentityPreconditioner preconditioner(triangles_.count());
-    Q3MeshLaplaceStreamOperator laplaceStreamOperator(*this, triangles_.count());
+//    IdentityPreconditioner preconditioner(triangles_.count());
+//    Q3MeshLaplaceStreamOperator laplaceStreamOperator(*this, triangles_.count());
 
-    BiCGStabLinearSolver solver(1e-8, 1000);
-    qreal residual = 0;
-    int it = solver.solve(laplaceStreamOperator,
-                          stream,
-                          vorticity,
-                          preconditioner,
-                          residual);
+//    BiCGStabLinearSolver solver(1e-8, 1000);
+//    qreal residual = 0;
+//    int it = solver.solve(laplaceStreamOperator,
+//                          stream,
+//                          vorticity,
+//                          preconditioner,
+//                          residual);
 
-    for (int i = 0; i < triangles_.count(); ++i)
-        triangles_.at(i)->setStream(stream[i]);
+//    for (int i = 0; i < triangles_.count(); ++i)
+//        triangles_.at(i)->setStream(stream[i]);
 
 //    for (int i = 0; i < triangles_.count(); ++i)
 //    {
@@ -292,7 +292,94 @@ void Q3Mesh::calcStream()
 //        it++;
 //    }
 
-    qDebug() << "Stream: it = " << it << ", res = " << residual;
+    QList<int> triQueue;
+    QMap<int, qreal> stream;
+    for (int i = 0; i < edges_.count(); ++i)
+    {
+        Q3MeshEdge *edge = edges_.at(i);
+        if (edge->boundary() && edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity)
+        {
+            stream[i] = 0;
+            triQueue.append(edge->adjacentTriangles().at(0)->id());
+        }
+    }
+
+    while(!triQueue.empty())
+    {
+        int trId = triQueue.first();
+        triQueue.removeFirst();
+        Q3MeshTriangle *tr = triangles_.at(trId);
+        QVector<QVector2D> left;
+        QVector<QVector2D> right;
+        QVector<int> lId;
+        for (int i = 0; i < tr->edges().count(); ++i)
+        {
+            Q3MeshEdge *edge = tr->edges().at(i);
+            Q3MeshTriangle *adjTr = tr->adjacentTriangles().at(i);
+            const QVector2D &normal = tr->normalVectors().at(i);
+            int eInd = edge->id();
+            if (stream.contains(eInd))
+            {
+                right.append(QVector2D(edge->length() * stream[eInd] * normal.x(),
+                                       edge->length() * stream[eInd] * normal.y()) / tr->square());
+            }
+            else
+            {
+                if (adjTr)
+                    triQueue.append(adjTr->id());
+                left.append(QVector2D(edge->length() * normal.x(),
+                                      edge->length() * normal.y()) / tr->square());
+                lId.append(eInd);
+            }
+        }
+        Q_ASSERT(left.count() != 3);
+
+        if (left.count() == 2)
+        {
+            qreal a = left[0].x();
+            qreal b = left[1].x();
+            qreal c = left[0].y();
+            qreal d = left[1].y();
+            qreal e = - tr->correctorVelocity().y() - right[0].x();
+            qreal f = tr->correctorVelocity().x() - right[0].y();
+
+            if (qAbs(a * d - b * c) > 1e-6)
+            {
+                qreal x1 = (e * d - f * b) / (a * d - b * c);
+                qreal x2 = (a * f - c * e) / (a * d - b * c);
+
+                stream[lId[0]] = x1;
+                stream[lId[1]] = x2;
+            }
+            else
+            {
+                stream[lId[0]] = 0;
+                stream[lId[1]] = 0;
+            }
+        }
+        else if (left.count() == 1)
+        {
+            qreal a = left[0].x();
+            qreal b = left[0].y();
+            qreal c = - tr->correctorVelocity().y() - right[0].x() - right[1].x();
+            qreal d = tr->correctorVelocity().x() - right[0].y() - right[1].y();
+
+            qreal x;
+            if (qAbs(a) > qAbs(b))
+                x = c / a;
+            else
+                x = d / b;
+            stream[lId[0]] = x;
+        }
+    }
+
+    for (int i = 0; i < edges_.count(); ++i)
+    {
+        Q_ASSERT(stream.find(i) != stream.end());
+        edges_.at(i)->setStream(stream[i]);
+    }
+
+//    qDebug() << "Stream: it = " << it << ", res = " << residual;
 }
 
 void Q3Mesh::calcVorticity()

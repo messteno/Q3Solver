@@ -54,6 +54,9 @@ public:
     qreal processBoundaryStream();
     void processBoundaryVelocity(qreal time);
 
+    qreal stream() const;
+    void setStream(const qreal &stream);
+
 private:
     Q3MeshNode *a_;
     Q3MeshNode *b_;
@@ -73,6 +76,8 @@ private:
 
     QVector2D velocity_;
     qreal pressure_;
+
+    qreal stream_;
 
     int id_;
 };

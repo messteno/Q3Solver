@@ -17,15 +17,31 @@ void Q3StreamPlot::update(bool init)
 {
     mesh_.calcStream();
 
-    QVector<QVector3D> triValues;
-    for (int i = 0; i < mesh_.triangles().count(); ++i)
+//    QVector<QVector3D> triValues;
+//    for (int i = 0; i < mesh_.triangles().count(); ++i)
+//    {
+//        Q3MeshTriangle *triangle = mesh_.triangles().at(i);
+//        triValues.append(QVector3D(triangle->center().x(),
+//                                   triangle->center().y(),
+//                                   triangle->stream()));
+//    }
+//    Q3MeshTriNodeInterpolation interpolation(mesh_, triValues);
+//    QVector<qreal> nodeValues = interpolation.interpolateToNodes();
+
+//    clear();
+//    setValues(nodeValues, init);
+//    createFilledContour();
+//    createContour();
+    QVector<QVector3D> edgeValues;
+    for (int i = 0; i < mesh_.edges().count(); ++i)
     {
-        Q3MeshTriangle *triangle = mesh_.triangles().at(i);
-        triValues.append(QVector3D(triangle->center().x(),
-                                   triangle->center().y(),
-                                   triangle->stream()));
+        Q3MeshEdge *edge = mesh_.edges().at(i);
+        edgeValues.append(QVector3D(edge->center().x(),
+                                    edge->center().y(),
+                                    edge->stream()));
+        qDebug() << edge->stream();
     }
-    Q3MeshTriNodeInterpolation interpolation(mesh_, triValues);
+    Q3MeshEdgeNodeInterpolation interpolation(mesh_, edgeValues);
     QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
     clear();
@@ -54,13 +70,6 @@ void Q3VorticityPlot::update(bool init)
     }
     Q3MeshTriNodeInterpolation interpolation(mesh_, triValues);
     QVector<qreal> nodeValues = interpolation.interpolateToNodes();
-
-    for (int i = 0; i < nodeValues.count(); ++i)
-    {
-        Q3MeshNode *node = mesh_.nodes().at(i);
-        if (node->boundary() && qAbs(node->y() + 0.5) < 1e-10)
-            qDebug() << node->x() << nodeValues.at(i);
-    }
 
     clear();
     setValues(nodeValues, init);

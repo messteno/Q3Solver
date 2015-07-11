@@ -377,6 +377,16 @@ void Q3MeshEdge::processBoundaryVelocity(qreal time)
 
     velocity_ = boundary_->velocity(*a_, *b_, time);
 }
+qreal Q3MeshEdge::stream() const
+{
+    return stream_;
+}
+
+void Q3MeshEdge::setStream(const qreal &stream)
+{
+    stream_ = stream;
+}
+
 
 
 QDataStream &operator<<(QDataStream &stream, const Q3MeshEdge &edge)

@@ -54,7 +54,15 @@ QString Q3PointInfoDirector::pointInfo(const QPointF &pos)
             QString info;
             QTextStream stream(&info);
 
-            stream << trUtf8("Vx: ")
+            stream << trUtf8("x: ")
+                   << QString::number(triangle->center().x()) << "\n"
+                   << trUtf8("y: ")
+                   << QString::number(triangle->center().y()) << "\n"
+                   << trUtf8("Ид: ")
+                   << QString::number(triangle->id()) << "\n"
+                   << trUtf8("Площадь: ")
+                   << QString::number(triangle->square()) << "\n"
+                   << trUtf8("Vx: ")
                    << QString::number(triangle->correctorVelocity().x()) << "\n"
                    << trUtf8("Vy: ")
                    << QString::number(triangle->correctorVelocity().y()) << "\n"
@@ -63,7 +71,9 @@ QString Q3PointInfoDirector::pointInfo(const QPointF &pos)
                    << trUtf8("Функция тока: ")
                    << QString::number(triangle->stream()) << "\n"
                    << trUtf8("Давление: ")
-                   << QString::number(pressure);
+                   << QString::number(pressure) << "\n"
+                   << trUtf8("Невязка: ")
+                   << QString::number(triangle->residual()) << "\n";
             return info;
         }
     }

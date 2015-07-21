@@ -265,7 +265,7 @@ void Q3CalculusEditor::on_externalCdButton_clicked()
         {
             Q3CdRealTimePlot *cdPlot = new Q3CdRealTimePlot(mesh_, boundary,
                                                             *plot->plotWidget(), Re);
-            cdPlot->setTimeDelta(10);
+            cdPlot->setTimeDelta(40);
             connect(calc_, SIGNAL(calcStepEnded(qreal)),
                     cdPlot, SLOT(update(qreal)));
             plot->addDrawable(cdPlot);
@@ -299,7 +299,7 @@ void Q3CalculusEditor::on_externalClButton_clicked()
         {
             Q3ClRealTimePlot *clPlot = new Q3ClRealTimePlot(mesh_, boundary,
                                                             *plot->plotWidget(), Re);
-            clPlot->setTimeDelta(10);
+            clPlot->setTimeDelta(40);
             connect(calc_, SIGNAL(calcStepEnded(qreal)),
                     clPlot, SLOT(update(qreal)));
             plot->addDrawable(clPlot);

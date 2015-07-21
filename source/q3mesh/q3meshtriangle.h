@@ -50,6 +50,8 @@ public:
     QVector<qreal> distanceToTriangles() const;
     void setDistanceToTriangles(const QVector<qreal> &distanceToTriangles);
 
+    qreal divergence(bool predictor);
+
     int id() const;
 
     qreal stream() const;
@@ -59,6 +61,9 @@ public:
     void setVorticity(const qreal &vorticity);
 
     bool hasBoundaryEdge();
+
+    qreal residual() const;
+    void setResidual(const qreal &residual);
 
 private:
     Q3MeshNode *vA_;
@@ -87,6 +92,8 @@ private:
 
     qreal stream_;
     qreal vorticity_;
+
+    qreal residual_;
 
     bool bad_;
     int id_;

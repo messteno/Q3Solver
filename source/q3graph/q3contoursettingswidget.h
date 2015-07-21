@@ -27,6 +27,8 @@ private slots:
 
     void on_isolinesCheckBox_toggled(bool checked);
 
+    void on_isolinesCountSpinBox_valueChanged(int value);
+
 private:
     Ui::Q3ContourSettingsWidget *ui;
     Q3ContourPlot &contourPlot_;

@@ -33,3 +33,11 @@ void Q3ContourSettingsWidget::on_isolinesCheckBox_toggled(bool checked)
     if (plot_)
         plot_->update();
 }
+
+void Q3ContourSettingsWidget::on_isolinesCountSpinBox_valueChanged(int value)
+{
+    contourPlot_.setLevels(value + 2, false);
+    contourPlot_.createContour();
+    if (plot_)
+        plot_->update();
+}

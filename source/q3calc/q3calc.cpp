@@ -7,6 +7,7 @@
 #include "conjugategradient.h"
 #include "bicgstablinearsolver.h"
 #include "preconditioner.h"
+#include "naturalneigbourinterpolation.h"
 
 const int Q3Calc::maxPredictorIterationsCount = 1000;
 const qreal Q3Calc::maxPredictorError = 1e-6;
@@ -41,6 +42,7 @@ void Q3Calc::run()
     started_ = true;
     abort_ = false;
     prepare();
+//    abort_ = true;
     while(!abort_)
     {
         // QTime timer;
@@ -160,6 +162,92 @@ void Q3Calc::prepare()
 
     incompleteCholesky(MN_.data(), JA_.data(), IA_.data(), edgesCount);
     XN_.fill(0, mesh_.edges().count());
+
+//    QVector<QVector3D> uValues;
+//    QVector<QVector3D> vValues;
+//    QVector<QVector3D> pValues;
+
+//    QFile fu("/home/mesteno/up.txt");
+//    if (fu.open(QFile::ReadOnly))
+//    {
+//        QTextStream in(&fu);
+//        while (!in.atEnd())
+//        {
+//            qreal x, y, u, v, p;
+//            in >> x >> y >> u >> v >> p;
+//            if (in.atEnd())
+//                break;
+//            uValues.append(QVector3D(x, y, u));
+//            vValues.append(QVector3D(x, y, v));
+//            pValues.append(QVector3D(x, y, p));
+//        }
+//        fu.close();
+//    }
+
+//    foreach (Q3MeshNode *node, mesh_.nodes())
+//    {
+//        if (node->boundary())
+//        {
+//            qreal x = node->x();
+//            qreal y = node->y();
+//            if (node->x() == 0)
+//                uValues.append(QVector3D(x, y, qMax(0., 24 * (1 - y) * (y - 0.5))));
+//            else if (node->x() == 10)
+//                uValues.append(QVector3D(x, y, (1 - y) * y * 3));
+//            else
+//                uValues.append(QVector3D(x, y, 0));
+//            vValues.append(QVector3D(x, y, 0));
+
+//            qreal dmin = 1;
+//            QVector3D minv;
+//            foreach (QVector3D pv, pValues)
+//            {
+//               QVector2D vec(pv.x(), pv.y());
+//               vec -= QVector2D(x, y);
+//               if (vec.length() < dmin)
+//               {
+//                   dmin = vec.length();
+//                   minv = pv;
+//               }
+//            }
+//            pValues.append(QVector3D(x, y, minv.z()));
+//        }
+//    }
+
+//    foreach (Q3MeshEdge *edge, mesh_.edges())
+//    {
+//        if (edge->boundary())
+//        {
+//            qreal y = edge->center().y();
+//            if (edge->boundary()->type()->toEnum() == Q3BoundaryType::InBoundary)
+//                edge->setVelocity(QVector2D(24 * (1 - y) * (y - 0.5), 0));
+//            else if (edge->boundary()->type()->toEnum() == Q3BoundaryType::OutBoundary)
+//                edge->setVelocity(QVector2D(3 * (1 - y) * y, 0));
+//        }
+//    }
+
+//    NaturalNeigbourInterpolation uInterp(uValues);
+//    NaturalNeigbourInterpolation vInterp(vValues);
+//    foreach (Q3MeshTriangle *triangle, mesh_.triangles())
+//    {
+//        qreal u = uInterp.interpolateToPoint(triangle->center());
+//        qreal v = vInterp.interpolateToPoint(triangle->center());
+
+//        triangle->setPredictorVelocity(QVector2D(u, v));
+//        triangle->setCorrectorVelocity(QVector2D(u, v));
+//        triangle->setPreviousCorrectorVelocity(QVector2D(u, v));
+//    }
+
+//    NaturalNeigbourInterpolation pInterp(pValues);
+//    foreach (Q3MeshEdge *edge, mesh_.edges())
+//    {
+//        qreal p = pInterp.interpolateToPoint(edge->center());
+//        edge->setPressure(p);
+//        edge->processBoundaryVelocity(0);
+//    }
+
+//    calcFaithfulResidualNS();
+//    calcFaithfulResidualDiv();
 }
 
 void Q3Calc::predictor()
@@ -217,10 +305,11 @@ void Q3Calc::predictor()
                         tnu /= cosin;
                     }
 
-                    qreal B = edge->length() * ((1. + tnu) / Re_ / dL - 0.5 *  vni);
+                    qreal B = edge->length() * ((1. + tnu) / Re_ / dL - dl * vni / dL);
+                    qreal BB = edge->length() * ((1. + tnu) / Re_ / dL + (dL - dl) * vni / dL);
 
                     tempVelocity[trInd] += B * adjTr->predictorVelocity();
-                    A += B;
+                    A += BB;
                 }
                 else
                 {
@@ -288,23 +377,36 @@ void Q3Calc::corrector()
         {
             Q3MeshTriangle *tr1 = edge->adjacentTriangles().at(1);
 
-            BN_[eInd] = QVector2D::dotProduct(tr1->predictorVelocity(), normal)
+            qreal bn0 = QVector2D::dotProduct(tr1->predictorVelocity(), normal)
                         - QVector2D::dotProduct(tr0->predictorVelocity(), normal);
             if (badTriangleFix_)
             {
                 QVector2D tAt = QVector2D(tr0->center() - tr1->center());
                 qreal cosin = qAbs(QVector2D::dotProduct(tAt, normal))
                               / tAt.length();
-                BN_[eInd] /= cosin;
+                bn0 /= cosin;
             }
+            bn0 *= -edge->length();
+
+            qreal dL = tr0->distanceToTriangles().at(trEdgeIndex);
+            qreal dl = tr0->distancesToEdges().at(trEdgeIndex);
+            qreal bn1 = (tr0->divergence(true) * tr0->square() + tr1->divergence(true) * tr1->square())
+                       / (tr0->square() + tr1->square());
+//            qreal bn1 = (tr0->divergence(true) * (dL - dl) + tr1->divergence(true) * dl) / dL;
+            bn1 *= -edge->adjacentSquare();
+
+            BN_[eInd] = bn1;
         }
         else
         {
             BN_[eInd] = edge->processBoundaryCorrector();
-        }
+            BN_[eInd] *= -edge->length();
 
-        BN_[eInd] *= -edge->length();
-        BN_[eInd] += edge->adjacentSquare() * flow / mesh_.square();
+//            qreal bn1 = tr0->divergence(true);
+//            bn1 *= -edge->adjacentSquare();
+//            BN_[eInd] = bn1;
+        }
+//        BN_[eInd] += edge->adjacentSquare() * flow / mesh_.square();
     }
 
     QTime timer;
@@ -396,7 +498,6 @@ void Q3Calc::calcFaithfulResidualNS()
         QVector2D deltaV = (triangle->correctorVelocity() -
                             triangle->previousCorrectorVelocity())
                            / tau_ * triangle->square();
-
         for (int edInd = 0; edInd < triangle->edges().count(); ++edInd)
         {
             Q3MeshEdge *edge = triangle->edges().at(edInd);
@@ -420,8 +521,11 @@ void Q3Calc::calcFaithfulResidualNS()
                         triangle->correctorVelocity(), normal)) / dL;
 
                 deltaV += vni * edge->length() * (
-                            triangle->correctorVelocity() +
-                            adjacentTriangle->correctorVelocity())  * 0.5;
+                            (dL - dl) * triangle->correctorVelocity() +
+                            dl * adjacentTriangle->correctorVelocity()) / dL;
+//                deltaV += vni * edge->length() * (
+//                            (dL - dl) * triangle->correctorVelocity() +
+//                            dl * adjacentTriangle->correctorVelocity()) / dL;
 
                 // Лапласиан
                 deltaV -= edge->length() / Re_ * (
@@ -457,7 +561,6 @@ void Q3Calc::calcFaithfulResidualNS()
                     deltaV -= edge->length() / Re_ *
                             (edge->velocity() -
                              triangle->correctorVelocity()) / dl;
-
                     break;
 
                 case Q3BoundaryType::OutBoundary:
@@ -479,10 +582,13 @@ void Q3Calc::calcFaithfulResidualNS()
         }
 
         deltaV /= triangle->square();
+        triangle->setResidual(deltaV.length());
 
         if (maxDelta < deltaV.length())
             maxDelta = deltaV.length();
     }
+
+//    qDebug() << maxDelta;
 
     faithfulResidualNS_ = maxDelta;
     return;
@@ -495,59 +601,8 @@ void Q3Calc::calcFaithfulResidualDiv()
     for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
     {
         Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
-
-        qreal delta = 0.0;
-
-        for (int edInd = 0; edInd < triangle->edges().count(); ++edInd)
-        {
-            Q3MeshEdge *edge = triangle->edges().at(edInd);
-            Q3MeshTriangle *adjacentTriangle =
-                    triangle->adjacentTriangles().at(edInd);
-            QVector2D normal = triangle->normalVectors().at(edInd);
-
-            if (adjacentTriangle)
-            {
-                qreal dL = triangle->distanceToTriangles().at(edInd);
-                qreal dl = triangle->distancesToEdges().at(edInd);
-
-                qreal vni = (dl * QVector2D::dotProduct(
-                        adjacentTriangle->correctorVelocity(),
-                        normal)
-                    + (dL - dl) * QVector2D::dotProduct(
-                        triangle->correctorVelocity(), normal)) / dL;
-
-                delta += vni * edge->length();
-            }
-            else
-            {
-                qreal vni;
-
-                switch ( edge->boundary()->type()->toEnum() )
-                {
-                case Q3BoundaryType::NoSlipBoundary:
-                    vni = 0.0;
-                    break;
-
-                case Q3BoundaryType::FixedVelocity:
-                case Q3BoundaryType::InBoundary:
-
-                    vni = QVector2D::dotProduct(edge->velocity(), normal);
-                    break;
-
-                case Q3BoundaryType::OutBoundary:
-                    vni = QVector2D::dotProduct(
-                                triangle->correctorVelocity(), normal);
-                    break;
-
-                default:
-                    break;
-                }
-
-                delta += vni * edge->length();
-            }
-        }
-
-        delta /= triangle->square();
+        qreal delta = triangle->divergence(false);
+        triangle->setResidual(qAbs(delta));
 
         if (maxDelta < qAbs(delta))
             maxDelta = qAbs(delta);

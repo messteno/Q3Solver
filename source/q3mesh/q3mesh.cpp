@@ -96,6 +96,27 @@ void Q3Mesh::draw(Q3Painter &painter) const
     if (drawPolicy_ & DrawVelocity)
     {
         painter.setPen(QColor(122, 163, 39));
+
+        qreal maxRes = 0;
+        for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
+        {
+            Q3MeshTriangle *triangle = triangles_.at(trIndex);
+            if (triangle->residual() > maxRes)
+                maxRes = triangle->residual();
+        }
+        if (maxRes <= 0)
+            maxRes = 1;
+
+        for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
+        {
+            Q3MeshTriangle *triangle = triangles_.at(trIndex);
+
+            QPolygonF polygon = triangle->toPolygonF(scaleX, scaleY);
+            painter.setBrush(getColour(triangle->residual() / maxRes));
+            painter.setPen(Qt::NoPen);
+//            painter.drawPolygon(polygon);
+        }
+
         for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
         {
             Q3MeshTriangle *triangle = triangles_.at(trIndex);
@@ -104,10 +125,12 @@ void Q3Mesh::draw(Q3Painter &painter) const
             QPointF end = (QVector2D(triangle->center())
                            + 0.1 * triangle->predictorVelocity()).toPointF();
             end = QPointF(end.x() * scaleX, end.y() * scaleY);
+            painter.setPen(QColor(122, 163, 39));
             painter.drawLine(begin, end);
 //            painter.drawText(triangle->center().x() * scaleX,
 //                             triangle->center().y() * scaleY,
 //                             QString::number(triangle->stream(), 'd', 6));
+
         }
 
         for (int eInd = 0; eInd < edges_.count(); ++eInd)
@@ -121,7 +144,7 @@ void Q3Mesh::draw(Q3Painter &painter) const
                            + 0.1 * edge->velocity()).toPointF();
             end = QPointF(end.x() * scaleX, end.y() * scaleY);
             painter.setPen(QColor(22, 63, 188));
-            painter.drawLine(begin, end);
+//            painter.drawLine(begin, end);
 //            painter.setPen(Qt::red);
 //            painter.drawPoint(begin);
 //            painter.drawText(triangle->center().x() * scaleX,
@@ -188,7 +211,7 @@ void Q3Mesh::drawTriangles(Q3Painter &painter) const
 
 void Q3Mesh::calcStream()
 {
-    calcVorticity();
+//    calcVorticity();
 
 //    Q3Vector vorticity(triangles_.size());
 //    Q3Vector stream(triangles_.size());
@@ -297,7 +320,9 @@ void Q3Mesh::calcStream()
     for (int i = 0; i < edges_.count(); ++i)
     {
         Q3MeshEdge *edge = edges_.at(i);
-        if (edge->boundary() && edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity)
+        if (edge->boundary() && edge->center().y() < 1e-10)
+//        if (edge->boundary() && edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity &&
+//            edge->center().y() > 5 && edge->center().y() < 15)
         {
             stream[i] = 0;
             triQueue.append(edge->adjacentTriangles().at(0)->id());
@@ -516,4 +541,46 @@ void Q3Mesh::update()
         else if (node->y() < boundingRect_.top())
             boundingRect_.setTop(node->y());
     }
+}
+
+QColor getColour(qreal level)
+{
+    QColor color(255, 255, 255);
+    qreal dr, dg, db;
+
+    if (level < 0.1242)
+    {
+        db = 0.504 + ((1. - 0.504) / 0.1242)*level;
+        dg = dr = 0.;
+    }
+    else if (level < 0.3747)
+    {
+        db = 1.;
+        dr = 0.;
+        dg = (level - 0.1242) * (1. / (0.3747 - 0.1242));
+    }
+    else if (level < 0.6253)
+    {
+        db = (0.6253 - level) * (1. / (0.6253 - 0.3747));
+        dg = 1.;
+        dr = (level - 0.3747) * (1. / (0.6253 - 0.3747));
+    }
+    else if (level < 0.8758)
+    {
+        db = 0.;
+        dr = 1.;
+        dg = (0.8758 - level) * (1. / (0.8758 - 0.6253));
+    }
+    else
+    {
+        db = 0.;
+        dg = 0.;
+        dr = 1. - (level - 0.8758) * ((1. - 0.504) / (1. - 0.8758));
+    }
+
+    color.setRed(dr * 255);
+    color.setGreen(dg * 255);
+    color.setBlue(db * 255);
+
+    return color;
 }

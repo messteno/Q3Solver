@@ -196,10 +196,18 @@ void Q3FlowPastRotatingCylinderTestBuilder::buildTest(Q3Sceleton &sceleton,
     boundaryIn->setVelocityText("1", "0");
     b2->addItem(c2);
     b2->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
+//    b2->setTypeByEnum(Q3BoundaryType::FixedVelocity);
+//    Q3BoundaryFixedVelocity *topBnd =
+//            dynamic_cast<Q3BoundaryFixedVelocity *>(b2->type());
+//    topBnd->setVelocityText("1");
     b3->addItem(c3);
     b3->setTypeByEnum(Q3BoundaryType::OutBoundary);
     b4->addItem(c4);
     b4->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
+//    b4->setTypeByEnum(Q3BoundaryType::FixedVelocity);
+//    Q3BoundaryFixedVelocity *bottomBnd =
+//            dynamic_cast<Q3BoundaryFixedVelocity *>(b4->type());
+//    bottomBnd->setVelocityText("-1");
     b5->addItem(circle);
     b5->setTypeByEnum(Q3BoundaryType::FixedVelocity);
     Q3BoundaryFixedVelocity *circleBoundary =
@@ -226,11 +234,10 @@ void Q3BackwardFacingStepTestBuilder::buildTest(Q3Sceleton &sceleton,
                                                 QList<Q3Boundary *> &boundaries,
                                                 Q3MeshAdapter &adapter)
 {
-
     Q3Point *a1 = new Q3Point(QPointF(0, 0.5));
     Q3Point *a2 = new Q3Point(QPointF(0, 1));
-    Q3Point *a3 = new Q3Point(QPointF(15, 1));
-    Q3Point *a4 = new Q3Point(QPointF(15, 0));
+    Q3Point *a3 = new Q3Point(QPointF(5, 1));
+    Q3Point *a4 = new Q3Point(QPointF(5, 0));
     Q3Point *a5 = new Q3Point(QPointF(0, 0));
     sceleton.addItem(a1);
     sceleton.addItem(a2);

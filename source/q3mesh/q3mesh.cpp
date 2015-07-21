@@ -97,25 +97,25 @@ void Q3Mesh::draw(Q3Painter &painter) const
     {
         painter.setPen(QColor(122, 163, 39));
 
-        qreal maxRes = 0;
-        for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
-        {
-            Q3MeshTriangle *triangle = triangles_.at(trIndex);
-            if (triangle->residual() > maxRes)
-                maxRes = triangle->residual();
-        }
-        if (maxRes <= 0)
-            maxRes = 1;
+//        qreal maxRes = 0;
+//        for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
+//        {
+//            Q3MeshTriangle *triangle = triangles_.at(trIndex);
+//            if (triangle->residual() > maxRes)
+//                maxRes = triangle->residual();
+//        }
+//        if (maxRes <= 0)
+//            maxRes = 1;
 
-        for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
-        {
-            Q3MeshTriangle *triangle = triangles_.at(trIndex);
+//        for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
+//        {
+//            Q3MeshTriangle *triangle = triangles_.at(trIndex);
 
-            QPolygonF polygon = triangle->toPolygonF(scaleX, scaleY);
-            painter.setBrush(getColour(triangle->residual() / maxRes));
-            painter.setPen(Qt::NoPen);
-//            painter.drawPolygon(polygon);
-        }
+//            QPolygonF polygon = triangle->toPolygonF(scaleX, scaleY);
+//            painter.setBrush(getColour(triangle->residual() / maxRes));
+//            painter.setPen(Qt::NoPen);
+////            painter.drawPolygon(polygon);
+//        }
 
         for (int trIndex = 0; trIndex < triangles_.count(); ++trIndex)
         {
@@ -144,7 +144,7 @@ void Q3Mesh::draw(Q3Painter &painter) const
                            + 0.1 * edge->velocity()).toPointF();
             end = QPointF(end.x() * scaleX, end.y() * scaleY);
             painter.setPen(QColor(22, 63, 188));
-//            painter.drawLine(begin, end);
+            painter.drawLine(begin, end);
 //            painter.setPen(Qt::red);
 //            painter.drawPoint(begin);
 //            painter.drawText(triangle->center().x() * scaleX,

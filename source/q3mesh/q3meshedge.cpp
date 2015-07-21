@@ -225,7 +225,8 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm,
 
             QVector2D deltaV = length_ * (1. / Re / dl * (1. + tnu) - vni) * velocity_;
             tV += deltaV;
-            return length_ / Re * (1. + tnu) / dl/* - length_ * vn*/;
+            return length_ / Re * (1. + tnu) / dl;
+//            return length_ / Re * (1. + tnu) / dl - length_ * vni;
         }
         case Q3BoundaryType::OutBoundary:
         {
@@ -240,6 +241,7 @@ qreal Q3MeshEdge::processBoundaryPredictor(qreal Re, bool monotoneTerm,
 
             qreal deltaA = length_ * ((1. + tnu) / Re / dl - vni);
             tV += deltaA * triangle->predictorVelocity();
+//            return deltaA;
             return length_ * (1. + tnu) / Re / dl;
         }
         default:

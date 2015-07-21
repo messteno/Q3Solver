@@ -305,6 +305,7 @@ void Q3Calc::predictor()
                         tnu /= cosin;
                     }
 
+//                    qreal B = edge->length() * ((1. + tnu) / Re_ / dL - 0.5 * vni);
                     qreal B = edge->length() * ((1. + tnu) / Re_ / dL - dl * vni / dL);
                     qreal BB = edge->length() * ((1. + tnu) / Re_ / dL + (dL - dl) * vni / dL);
 
@@ -373,11 +374,12 @@ void Q3Calc::corrector()
             nullPrEInd = eInd;
         }
 
+        qreal bn0, bn1;
         if (edge->adjacentTriangles().size() == 2)
         {
             Q3MeshTriangle *tr1 = edge->adjacentTriangles().at(1);
 
-            qreal bn0 = QVector2D::dotProduct(tr1->predictorVelocity(), normal)
+            bn0 = QVector2D::dotProduct(tr1->predictorVelocity(), normal)
                         - QVector2D::dotProduct(tr0->predictorVelocity(), normal);
             if (badTriangleFix_)
             {
@@ -390,23 +392,25 @@ void Q3Calc::corrector()
 
             qreal dL = tr0->distanceToTriangles().at(trEdgeIndex);
             qreal dl = tr0->distancesToEdges().at(trEdgeIndex);
-            qreal bn1 = (tr0->divergence(true) * tr0->square() + tr1->divergence(true) * tr1->square())
-                       / (tr0->square() + tr1->square());
-//            qreal bn1 = (tr0->divergence(true) * (dL - dl) + tr1->divergence(true) * dl) / dL;
+//            bn1 = (tr0->divergence(true) * tr0->square() + tr1->divergence(true) * tr1->square())
+//                       / (tr0->square() + tr1->square());
+            bn1 = (tr0->divergence(true) * (dL - dl) + tr1->divergence(true) * dl) / dL;
             bn1 *= -edge->adjacentSquare();
-
-            BN_[eInd] = bn1;
         }
         else
         {
-            BN_[eInd] = edge->processBoundaryCorrector();
-            BN_[eInd] *= -edge->length();
-
-//            qreal bn1 = tr0->divergence(true);
-//            bn1 *= -edge->adjacentSquare();
-//            BN_[eInd] = bn1;
+            bn0 = edge->processBoundaryCorrector();
+            bn0 *= -edge->length();
+            bn1 = bn0;
         }
-//        BN_[eInd] += edge->adjacentSquare() * flow / mesh_.square();
+
+        if (badTriangleFix_)
+            BN_[eInd] = bn1;
+        else
+        {
+            BN_[eInd] = bn0;
+            BN_[eInd] += edge->adjacentSquare() * flow / mesh_.square();
+        }
     }
 
     QTime timer;

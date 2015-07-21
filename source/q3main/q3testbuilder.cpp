@@ -236,8 +236,8 @@ void Q3BackwardFacingStepTestBuilder::buildTest(Q3Sceleton &sceleton,
 {
     Q3Point *a1 = new Q3Point(QPointF(0, 0.5));
     Q3Point *a2 = new Q3Point(QPointF(0, 1));
-    Q3Point *a3 = new Q3Point(QPointF(5, 1));
-    Q3Point *a4 = new Q3Point(QPointF(5, 0));
+    Q3Point *a3 = new Q3Point(QPointF(20, 1));
+    Q3Point *a4 = new Q3Point(QPointF(20, 0));
     Q3Point *a5 = new Q3Point(QPointF(0, 0));
     sceleton.addItem(a1);
     sceleton.addItem(a2);
@@ -282,7 +282,8 @@ void Q3BackwardFacingStepTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
-    adapter.setElementsCount(15000);
+    adapter.setElementsCount(45000);
+    adapter.setElementSizeDecrease(33);
     adapter.generateMesh(sceleton, boundaries);
     adapter.meshToQ3Mesh(mesh, boundaries);
 }

@@ -125,9 +125,11 @@ void Q3Calc::prepare()
         {
             qreal S = triangle->edges().at(adjTrInd)->length();
             qreal dL = triangle->distanceToTriangles().at(adjTrInd);
-            AN_[anIndex] += tau_ * S / dL / triangle->square();
+            if (triangle->adjacentTriangles().at(adjTrInd))
+                AN_[anIndex] += tau_ * S / dL;
         }
 
+        AN_[anIndex] /= triangle->square();
         JA_[anIndex] = trInd;
         IA_[trInd] = anIndex;
         anIndex++;
@@ -142,7 +144,8 @@ void Q3Calc::prepare()
                 continue;
             qreal S = triangle->edges().at(adjTrInd)->length();
             qreal dL = triangle->distanceToTriangles().at(adjTrInd);
-            AN_[anIndex] = -tau_ * S / dL / triangle->square();
+            AN_[anIndex] = -tau_ * S / dL;
+            AN_[anIndex] /= triangle->square();
             JA_[anIndex] = adjTr->id();
             anIndex++;
         }
@@ -257,7 +260,7 @@ void Q3Calc::corrector()
         Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
         triangle->setPreviousCorrectorVelocity(triangle->correctorVelocity());
         qreal divergence = triangle->divergence(true);
-        BN_[trInd] = -divergence;
+        BN_[trInd] = divergence;
     }
 
     QTime timer;
@@ -287,95 +290,19 @@ void Q3Calc::corrector()
                 qreal dl = triangle->distancesToEdges().at(eInd);
 
                 qreal dp = (dl * XN_[adjTr->id()] + (dL - dl) * XN_[triangle->id()]) / dL;
-                deltaV -= tau_ * edge->length() * dp * normal;
+                deltaV += tau_ * edge->length() * dp * normal;
             }
             else
             {
-                deltaV -= tau_ * edge->length() * XN_[triangle->id()] * normal;
+                deltaV += tau_ * edge->length() * XN_[triangle->id()] * normal;
             }
         }
 
-        deltaV /= triangle->square();
-
-        triangle->setCorrectorVelocity(triangle->predictorVelocity() + deltaV);
+        triangle->setCorrectorVelocity(triangle->predictorVelocity() + deltaV / triangle->square());
         if (deltaV.length() > residual)
             residual = deltaV.length();
     }
     residual_ = residual / tau_;
-
-
-    QVector<QVector2D> grad(mesh_.triangles().count());
-    for (int trInd = 0; trInd < mesh_.triangles().count(); ++trInd)
-    {
-        Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
-        grad[trInd] = QVector2D(0, 0);
-        for (int eInd = 0; eInd < triangle->edges().count(); ++eInd)
-        {
-            Q3MeshEdge *edge = triangle->edges().at(eInd);
-            Q3MeshTriangle *adjTr = triangle->adjacentTriangles().at(eInd);
-            QVector2D normal = triangle->normalVectors().at(eInd);
-
-            if (adjTr)
-            {
-                qreal dL = triangle->distanceToTriangles().at(eInd);
-                qreal dl = triangle->distancesToEdges().at(eInd);
-
-                qreal dp = (dl * XN_[adjTr->id()] + (dL - dl) * XN_[triangle->id()]) / dL;
-                grad[trInd] += edge->length() * dp * normal;
-            }
-            else
-            {
-                grad[trInd] += edge->length() * XN_[triangle->id()] * normal;
-            }
-        }
-        grad[trInd] /= triangle->square();
-    }
-
-    QVector<qreal> lpl1(mesh_.triangles().count());
-    QVector<qreal> lpl2(mesh_.triangles().count());
-    qreal diff = 0;
-    for (int trInd = 0; trInd < mesh_.triangles().count(); ++trInd)
-    {
-        Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
-        lpl1[trInd] = 0;
-        lpl2[trInd] = 0;
-
-        for (int eInd = 0; eInd < triangle->edges().count(); ++eInd)
-        {
-            Q3MeshEdge *edge = triangle->edges().at(eInd);
-            Q3MeshTriangle *adjTr = triangle->adjacentTriangles().at(eInd);
-            QVector2D normal = triangle->normalVectors().at(eInd);
-
-            qreal dL = triangle->distanceToTriangles().at(eInd);
-            if (adjTr)
-            {
-                qreal dl = triangle->distancesToEdges().at(eInd);
-
-                QVector2D pni = grad[adjTr->id()] * dl + grad[triangle->id()] * (dL - dl);
-                pni /= dL;
-                lpl1[trInd] += edge->length() * QVector2D::dotProduct(pni, normal);
-                lpl2[trInd] += edge->length() * (XN_[adjTr->id()] - XN_[triangle->id()]) / dL;
-            }
-            else
-            {
-                lpl1[trInd] += edge->length() * QVector2D::dotProduct(grad[trInd], normal);
-                lpl2[trInd] += edge->length() * (- XN_[triangle->id()]) / dL;
-            }
-        }
-        lpl1[trInd] /= triangle->square();
-        lpl2[trInd] /= triangle->square();
-
-        qreal delta = qAbs(lpl1[trInd] - lpl2[trInd]);
-        if (triangle->hasBoundaryEdge())
-            continue;
-
-        if (diff < delta)
-            diff = delta;
-    }
-
-    qDebug() << "LAPLACE DIFF: " << diff;
-
-
 }
 
 void Q3Calc::incompleteCholesky(qreal *AN, int *JA, int *IA, int n)

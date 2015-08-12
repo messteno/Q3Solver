@@ -46,10 +46,10 @@ QString Q3PointInfoDirector::pointInfo(const QPointF &pos)
         QPolygonF polygon = triangle->toPolygonF(1, 1);
         if (polygon.containsPoint(pos, Qt::OddEvenFill))
         {
-            qreal pressure = 0;
-            foreach (Q3MeshEdge *edge, triangle->edges())
-                pressure += edge->pressure();
-            pressure /= triangle->edges().count();
+//            qreal pressure = 0;
+//            foreach (Q3MeshEdge *edge, triangle->edges())
+//                pressure += edge->pressure();
+//            pressure /= triangle->edges().count();
 
             QString info;
             QTextStream stream(&info);
@@ -63,7 +63,7 @@ QString Q3PointInfoDirector::pointInfo(const QPointF &pos)
                    << trUtf8("Функция тока: ")
                    << QString::number(triangle->stream()) << "\n"
                    << trUtf8("Давление: ")
-                   << QString::number(pressure);
+                   << QString::number(triangle->pressure());
             return info;
         }
     }

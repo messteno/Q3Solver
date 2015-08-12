@@ -38,8 +38,8 @@ public:
     QVector2D velocity() const;
     void setVelocity(const QVector2D &velocity);
 
-    qreal pressure() const;
-    void setPressure(const qreal &pressure);
+//    qreal pressure() const;
+//    void setPressure(const qreal &pressure);
 
     int label() const;
 
@@ -72,7 +72,7 @@ private:
     QList<Q3MeshNode *> vertices_;
 
     QVector2D velocity_;
-    qreal pressure_;
+//    qreal pressure_;
 
     int id_;
 };

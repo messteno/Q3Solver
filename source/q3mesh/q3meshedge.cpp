@@ -14,7 +14,7 @@ Q3MeshEdge::Q3MeshEdge(Q3MeshNode *a, Q3MeshNode *b,
     id_(id),
     boundary_(boundary),
     velocity_(0, 0),
-    pressure_(0),
+//    pressure_(0),
     adjacentSquare_(0)
 {
     Q_ASSERT(a_);
@@ -169,15 +169,15 @@ void Q3MeshEdge::setVelocity(const QVector2D &velocity)
     velocity_ = velocity;
 }
 
-qreal Q3MeshEdge::pressure() const
-{
-    return pressure_;
-}
+//qreal Q3MeshEdge::pressure() const
+//{
+//    return pressure_;
+//}
 
-void Q3MeshEdge::setPressure(const qreal &pressure)
-{
-    pressure_ = pressure;
-}
+//void Q3MeshEdge::setPressure(const qreal &pressure)
+//{
+//    pressure_ = pressure;
+//}
 
 int Q3MeshEdge::label() const
 {

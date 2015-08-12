@@ -101,15 +101,15 @@ Q3PressurePlot::Q3PressurePlot(Q3Mesh &mesh) :
 
 void Q3PressurePlot::update(bool init)
 {
-    QVector<QVector3D> edgeValues;
-    for (int i = 0; i < mesh_.edges().count(); ++i)
+    QVector<QVector3D> trValues;
+    for (int i = 0; i < mesh_.triangles().count(); ++i)
     {
-        Q3MeshEdge *edge = mesh_.edges().at(i);
-        edgeValues.append(QVector3D(edge->center().x(),
-                                    edge->center().y(),
-                                    edge->pressure()));
+        Q3MeshTriangle *triangle = mesh_.triangles().at(i);
+        trValues.append(QVector3D(triangle->center().x(),
+                                  triangle->center().y(),
+                                  triangle->pressure()));
     }
-    Q3MeshEdgeNodeInterpolation interpolation(mesh_, edgeValues);
+    Q3MeshTriNodeInterpolation interpolation(mesh_, trValues);
     QVector<qreal> nodeValues = interpolation.interpolateToNodes();
 
     clear();
@@ -408,10 +408,10 @@ void Q3CdRealTimePlot::update(qreal time)
         QVector2D trV = triangle->correctorVelocity();
         QVector2D normal = edge->normalVector();
         QVector2D tangentVector = QVector2D(normal.y(), -normal.x());
-        Fd += edge->length()
-              * (QVector2D::dotProduct(trV, tangentVector)
-                 / QVector2D(triangle->center() - edge->center()).length() * normal.y() / Re_
-                 - edge->pressure() * normal.x());
+//        Fd += edge->length()
+//              * (QVector2D::dotProduct(trV, tangentVector)
+//                 / QVector2D(triangle->center() - edge->center()).length() * normal.y() / Re_
+//                 - edge->pressure() * normal.x());
     }
     qreal Cd = 2 * Fd * 10.;
 
@@ -439,10 +439,10 @@ void Q3ClRealTimePlot::update(qreal time)
         QVector2D trV = triangle->correctorVelocity();
         QVector2D normal = edge->normalVector();
         QVector2D tangentVector = QVector2D(normal.y(), -normal.x());
-        Fl += -edge->length()
-              * (QVector2D::dotProduct(trV, tangentVector)
-                 / QVector2D(triangle->center() - edge->center()).length() * normal.x() / Re_
-                 - edge->pressure() * normal.y());
+//        Fl += -edge->length()
+//              * (QVector2D::dotProduct(trV, tangentVector)
+//                 / QVector2D(triangle->center() - edge->center()).length() * normal.x() / Re_
+//                 - edge->pressure() * normal.y());
     }
     qreal Cl = 2 * Fl * 10.;
 

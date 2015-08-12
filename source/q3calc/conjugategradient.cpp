@@ -12,7 +12,6 @@ int ConjugateGradient::calculate(double *AN, int *JA, int *IA,
     double *z = TN + 3 * n;
     double rho, rho_1, alpha, beta;
     int it = 0;
-    double ce = 1.;
 
     ConjugateGradient::multiply1(AN, JA, IA, XN, BN, r, n);
 
@@ -42,8 +41,6 @@ int ConjugateGradient::calculate(double *AN, int *JA, int *IA,
 
         if (ConjugateGradient::norm(r, n) < ConjugateGradient::eps)
             break;
-        if (ConjugateGradient::norm(r, n) < ce)
-            ce /= 10.;
     }
     return it;
 }

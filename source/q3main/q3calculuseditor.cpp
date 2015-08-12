@@ -103,6 +103,7 @@ void Q3CalculusEditor::on_resetCalcButton_clicked()
         Q3MeshTriangle *triangle = mesh_.triangles().at(i);
         triangle->setCorrectorVelocity(QVector2D(0, 0));
         triangle->setPredictorVelocity(QVector2D(0, 0));
+        triangle->setPressure(0);
         triangle->setStream(0);
     }
 
@@ -110,7 +111,7 @@ void Q3CalculusEditor::on_resetCalcButton_clicked()
     {
         Q3MeshEdge *edge = mesh_.edges().at(i);
         edge->setVelocity(QVector2D(0, 0));
-        edge->setPressure(0);
+//        edge->setPressure(0);
     }
 }
 

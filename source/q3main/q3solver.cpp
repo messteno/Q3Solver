@@ -23,7 +23,7 @@ Q3Solver::Q3Solver(QWidget *parent) :
                                    boundaries_, this);
     calculusEditor_ = new Q3CalculusEditor(ui->plotWidget, mesh_, this);
 
-    Q3BackwardFacingStepTestBuilder testBuilder;
+    Q3CavityTestBuilder testBuilder;
     testBuilder.buildTest(sceleton_, mesh_,
                           boundaries_, meshEditor_->meshAdapter());
 

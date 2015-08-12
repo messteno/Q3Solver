@@ -60,6 +60,11 @@ public:
 
     bool hasBoundaryEdge();
 
+    qreal pressure() const;
+    void setPressure(const qreal &pressure);
+
+    qreal divergence(bool predictor);
+
 private:
     Q3MeshNode *vA_;
     Q3MeshNode *vB_;
@@ -84,6 +89,8 @@ private:
     QVector2D previousCorrectorVelocity_;
     QVector2D predictorVelocity_;
     QVector2D tempVelocity_;
+
+    qreal pressure_;
 
     qreal stream_;
     qreal vorticity_;

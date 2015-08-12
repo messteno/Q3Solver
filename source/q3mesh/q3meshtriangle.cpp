@@ -17,8 +17,9 @@ Q3MeshTriangle::Q3MeshTriangle(Q3MeshEdge *a,
     previousCorrectorVelocity_(0, 0),
     predictorVelocity_(0, 0),
     tempVelocity_(0, 0),
-    vorticity_(0),
-    stream_(0)
+    pressure_(0),
+    stream_(0),
+    vorticity_(0)
 {
     vA_ = b->nodeAdjacentTo(c);
     vB_ = c->nodeAdjacentTo(a);
@@ -270,3 +271,57 @@ bool Q3MeshTriangle::hasBoundaryEdge()
     return a_->boundary() || b_->boundary() || c_->boundary();
 }
 
+qreal Q3MeshTriangle::pressure() const
+{
+    return pressure_;
+}
+
+void Q3MeshTriangle::setPressure(const qreal &pressure)
+{
+    pressure_ = pressure;
+}
+
+qreal Q3MeshTriangle::divergence(bool predictor)
+{
+    qreal delta = 0.;
+    QVector2D velocity = predictor ? predictorVelocity_ : correctorVelocity_;
+
+    for (int edInd = 0; edInd < edges_.count(); ++edInd)
+    {
+        Q3MeshEdge *edge = edges_.at(edInd);
+        Q3MeshTriangle *adjacentTriangle = adjacentTriangles_.at(edInd);
+        QVector2D normal = normalVectors_.at(edInd);
+        qreal dl = distancesToEdges_.at(edInd);
+
+        if (adjacentTriangle)
+        {
+            QVector2D adjVelocity = predictor
+                                    ? adjacentTriangle->predictorVelocity_
+                                    : adjacentTriangle->correctorVelocity_;
+            qreal dL = distanceToTriangles_.at(edInd);
+            qreal vni = (dl * QVector2D::dotProduct(adjVelocity, normal)
+                         + (dL - dl) * QVector2D::dotProduct(velocity, normal)) / dL;
+            delta += vni * edge->length();
+        }
+        else
+        {
+            qreal vni = 0;
+            switch (edge->boundary()->type()->toEnum())
+            {
+                case Q3BoundaryType::FixedVelocity:
+                case Q3BoundaryType::InBoundary:
+                    vni = QVector2D::dotProduct(edge->velocity(), normal);
+                    break;
+                case Q3BoundaryType::OutBoundary:
+                    vni = QVector2D::dotProduct(velocity, normal);
+                    break;
+                default:
+                    break;
+            }
+            delta += vni * edge->length();
+        }
+    }
+
+    delta /= square_;
+    return delta;
+}

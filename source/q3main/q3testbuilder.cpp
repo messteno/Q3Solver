@@ -118,8 +118,10 @@ void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
 {
     Q3Point *a1 = new Q3Point(QPointF(0, -0.5));
     Q3Point *a2 = new Q3Point(QPointF(0, 0.5));
-    Q3Point *a3 = new Q3Point(QPointF(10, 0.5));
-    Q3Point *a4 = new Q3Point(QPointF(10, -0.5));
+//    Q3Point *a3 = new Q3Point(QPointF(2, 0.5));
+//    Q3Point *a4 = new Q3Point(QPointF(2, -0.5));
+    Q3Point *a3 = new Q3Point(QPointF(2, 0.5));
+    Q3Point *a4 = new Q3Point(QPointF(2, -0.5));
     sceleton.addItem(a1);
     sceleton.addItem(a2);
     sceleton.addItem(a3);
@@ -140,7 +142,8 @@ void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
     b1->addItem(c1);
     b1->setTypeByEnum(Q3BoundaryType::InBoundary);
     Q3BoundaryIn *boundaryIn = dynamic_cast<Q3BoundaryIn *>(b1->type());
-    boundaryIn->setVelocityText("1", "0");
+    boundaryIn->setVelocityText("(0.5-y)*(0.5+y)*6", "0");
+//    boundaryIn->setVelocityText("1", "0");
     b2->addItem(c2);
     b2->setTypeByEnum(Q3BoundaryType::NoSlipBoundary);
     b3->addItem(c3);
@@ -156,7 +159,8 @@ void Q3PoiseuilleFlowTestBuilder::buildTest(Q3Sceleton &sceleton,
 
     Q3Boundary::setUniqueLabels(boundaries);
     adapter.setSizePolicy(Q3MeshAdapter::ElementSizeByCount);
-    adapter.setElementsCount(15000);
+//    adapter.setElementsCount(15000);
+    adapter.setElementsCount(1000);
     adapter.generateMesh(sceleton, boundaries);
     adapter.meshToQ3Mesh(mesh, boundaries);
 }

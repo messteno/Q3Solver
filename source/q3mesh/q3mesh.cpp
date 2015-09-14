@@ -170,11 +170,23 @@ void Q3Mesh::drawTriangles(Q3Painter &painter) const
     qreal scaleX = painter.sx();
     qreal scaleY = painter.sy();
 
-    // Возможно переделать на count циклы
+    QVector<qreal> div(triangles_.count());
     QListIterator<Q3MeshTriangle *> tit(triangles_);
+    qreal max = 1e-12;
     while(tit.hasNext())
     {
         const Q3MeshTriangle *triangle = tit.next();
+        div[triangle->id()] = triangle->divergence(true);
+        if (qAbs(div[triangle->id()]) > max)
+            max = qAbs(div[triangle->id()]);
+    }
+
+    // Возможно переделать на count циклы
+    QListIterator<Q3MeshTriangle *> tit2(triangles_);
+    while(tit2.hasNext())
+    {
+        const Q3MeshTriangle *triangle = tit2.next();
+        painter.setBrush(getColour(qAbs(div[triangle->id()]) / max));
 
 //        if (triangle->isBad())
 //            painter.setBrush(QColor(163, 39, 39));
@@ -199,18 +211,18 @@ void Q3Mesh::calcStream()
         foreach (Q3MeshEdge *edge, triangles_.at(i)->edges())
         {
             // TODO: добавить как условие на границу
-//            if (edge->boundary()
-//                && (0/* edge->boundary()->type()->toEnum() == Q3BoundaryType::NoSlipBoundary */
-//                    || edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity))
-//            {
-//                noslip = true;
-//                break;
-//            }
-            if (edge->boundary() && qAbs(edge->a()->y()) < 1e-10)
+            if (edge->boundary()
+                && (edge->boundary()->type()->toEnum() == Q3BoundaryType::NoSlipBoundary
+                    || edge->boundary()->type()->toEnum() == Q3BoundaryType::FixedVelocity))
             {
                 noslip = true;
                 break;
             }
+//            if (edge->boundary() && qAbs(edge->a()->y()) < 1e-10)
+//            {
+//                noslip = true;
+//                break;
+//            }
         }
 
         if (!noslip)
@@ -376,4 +388,46 @@ void Q3Mesh::update()
         else if (node->y() < boundingRect_.top())
             boundingRect_.setTop(node->y());
     }
+}
+
+QColor getColour(qreal level)
+{
+    QColor color(255, 255, 255);
+    qreal dr, dg, db;
+
+    if (level < 0.1242)
+    {
+        db = 0.504 + ((1. - 0.504) / 0.1242) * level;
+        dg = dr = 0.;
+    }
+    else if (level < 0.3747)
+    {
+        db = 1.;
+        dr = 0.;
+        dg = (level - 0.1242) * (1. / (0.3747 - 0.1242));
+    }
+    else if (level < 0.6253)
+    {
+        db = (0.6253 - level) * (1. / (0.6253 - 0.3747));
+        dg = 1.;
+        dr = (level - 0.3747) * (1. / (0.6253 - 0.3747));
+    }
+    else if (level < 0.8758)
+    {
+        db = 0.;
+        dr = 1.;
+        dg = (0.8758 - level) * (1. / (0.8758 - 0.6253));
+    }
+    else
+    {
+        db = 0.;
+        dg = 0.;
+        dr = 1. - (level - 0.8758) * ((1. - 0.504) / (1. - 0.8758));
+    }
+
+    color.setRed(dr * 255);
+    color.setGreen(dg * 255);
+    color.setBlue(db * 255);
+
+    return color;
 }

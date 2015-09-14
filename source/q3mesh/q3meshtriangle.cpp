@@ -1,4 +1,5 @@
 #include <QVector3D>
+#include <QDebug>
 #include <qmath.h>
 
 #include "q3meshedge.h"
@@ -281,7 +282,7 @@ void Q3MeshTriangle::setPressure(const qreal &pressure)
     pressure_ = pressure;
 }
 
-qreal Q3MeshTriangle::divergence(bool predictor)
+qreal Q3MeshTriangle::divergence(bool predictor) const
 {
     qreal delta = 0.;
     QVector2D velocity = predictor ? predictorVelocity_ : correctorVelocity_;
@@ -318,6 +319,8 @@ qreal Q3MeshTriangle::divergence(bool predictor)
                 default:
                     break;
             }
+            if (edge->boundary()->type()->toEnum() == Q3BoundaryType::InBoundary)
+                qDebug() << edge->velocity();
             delta += vni * edge->length();
         }
     }

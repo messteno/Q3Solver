@@ -63,7 +63,7 @@ public:
     qreal pressure() const;
     void setPressure(const qreal &pressure);
 
-    qreal divergence(bool predictor);
+    qreal divergence(bool predictor) const;
 
 private:
     Q3MeshNode *vA_;

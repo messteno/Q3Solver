@@ -76,4 +76,6 @@ private:
     void drawTriangles(Q3Painter &painter) const;
 };
 
+QColor getColour(qreal level);
+
 #endif // Q3MESH_H

@@ -7,6 +7,7 @@
 #include "conjugategradient.h"
 #include "bicgstablinearsolver.h"
 #include "preconditioner.h"
+#include "q3meshneumannoperator.h"
 
 const int Q3Calc::maxPredictorIterationsCount = 1000;
 const qreal Q3Calc::maxPredictorError = 1e-6;
@@ -55,11 +56,23 @@ void Q3Calc::run()
         corrector();
         // qDebug() << "Corrector time: " << timer.elapsed();
 
-//        calcFaithfulResidualNS();
-        calcFaithfulResidualDiv();
+        static int c = 1;
+        if (c % 5 == 0)
+        {
+            for (int trInd = 0; trInd < mesh_.triangles().count(); ++trInd)
+            {
+                Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
+                triangle->setPreviousCorrectorVelocity(triangle->correctorVelocity());
+                triangle->setCorrectorVelocity(triangle->predictorVelocity());
+            }
 
-        time_ += tau_;
-        emit calcStepEnded(time_);
+            calcFaithfulResidualNS();
+            calcFaithfulResidualDiv();
+
+            time_ += tau_;
+            emit calcStepEnded(time_);
+        }
+        c++;
 
 //        QFile pr("/home/mesteno/pr.txt");
 //        if (pr.open(QFile::WriteOnly | QFile::Truncate))
@@ -91,7 +104,7 @@ void Q3Calc::run()
 //            co.close();
 //        }
 
-        break;
+//        break;
     }
     calcTime_ += calcTimer_.elapsed();
 }
@@ -120,6 +133,10 @@ void Q3Calc::prepare()
     {
         Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
 
+        qreal y = triangle->center().y();
+        triangle->setPredictorVelocity(QVector2D((0.5 - y) * (0.5 + y) * 6, 0));
+        triangle->setCorrectorVelocity(triangle->predictorVelocity());
+
         for (int adjTrInd = 0; adjTrInd < triangle->adjacentTriangles().count();
              ++adjTrInd)
         {
@@ -132,6 +149,14 @@ void Q3Calc::prepare()
         AN_[anIndex] /= triangle->square();
         JA_[anIndex] = trInd;
         IA_[trInd] = anIndex;
+
+        if (trInd == mesh_.triangles().count() / 2)
+        {
+            AN_[anIndex] = 1;
+            anIndex++;
+            continue;
+        }
+
         anIndex++;
 
         for (int adjTrInd = 0; adjTrInd < triangle->adjacentTriangles().count();
@@ -141,6 +166,8 @@ void Q3Calc::prepare()
             if (!adjTr)
                 continue;
             if (adjTr->id() < triangle->id())
+                continue;
+            if (adjTr->id() == mesh_.triangles().count() / 2)
                 continue;
             qreal S = triangle->edges().at(adjTrInd)->length();
             qreal dL = triangle->distanceToTriangles().at(adjTrInd);
@@ -255,54 +282,95 @@ void Q3Calc::predictor()
 
 void Q3Calc::corrector()
 {
+    qreal alpha = Re_ / tau_;
+    qreal tau0 = 0.01 * tau_;
+
+    static Q3Vector r(mesh_.triangles().count() + 1);
+    Q3Vector div(mesh_.triangles().count() + 1);
+
     for (int trInd = 0; trInd < mesh_.triangles().count(); ++trInd)
     {
         Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
-        triangle->setPreviousCorrectorVelocity(triangle->correctorVelocity());
         qreal divergence = triangle->divergence(true);
-        BN_[trInd] = divergence;
+        div[trInd] = divergence;
     }
+    div[mesh_.triangles().count()] = 0;
 
-    QTime timer;
-    timer.start();
-    ConjugateGradient::calculate(AN_.data(), JA_.data(), IA_.data(), XN_.data(),
-                                 BN_.data(), MN_.data(), TN_.data(),
-                                 mesh_.triangles().count());
-    qDebug() << "Cg time:" << timer.elapsed();
-
+    IdentityPreconditioner preconditioner(mesh_.triangles().count() + 1);
+    Q3MeshNeumannOperator op(mesh_, mesh_.triangles().count() + 1);
+    BiCGStabLinearSolver solver(1e-12, 10000);
     qreal residual = 0;
+    solver.solve(op,
+                 r,
+                 div,
+                 preconditioner,
+                 residual);
+    qDebug() << "bicg" << residual;
+
+    Q3Vector rr = div - op * r;
+    qDebug() << "norm" << rr.norm();
+    qDebug() << "last" << r[mesh_.triangles().count()];
+
     for (int trInd = 0; trInd < mesh_.triangles().count(); ++trInd)
     {
         Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
-        QVector2D deltaV(0, 0);
-
-        triangle->setPressure(triangle->pressure() + XN_[trInd]);
-
-        for (int eInd = 0; eInd < triangle->edges().count(); ++eInd)
-        {
-            Q3MeshEdge *edge = triangle->edges().at(eInd);
-            Q3MeshTriangle *adjTr = triangle->adjacentTriangles().at(eInd);
-            QVector2D normal = triangle->normalVectors().at(eInd);
-
-            if (adjTr)
-            {
-                qreal dL = triangle->distanceToTriangles().at(eInd);
-                qreal dl = triangle->distancesToEdges().at(eInd);
-
-                qreal dp = (dl * XN_[adjTr->id()] + (dL - dl) * XN_[triangle->id()]) / dL;
-                deltaV += tau_ * edge->length() * dp * normal;
-            }
-            else
-            {
-                deltaV += tau_ * edge->length() * XN_[triangle->id()] * normal;
-            }
-        }
-
-        triangle->setCorrectorVelocity(triangle->predictorVelocity() + deltaV / triangle->square());
-        if (deltaV.length() > residual)
-            residual = deltaV.length();
+        triangle->setPressure(triangle->pressure() + tau0 * (div[trInd] - alpha * r[trInd]));
     }
-    residual_ = residual / tau_;
+
+//    for (int trInd = 0; trInd < mesh_.triangles().count(); ++trInd)
+//    {
+//        Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
+//        triangle->setPreviousCorrectorVelocity(triangle->correctorVelocity());
+//        qreal divergence = triangle->divergence(true);
+//        BN_[trInd] = divergence;
+//    }
+//    BN_[mesh_.triangles().count() / 2] = 0;
+
+//    QTime timer;
+//    timer.start();
+//    ConjugateGradient::calculate(AN_.data(), JA_.data(), IA_.data(), XN_.data(),
+//                                 BN_.data(), MN_.data(), TN_.data(),
+//                                 mesh_.triangles().count());
+//    qDebug() << "Cg time:" << timer.elapsed();
+
+//    for (int trInd = 0; trInd < mesh_.triangles().count(); ++trInd)
+//    {
+
+//    }
+
+//    qreal residual = 0;
+//    for (int trInd = 0; trInd < mesh_.triangles().count(); ++trInd)
+//    {
+//        Q3MeshTriangle *triangle = mesh_.triangles().at(trInd);
+//        QVector2D deltaV(0, 0);
+
+//        triangle->setPressure(triangle->pressure() + XN_[trInd]);
+
+//        for (int eInd = 0; eInd < triangle->edges().count(); ++eInd)
+//        {
+//            Q3MeshEdge *edge = triangle->edges().at(eInd);
+//            Q3MeshTriangle *adjTr = triangle->adjacentTriangles().at(eInd);
+//            QVector2D normal = triangle->normalVectors().at(eInd);
+
+//            if (adjTr)
+//            {
+//                qreal dL = triangle->distanceToTriangles().at(eInd);
+//                qreal dl = triangle->distancesToEdges().at(eInd);
+
+//                qreal dp = (dl * XN_[adjTr->id()] + (dL - dl) * XN_[triangle->id()]) / dL;
+//                deltaV += tau_ * edge->length() * dp * normal;
+//            }
+//            else
+//            {
+//                deltaV += tau_ * edge->length() * XN_[triangle->id()] * normal;
+//            }
+//        }
+
+//        triangle->setCorrectorVelocity(triangle->predictorVelocity() + deltaV / triangle->square());
+//        if (deltaV.length() > residual)
+//            residual = deltaV.length();
+//    }
+//    residual_ = residual / tau_;
 }
 
 void Q3Calc::incompleteCholesky(qreal *AN, int *JA, int *IA, int n)
@@ -342,109 +410,113 @@ void Q3Calc::incompleteCholesky(qreal *AN, int *JA, int *IA, int n)
     AN[d] = sqrt(AN[d]);
 }
 
-//void Q3Calc::calcFaithfulResidualNS()
-//{
-//    qreal maxDelta = 0.0;
+void Q3Calc::calcFaithfulResidualNS()
+{
+    qreal maxDelta = 0.0;
 
-//    for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
-//    {
-//        Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
+    for (int trIndex = 0; trIndex < mesh_.triangles().size(); ++trIndex)
+    {
+        Q3MeshTriangle *triangle = mesh_.triangles().at(trIndex);
 
-//        // Производная по времени
-//        QVector2D deltaV = (triangle->correctorVelocity() -
-//                            triangle->previousCorrectorVelocity())
-//                           / tau_ * triangle->square();
+        // Производная по времени
+        QVector2D deltaV = (triangle->correctorVelocity() -
+                            triangle->previousCorrectorVelocity())
+                           / tau_ * triangle->square();
 
-//        for (int edInd = 0; edInd < triangle->edges().count(); ++edInd)
-//        {
-//            Q3MeshEdge *edge = triangle->edges().at(edInd);
-//            Q3MeshTriangle *adjacentTriangle =
-//                        triangle->adjacentTriangles().at(edInd);
-//            QVector2D normal = triangle->normalVectors().at(edInd);
+        for (int edInd = 0; edInd < triangle->edges().count(); ++edInd)
+        {
+            Q3MeshEdge *edge = triangle->edges().at(edInd);
+            Q3MeshTriangle *adjacentTriangle =
+                        triangle->adjacentTriangles().at(edInd);
+            QVector2D normal = triangle->normalVectors().at(edInd);
 
-//            // Давление
-//            deltaV += edge->length() * edge->pressure() * normal;
+            // Давление
+            if (adjacentTriangle)
+            {
+                // Конвективный поток
+                qreal dL = triangle->distanceToTriangles().at(edInd);
+                qreal dl = triangle->distancesToEdges().at(edInd);
 
-//            if (adjacentTriangle)
-//            {
-//                // Конвективный поток
-//                qreal dL = triangle->distanceToTriangles().at(edInd);
-//                qreal dl = triangle->distancesToEdges().at(edInd);
+                qreal pressure = (dl * adjacentTriangle->pressure() +
+                                  (dL - dl) * triangle->pressure()) / dL;
+                deltaV += edge->length() * pressure * normal;
 
-//                qreal vni = (dl * QVector2D::dotProduct(
-//                        adjacentTriangle->correctorVelocity(),
-//                        normal)
-//                    + (dL - dl) * QVector2D::dotProduct(
-//                        triangle->correctorVelocity(), normal)) / dL;
+                qreal vni = (dl * QVector2D::dotProduct(
+                        adjacentTriangle->correctorVelocity(),
+                        normal)
+                    + (dL - dl) * QVector2D::dotProduct(
+                        triangle->correctorVelocity(), normal)) / dL;
 
-//                deltaV += vni * edge->length() * (
-//                            triangle->correctorVelocity() +
-//                            adjacentTriangle->correctorVelocity())  * 0.5;
+                deltaV += vni * edge->length() * (
+                            triangle->correctorVelocity() +
+                            adjacentTriangle->correctorVelocity())  * 0.5;
 
-//                // Лапласиан
-//                deltaV -= edge->length() / Re_ * (
-//                            adjacentTriangle->correctorVelocity() -
-//                            triangle->correctorVelocity()) / dL;
-//            }
-//            else
-//            {
-//                // dL равна dl
-//                qreal dl = triangle->distancesToEdges().at(edInd);
-//                qreal vni;
+                // Лапласиан
+                deltaV -= edge->length() / Re_ * (
+                            adjacentTriangle->correctorVelocity() -
+                            triangle->correctorVelocity()) / dL;
+            }
+            else
+            {
+                // dL равна dl
+                qreal dl = triangle->distancesToEdges().at(edInd);
+                qreal vni;
 
-//                switch ( edge->boundary()->type()->toEnum() )
-//                {
-//                case Q3BoundaryType::NoSlipBoundary:
-//                    // Конвективный поток вклада не дает
-//                    // Лапласиан
-//                    // Скорость на границе равна 0
+                deltaV += edge->length() * triangle->pressure() * normal;
 
-//                    deltaV += edge->length() / Re_ *
-//                            triangle->correctorVelocity() / dl;
-//                    break;
+                switch ( edge->boundary()->type()->toEnum() )
+                {
+                case Q3BoundaryType::NoSlipBoundary:
+                    // Конвективный поток вклада не дает
+                    // Лапласиан
+                    // Скорость на границе равна 0
 
-//                case Q3BoundaryType::FixedVelocity:
-//                case Q3BoundaryType::InBoundary:
-//                    // Конвективный поток
-//                    vni = QVector2D::dotProduct(edge->velocity(), normal);
+                    deltaV += edge->length() / Re_ *
+                            triangle->correctorVelocity() / dl;
+                    break;
 
-//                    deltaV += vni * edge->length() *
-//                                edge->velocity();
+                case Q3BoundaryType::FixedVelocity:
+                case Q3BoundaryType::InBoundary:
+                    // Конвективный поток
+                    vni = QVector2D::dotProduct(edge->velocity(), normal);
 
-//                    // Лапласиан
-//                    deltaV -= edge->length() / Re_ *
-//                            (edge->velocity() -
-//                             triangle->correctorVelocity()) / dl;
+                    deltaV += vni * edge->length() *
+                                edge->velocity();
 
-//                    break;
+                    // Лапласиан
+                    deltaV -= edge->length() / Re_ *
+                            (edge->velocity() -
+                             triangle->correctorVelocity()) / dl;
 
-//                case Q3BoundaryType::OutBoundary:
-//                    // Конвективный поток
-//                    vni = QVector2D::dotProduct(
-//                                triangle->correctorVelocity(), normal);
+                    break;
 
-//                    deltaV += vni * edge->length() *
-//                                triangle->correctorVelocity();
+                case Q3BoundaryType::OutBoundary:
+                    // Конвективный поток
+                    vni = QVector2D::dotProduct(
+                                triangle->correctorVelocity(), normal);
 
-//                    // Лапласиан вклада не дает
-//                    // Производная по нормали должна равняться 0
-//                    break;
+                    deltaV += vni * edge->length() *
+                                triangle->correctorVelocity();
 
-//                default:
-//                    break;
-//                }
-//            }
-//        }
+                    // Лапласиан вклада не дает
+                    // Производная по нормали должна равняться 0
+                    break;
 
-//        deltaV /= triangle->square();
+                default:
+                    break;
+                }
+            }
+        }
 
-//        if (maxDelta < deltaV.length())
-//            maxDelta = deltaV.length();
-//    }
+        deltaV /= triangle->square();
 
-//    faithfulResidualNS_ = maxDelta;
-//    return;
-//}
+        if (maxDelta < deltaV.length())
+            maxDelta = deltaV.length();
+    }
+
+    faithfulResidualNS_ = maxDelta;
+    return;
+}
 
 void Q3Calc::calcFaithfulResidualDiv()
 {

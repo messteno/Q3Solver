@@ -63,7 +63,9 @@ QString Q3PointInfoDirector::pointInfo(const QPointF &pos)
                    << trUtf8("Функция тока: ")
                    << QString::number(triangle->stream()) << "\n"
                    << trUtf8("Давление: ")
-                   << QString::number(triangle->pressure());
+                   << QString::number(triangle->pressure()) << "\n"
+                   << trUtf8("Дивергенция: ")
+                   << QString::number(triangle->divergence(true));
             return info;
         }
     }

@@ -1,3 +1,4 @@
+#include <QDebug>
 #include <math.h>
 
 #include "conjugategradient.h"
@@ -42,6 +43,7 @@ int ConjugateGradient::calculate(double *AN, int *JA, int *IA,
         if (ConjugateGradient::norm(r, n) < ConjugateGradient::eps)
             break;
     }
+//    qDebug() << "cg it:" << it;
     return it;
 }
 

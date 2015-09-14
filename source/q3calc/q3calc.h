@@ -35,7 +35,7 @@ private:
     void prepare();
     void predictor();
     void corrector();
-//    void calcFaithfulResidualNS();
+    void calcFaithfulResidualNS();
     void calcFaithfulResidualDiv();
 
     // TODO: переместить в отдельный класс

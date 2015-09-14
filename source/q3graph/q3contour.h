@@ -105,6 +105,4 @@ private:
     bool showFilled_;
 };
 
-QColor getColour(qreal level);
-
 #endif // Q3CONTOUR_H
